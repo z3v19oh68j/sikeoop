@@ -1,0 +1,17 @@
+{
+  "id": "language",
+  "name": "镜头语言",
+  "kind": "common",
+  "entries": [
+    {
+      "id": "shots",
+      "title": "景别与运镜",
+      "body": "远景交代环境，中景展示动作，近景突出关键细节。每镜只选一种主运镜；推近用于强调，横移用于展示空间。转场必须服务时间或视角变化，默认硬切，避免每镜都炫技。",
+      "steps": [
+        "script",
+        "storyboard",
+        "compose"
+      ]
+    }
+  ]
+}

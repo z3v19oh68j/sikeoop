@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sikeoop 4.1 PV</title>
+<style>
+@font-face { font-family: "QK"; src: url("fonts/ZCOOLQingKeHuangYou-Regular.ttf"); }
+@font-face { font-family: "Geist"; src: url("fonts/geist-latin-wght-normal.woff2"); font-weight: 100 900; }
+@font-face { font-family: "GeistMono"; src: url("fonts/geist-mono-latin-wght-normal.woff2"); font-weight: 100 900; }
+:root {
+  --bg: #0b0b0e; --panel: #151517; --panel2: #1c1c20; --panel3: #232328; --line: #26262b; --line2: #2f2f35;
+  --ink: #ecebef; --ink2: #c4c3cb; --muted: #8d8b96; --pink: #f0789b; --pinkSoft: rgba(240,120,155,.14);
+  --ok: #5fd38d; --warn: #e5a15b;
+  --ui: "Geist", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --mono: "GeistMono", "SF Mono", Menlo, "PingFang SC", monospace;
+  --qk: "QK", "PingFang SC", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+#bg, #stage, #fx, #ascii { position: absolute; inset: 0; }
+#bg { background:
+  radial-gradient(900px 600px at var(--gx, 70%) var(--gy, 20%), rgba(240,120,155,.13), transparent 70%),
+  radial-gradient(700px 500px at 15% 90%, rgba(127,176,232,.07), transparent 70%), var(--bg); }
+#bg::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; }
+#fx { pointer-events: none; }
+.abs { position: absolute; }
+.chip { position: absolute; left: 96px; top: 72px; display: flex; align-items: center; gap: 16px; font: 500 22px/1 var(--mono); color: var(--muted); letter-spacing: .06em; }
+.chip b { font: 400 54px/1 var(--qk); color: var(--ink); letter-spacing: .02em; }
+.chip i { font-style: normal; color: var(--pink); }
+.sub { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); max-width: 1500px; padding: 14px 28px; border-radius: 14px; background: rgba(11,11,14,.78); border: 1px solid var(--line); font: 500 30px/1.5 var(--ui); color: var(--ink); text-align: center; white-space: nowrap; }
+.sub .w { color: var(--pink); }
+/* app window */
+.win { position: absolute; left: 50%; top: 168px; width: 1560px; height: 780px; margin-left: -780px; border-radius: 16px; border: 1px solid rgba(255,255,255,.09); background: #121214; overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 80px rgba(240,120,155,.08); }
+.bar { height: 44px; display: flex; align-items: center; gap: 12px; padding: 0 18px; background: #0f0f10; border-bottom: 1px solid #222226; font: 500 15px var(--ui); color: var(--muted); }
+.dots { display: flex; gap: 8px; } .dots i { width: 12px; height: 12px; border-radius: 50%; background: #2c2c31; }
+.heart { color: var(--pink); }
+.body { position: absolute; top: 44px; left: 0; right: 0; bottom: 0; display: flex; }
+.act { width: 56px; background: #0f0f10; border-right: 1px solid #222226; display: flex; flex-direction: column; align-items: center; gap: 22px; padding-top: 18px; }
+.act span { width: 22px; height: 22px; border-radius: 6px; background: #26262b; }
+.act span.on { background: var(--pink); opacity: .8; }
+.code { font: 18px/1.9 var(--mono); color: #c9c9cf; padding: 18px 0; }
+.ln { display: flex; white-space: pre; } .ln .n { width: 56px; text-align: right; padding-right: 18px; color: #4d4d55; }
+.k { color: #f0789b; } .s { color: #9fd6a8; } .p { color: #8fb8ff; } .c { color: #6c6c75; }
+.caret { display: inline-block; width: 2px; height: 22px; background: var(--pink); vertical-align: -4px; }
+.tabs { height: 40px; display: flex; align-items: flex-end; gap: 2px; padding: 0 10px; background: #151517; border-bottom: 1px solid #222226; font: 14px var(--ui); color: var(--muted); }
+.tab { padding: 9px 16px; border-radius: 8px 8px 0 0; } .tab.on { background: #121214; color: var(--ink); }
+.addr { height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #151517; border-bottom: 1px solid #222226; }
+.addr .box { flex: 1; height: 30px; border-radius: 8px; background: #1c1c20; border: 1px solid #2c2c31; display: flex; align-items: center; padding: 0 12px; font: 15px var(--mono); color: var(--ink2); }
+.site { background: #fbf8f9; color: #1e1a1d; position: absolute; inset: 86px 0 0 0; padding: 40px 48px; font-family: var(--ui); }
+.btn { display: inline-flex; align-items: center; height: 52px; padding: 0 30px; border-radius: 12px; font: 600 20px var(--ui); color: #fff; }
+.console { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: #151517; border-top: 1px solid #2c2c31; padding: 14px 20px; font: 16px/1.9 var(--mono); color: var(--ink2); }
+.bubble { position: absolute; padding: 16px 22px; border-radius: 16px 16px 16px 4px; background: #232328; border: 1px solid #2f2f35; font: 500 21px/1.5 var(--ui); color: var(--ink); white-space: nowrap; box-shadow: 0 14px 40px rgba(0,0,0,.4); }
+.whale { width: 34px; height: 34px; border-radius: 50%; background: rgba(127,176,232,.2); display: inline-grid; place-items: center; vertical-align: middle; margin-right: 10px; }
+.md h1 { font: 700 34px/1.3 var(--ui); padding-bottom: 10px; border-bottom: 1px solid #2c2c31; margin-bottom: 16px; }
+.md h2 { font: 700 24px/1.3 var(--ui); margin: 18px 0 10px; }
+.md table { border-collapse: collapse; font: 17px var(--ui); } .md td, .md th { border: 1px solid #2c2c31; padding: 8px 18px; text-align: left; } .md th { background: #1c1c20; }
+.md li { list-style: none; font: 18px/1.9 var(--ui); display: flex; gap: 12px; align-items: center; }
+.box16 { width: 20px; height: 20px; border-radius: 5px; border: 2px solid #55555d; display: inline-grid; place-items: center; font-size: 13px; }
+.box16.on { background: var(--pink); border-color: var(--pink); color: #1a0d12; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid #2f2f35; border-radius: 9px; font: 14px var(--ui); }
+.seg span { padding: 4px 12px; border-radius: 6px; color: var(--muted); } .seg span.on { background: #2c2c31; color: var(--ink); }
+.tide { position: absolute; left: 260px; width: 1400px; height: 132px; border: 1px solid var(--line); border-radius: 18px; background: #151517; display: flex; align-items: center; gap: 36px; padding: 0 40px; }
+.tide .lv { font: 600 44px var(--mono); color: var(--pink); width: 90px; }
+.tide b { font: 700 30px var(--ui); display: block; } .tide span { font: 20px var(--ui); color: var(--muted); }
+.tide .sp { margin-left: auto; font: 18px var(--mono); color: var(--muted); }
+.mchip { position: absolute; padding: 12px 22px; border-radius: 999px; background: var(--pink); color: #1a0d12; font: 600 22px var(--ui); box-shadow: 0 10px 40px rgba(240,120,155,.45); white-space: nowrap; }
+.model { position: absolute; width: 380px; height: 150px; border-radius: 22px; border: 1px solid var(--line2); background: #151517; display: grid; align-content: center; padding: 0 34px; gap: 8px; }
+.model b { font: 700 36px var(--ui); } .model span { font: 18px var(--mono); color: var(--muted); }
+.model.mimo { border-color: rgba(240,120,155,.6); }
+.meter { position: absolute; left: 50%; transform: translateX(-50%); bottom: 190px; display: flex; gap: 22px; align-items: center; padding: 18px 30px; border-radius: 16px; background: #151517; border: 1px solid var(--line2); font: 22px var(--mono); color: var(--ink2); white-space: nowrap; }
+.meter b { color: var(--ok); font-weight: 500; } .meter .y { font: 600 34px var(--mono); color: var(--ink); }
+.tag { padding: 6px 12px; border-radius: 999px; background: rgba(95,211,141,.14); color: var(--ok); font: 17px var(--ui); }
+.cursor { position: absolute; width: 34px; height: 34px; z-index: 9; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+.ripple { position: absolute; border-radius: 50%; border: 3px solid var(--pink); }
+.hole { position: absolute; border-radius: 14px; box-shadow: 0 0 0 4000px rgba(5,5,10,.66), 0 0 0 3px var(--pink), 0 0 30px rgba(240,120,155,.5); }
+.tcard { position: absolute; width: 420px; padding: 20px 22px; border-radius: 16px; background: #1c1c20; border: 1px solid #2f2f35; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.tcard b { font: 700 22px var(--ui); display: block; margin-bottom: 8px; } .tcard p { font: 17px/1.6 var(--ui); color: var(--ink2); }
+.tcard .ft { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; font: 15px var(--ui); }
+.tcard .ft span { padding: 6px 14px; border-radius: 8px; border: 1px solid #2f2f35; } .tcard .ft span.go { background: var(--ink); color: #121214; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="ascii" width="1920" height="1080"></canvas>
+<div id="stage"></div>
+<div id="fx"></div>
+<script>
+// ---- timeline -------------------------------------------------------------------------
+const SCENES = [
+  { id: "open", dur: 7.0, vo: 0.9 },
+  { id: "browser", dur: 12.4, vo: 0.5 },
+  { id: "markdown", dur: 7.2, vo: 0.5 },
+  { id: "tour", dur: 8.3, vo: 0.5 },
+  { id: "memory", dur: 9.0, vo: 0.5 },
+  { id: "china", dur: 7.4, vo: 0.5 },
+  { id: "end", dur: 7.6, vo: 0.9 },
+];
+const LINES = {
+  open: "杂鱼，醒醒！sikeoop 4.1 来啦，本鲸亲自给你讲。",
+  browser: "做网页不用再切窗口了。左边改代码，右边马上看到效果；本鲸还会自己点按钮、看控制台报错，测好了再交差。",
+  markdown: "Markdown 文档一键切成预览，标题、表格、清单，排得整整齐齐。",
+  tour: "第一次打开，本鲸手把手带你认路。不会就点问号，新手手册随便搜。",
+  memory: "还有四层记忆：你的习惯、上次做到哪，本鲸都记着。杂鱼说过的蠢话，也记着哦。",
+  china: "DeepSeek、通义千问、Kimi，国产模型直接连，花了多少按人民币算。",
+  end: "sikeoop 4.1，去官网下载吧。哼，才不是特意在等你呢。",
+};
+let acc = 0;
+for (const s of SCENES) { s.start = acc; acc += s.dur; }
+const TOTAL = acc;
+// Sound effect cues, in scene-local seconds (the mixer reads window.PV.cues).
+const CUE = {
+  open: [[0.15, "glitch_004", 0.5], [0.3, "tick_001", 0.35], [0.45, "tick_002", 0.35], [0.6, "tick_001", 0.35], [0.75, "tick_004", 0.35], [1.1, "scroll_003", 0.45], [2.75, "confirmation_002", 0.6], [3.3, "glass_003", 0.45]],
+  browser: [[0.05, "glitch_002", 0.45], [0.2, "maximize_006", 0.5], [1.2, "click_002", 0.25], [1.5, "click_003", 0.25], [1.8, "click_002", 0.25], [2.1, "click_005", 0.25], [3.2, "confirmation_001", 0.5], [6.5, "click_001", 0.7], [6.6, "drop_002", 0.45], [7.6, "open_002", 0.45], [8.6, "confirmation_003", 0.55], [9.4, "pluck_001", 0.5]],
+  markdown: [[0.05, "glitch_001", 0.45], [0.8, "switch_003", 0.6], [1.5, "scroll_001", 0.4], [4.4, "tick_004", 0.4], [4.9, "tick_004", 0.4], [5.4, "confirmation_004", 0.5]],
+  tour: [[0.05, "glitch_003", 0.45], [0.5, "select_002", 0.5], [2.2, "select_003", 0.5], [3.8, "select_004", 0.5], [5.2, "maximize_003", 0.5], [5.7, "click_004", 0.2], [5.85, "click_004", 0.2], [6.3, "question_002", 0.45]],
+  memory: [[0.05, "glitch_002", 0.45], [0.4, "drop_001", 0.45], [0.75, "drop_003", 0.45], [1.1, "drop_001", 0.45], [1.45, "drop_004", 0.45], [3.0, "bong_001", 0.5], [4.6, "minimize_004", 0.5], [6.8, "pluck_002", 0.5]],
+  china: [[0.05, "glitch_004", 0.45], [0.5, "toggle_001", 0.45], [0.8, "toggle_002", 0.45], [1.1, "toggle_003", 0.45], [1.4, "toggle_004", 0.45], [1.7, "toggle_001", 0.45], [2.0, "toggle_002", 0.45], [2.3, "toggle_003", 0.55], [3.8, "confirmation_002", 0.5]],
+  end: [[0.05, "glitch_001", 0.55], [0.5, "maximize_009", 0.6], [1.6, "glass_005", 0.5], [2.4, "tick_002", 0.3], [3.4, "confirmation_004", 0.6]],
+};
+const cues = [];
+for (const s of SCENES) for (const [t, file, gain] of CUE[s.id]) cues.push({ t: +(s.start + t).toFixed(3), file, gain });
+window.PV = { total: TOTAL, scenes: SCENES.map((s) => ({ id: s.id, start: s.start, dur: s.dur, vo: s.start + s.vo })), cues };
+
+// ---- helpers ----------------------------------------------------------------------------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = (x) => 1 - Math.pow(1 - x, 3);
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const back = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+const hash = (i, s = 0) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const GLYPHS = "{}[]()<>/\\=+-*;:.,_|~^#$%&@!?01";
+const pick = (set, i, s) => set[Math.floor(hash(i, s) * set.length) % set.length];
+const typed = (str, k) => str.slice(0, Math.round(str.length * clamp(k)));
+const HEART_SVG = (s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>`;
+const WHALE = (s = 26) => `<svg width="${s}" height="${s * 0.62}" viewBox="0 0 160 100"><path d="M28 56C16 50 8 40 4 30c10 2 16 8 20 14 0-10 4-18 12-22-2 12 0 22 6 30Z" fill="#7fb0e8"/><path d="M30 58c0-18 22-32 52-32 30 0 52 14 52 34 0 18-22 30-56 30-30 0-48-12-48-32Z" fill="#7fb0e8"/><path d="M40 70c10 10 26 14 42 14 22 0 40-6 48-18-8 6-26 10-46 10-18 0-32-2-44-6Z" fill="#dbe9fa"/><circle cx="112" cy="54" r="5" fill="#1a2a3e"/><ellipse cx="118" cy="66" rx="6" ry="3" fill="#f0789b" opacity="0.6"/></svg>`;
+const CURSOR = `<svg class="cursor" viewBox="0 0 24 24" style="left:VARX;top:VARY"><path d="M4 2l15 9-6.5 1.5L16 20l-3 1.5-3.5-7.5L4 18Z" fill="#f0789b" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+const cursorAt = (x, y) => CURSOR.replace("VARX", `${x}px`).replace("VARY", `${y}px`);
+
+function chrome(sc, t, num) {
+  const k = eo(seg(t, 0.05, 0.5));
+  const out = 1 - seg(t, sc.dur - 0.35, sc.dur);
+  return `<div class="chip" style="opacity:${k * out};transform:translateX(${(1 - k) * -30}px)"><i>${num}</i><b>${sc.title}</b></div>` + subtitle(sc, t);
+}
+function subtitle(sc, t) {
+  const line = LINES[sc.id];
+  const a = clamp((t - sc.vo + 0.15) / 0.25) * (1 - seg(t, sc.dur - 0.3, sc.dur));
+  if (a <= 0) return "";
+  const html = line.replace(/本鲸|杂鱼/g, (m) => `<span class="w">${m}</span>`);
+  return `<div class="sub" style="opacity:${a}">${html}</div>`;
+}
+function windowFrame(inner, t, title = "my-first-site") {
+  const k = eo(seg(t, 0.05, 0.6));
+  return `<div class="win" style="transform:translateY(${(1 - k) * 60}px) scale(${0.97 + 0.03 * k});opacity:${k}">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="heart">${HEART_SVG(16)}</span><span style="color:var(--ink)">sikeoop</span><span>/</span><span>${title}</span><span style="margin-left:auto;font-family:var(--mono)">v4.1</span></div>
+    <div class="body">${inner}</div></div>`;
+}
+
+// ---- scenes ------------------------------------------------------------------------------
+const TITLES = { browser: "内置浏览器", markdown: "Markdown 预览", tour: "新手教程 · 帮助手册", memory: "四层记忆", china: "为华人准备", end: "现在下载", open: "sikeoop 4.1" };
+SCENES.forEach((s) => (s.title = TITLES[s.id]));
+
+function sceneBrowser(sc, t) {
+  // Code edit: #3b82f6 → #f0789b, typed 1.0–2.4; page updates at 3.2.
+  const typedK = seg(t, 1.0, 2.4);
+  const oldVal = "#3b82f6";
+  const newVal = "#f0789b";
+  const selecting = t > 0.7 && t < 1.0;
+  const val = t < 1.0 ? oldVal : typed(newVal, typedK);
+  const pink = t > 3.2;
+  const flash = Math.max(0, 1 - Math.abs(t - 3.3) / 0.35);
+  const lines = [
+    `<span class="p">.add</span> {`,
+    `  padding: 0 30px;`,
+    `  border-radius: 12px;`,
+    `  background: <span class="s" style="${selecting ? "background:rgba(240,120,155,.3)" : ""}">${val}</span>${t >= 1.0 && t < 2.6 ? '<span class="caret"></span>' : ""};`,
+    `  color: <span class="s">white</span>;`,
+    `}`,
+    ``,
+    `<span class="c">/* 每一笔 */</span>`,
+    `<span class="p">.row</span> {`,
+    `  display: flex;`,
+    `  gap: 16px;`,
+    `}`,
+  ];
+  const code = lines.map((l, i) => `<div class="ln"><span class="n">${i + 10}</span><span>${l}</span></div>`).join("");
+  // AI clicks the button: cursor travels 4.5–6.4, click at 6.5, new row at 6.7.
+  const cx = lerp(1180, 1010, eio(seg(t, 4.4, 6.3)));
+  const cy = lerp(720, 440, eio(seg(t, 4.4, 6.3)));
+  const showCursor = t > 4.2 && t < 9.8;
+  const press = t > 6.45 && t < 6.6 ? 0.94 : 1;
+  const rip = seg(t, 6.5, 7.2);
+  const row = eo(seg(t, 6.7, 7.1));
+  const consoleK = eo(seg(t, 7.5, 8.0));
+  const okK = seg(t, 8.5, 8.7);
+  const bubbleK = back(seg(t, 9.3, 9.75));
+  const btnColor = pink ? "#f0789b" : "#3b82f6";
+  const site = `
+    <div class="site">
+      <div style="font:700 34px var(--ui)">我的记账本</div>
+      <div style="font:18px var(--ui);color:#776e75;margin:8px 0 26px">这个月已经花了 <b style="color:#1e1a1d">¥${row > 0.5 ? "1,265" : "1,240"}</b></div>
+      <span class="btn" style="background:${btnColor};transform:scale(${press});box-shadow:0 0 0 ${flash * 12}px rgba(240,120,155,${flash * 0.35})">＋ 记一笔</span>
+      <div style="margin-top:28px;display:grid;gap:12px;font:19px var(--ui)">
+        <div style="opacity:${row};transform:translateY(${(1 - row) * -10}px);display:flex;justify-content:space-between;padding:14px 18px;border-radius:12px;background:#fff;border:1px solid #eadfe4;width:560px"><span>午饭</span><span>¥25</span></div>
+        <div style="display:flex;justify-content:space-between;padding:14px 18px;border-radius:12px;background:#fff;border:1px solid #eadfe4;width:560px"><span>奶茶</span><span>¥18</span></div>
+        <div style="display:flex;justify-content:space-between;padding:14px 18px;border-radius:12px;background:#fff;border:1px solid #eadfe4;width:560px"><span>地铁</span><span>¥4</span></div>
+      </div>
+      ${rip > 0 && rip < 1 ? `<div class="ripple" style="left:${100 - rip * 40}px;top:${120 - rip * 40}px;width:${120 + rip * 80}px;height:${120 + rip * 80}px;opacity:${1 - rip}"></div>` : ""}
+    </div>
+    <div class="console" style="transform:translateY(${(1 - consoleK) * 150}px)">
+      <div style="color:var(--muted)">控制台</div>
+      <div>&gt; 点击「记一笔」… 新增 1 行</div>
+      <div style="opacity:${okK};color:var(--ok)">✓ 0 个报错，0 个警告</div>
+    </div>`;
+  const inner = `
+    <div class="act"><span></span><span class="on"></span><span></span><span></span></div>
+    <div style="width:640px;border-right:1px solid #222226;position:relative">
+      <div class="tabs"><span class="tab on">style.css</span><span class="tab">App.jsx</span></div>
+      <div class="code">${code}</div>
+    </div>
+    <div style="flex:1;position:relative">
+      <div class="tabs"><span class="tab on">🌐 浏览器</span></div>
+      <div class="addr"><span style="color:var(--muted)">←  →  ⟳</span><div class="box">localhost:5173</div><span class="seg"><span class="on">分屏</span></span></div>
+      ${site}
+      ${pink && t < 3.9 ? `<div class="abs" style="right:18px;top:96px;padding:6px 12px;border-radius:999px;background:rgba(95,211,141,.16);color:var(--ok);font:15px var(--ui);opacity:${1 - seg(t, 3.6, 3.9)}">已刷新</div>` : ""}
+    </div>`;
+  let html = windowFrame(inner, t);
+  if (showCursor) html += cursorAt(cx, cy);
+  if (bubbleK > 0) html += `<div class="bubble" style="left:${1010}px;top:${728}px;transform:scale(${bubbleK});transform-origin:0 100%">${`<span class="whale">${WHALE(26)}</span>`}测过了：按钮能点，没有报错～</div>`;
+  return html + chrome(sc, t, "01");
+}
+
+function sceneMarkdown(sc, t) {
+  const src = [
+    "# 记账本",
+    "",
+    "## 这周要做",
+    "- [x] 首页按钮换成粉色",
+    "- [x] 能记一笔",
+    "- [ ] 按月份统计",
+    "",
+    "| 分类 | 金额 |",
+    "| --- | --- |",
+    "| 吃饭 | ¥620 |",
+    "| 出行 | ¥96 |",
+  ];
+  const shown = Math.floor(seg(t, 1.2, 4.2) * src.length + 0.001);
+  const code = src.map((l, i) => `<div class="ln" style="opacity:${i < shown ? 1 : 0.0}"><span class="n">${i + 1}</span><span>${l.replace(/^(#+)/, '<span class="k">$1</span>').replace(/\[(x| )\]/, '<span class="p">[$1]</span>') || " "}</span></div>`).join("");
+  const segOn = t < 0.8 ? "源码" : "分栏";
+  const pv = (i) => (i < shown ? 1 : 0);
+  const done4 = t > 4.4, done5 = t > 4.9;
+  const preview = `
+    <div class="md" style="padding:30px 44px;width:100%">
+      <h1 style="opacity:${pv(0)}">记账本</h1>
+      <h2 style="opacity:${pv(2)}">这周要做</h2>
+      <ul>
+        <li style="opacity:${pv(3)}"><span class="box16 on">✓</span>首页按钮换成粉色</li>
+        <li style="opacity:${pv(4)}"><span class="box16 on">✓</span>能记一笔</li>
+        <li style="opacity:${pv(5)}"><span class="box16 ${done5 ? "on" : ""}">${done5 ? "✓" : ""}</span>按月份统计</li>
+      </ul>
+      <table style="margin-top:18px;opacity:${pv(9)}"><tr><th>分类</th><th>金额</th></tr><tr><td>吃饭</td><td>¥620</td></tr><tr style="opacity:${pv(10)}"><td>出行</td><td>¥96</td></tr></table>
+    </div>`;
+  const splitK = eo(seg(t, 0.8, 1.3));
+  const inner = `
+    <div class="act"><span></span><span class="on"></span><span></span></div>
+    <div style="flex:1;display:flex;flex-direction:column;position:relative">
+      <div class="tabs"><span class="tab on">README.md</span></div>
+      <div style="height:38px;display:flex;align-items:center;padding:0 18px;font:14px var(--ui);color:var(--muted);border-bottom:1px solid #222226">my-first-site › README.md<span style="margin-left:auto" class="seg"><span class="${segOn === "源码" ? "on" : ""}">源码</span><span class="${segOn === "分栏" ? "on" : ""}">分栏</span><span>预览</span></span></div>
+      <div style="flex:1;display:flex">
+        <div style="width:${lerp(100, 50, splitK)}%;border-right:1px solid #222226"><div class="code">${code}</div></div>
+        <div style="width:${lerp(0, 50, splitK)}%;overflow:hidden;opacity:${splitK}">${preview}</div>
+      </div>
+    </div>`;
+  let html = windowFrame(inner, t);
+  // A pointer clicks "分栏".
+  if (t > 0.2 && t < 1.4) html += cursorAt(lerp(1500, 1508, eio(seg(t, 0.2, 0.7))), lerp(330, 258, eio(seg(t, 0.2, 0.7))));
+  return html + chrome(sc, t, "02");
+}
+
+function sceneTour(sc, t) {
+  const targets = [
+    { a: 0.5, x: 364, y: 414, w: 624, h: 134, title: "先打开一个项目", body: "已经有代码点「打开项目」，从零开始点「新建项目」。" },
+    { a: 2.2, x: 1506, y: 222, w: 206, h: 50, title: "今天谁陪你写", body: "点这里换伙伴、填 Key。国内的模型都能直接连。" },
+    { a: 3.8, x: 186, y: 902, w: 44, h: 44, title: "不会就点这里", body: "新手手册、每个功能在哪，都在「帮助」里。" },
+  ];
+  let i = 0;
+  while (i < targets.length - 1 && t >= targets[i + 1].a) i++;
+  const cur = targets[i];
+  const prev = targets[Math.max(0, i - 1)];
+  const mv = i === 0 ? 1 : eio(seg(t, cur.a, cur.a + 0.45));
+  const hx = lerp(prev.x, cur.x, mv), hy = lerp(prev.y, cur.y, mv), hw = lerp(prev.w, cur.w, mv), hh = lerp(prev.h, cur.h, mv);
+  const tourOn = t > 0.5 && t < 5.2;
+  const help = eo(seg(t, 5.2, 5.6));
+  const q = typed("撤销", seg(t, 5.7, 6.0));
+  const hit = seg(t, 6.2, 6.5);
+  const inner = `
+    <div class="act" style="justify-content:flex-start"><span class="on"></span><span></span><span></span><span></span><span></span><span style="margin-top:auto;margin-bottom:12px;background:#f0789b55"></span></div>
+    <div style="flex:1;position:relative;padding:70px 110px">
+      <div style="position:absolute;right:40px;top:16px;display:flex;align-items:center;gap:10px;padding:6px 14px;border-radius:999px;border:1px solid #2f2f35;font:15px var(--ui)"><span class="whale" style="width:24px;height:24px;margin:0">${WHALE(16)}</span>小米 MiMo</div>
+      <div style="font:400 64px/1 var(--qk);color:var(--ink)">sikeoop</div>
+      <div style="font:20px var(--ui);color:var(--muted);margin:14px 0 46px">说出你想做的东西，剩下的交给 AI。</div>
+      <div style="display:flex;gap:20px;margin-left:30px">
+        <div style="width:290px;height:110px;border-radius:16px;border:1px solid #2f2f35;background:#151517;padding:22px"><b style="font-size:21px">打开项目</b><div style="color:var(--muted);font-size:16px;margin-top:6px">选电脑上的一个文件夹</div></div>
+        <div style="width:290px;height:110px;border-radius:16px;border:1px solid #2f2f35;background:#151517;padding:22px"><b style="font-size:21px">新建项目</b><div style="color:var(--muted);font-size:16px;margin-top:6px">从一句话开始做</div></div>
+      </div>
+    </div>`;
+  let html = windowFrame(inner, t, "首页");
+  if (tourOn) {
+    const cardY = hy + hh + 20 > 760 ? hy - 200 : hy + hh + 20;
+    const cardX = clamp(hx + hw / 2 - 210, 200, 1500);
+    const ck = eo(seg(t, cur.a, cur.a + 0.35));
+    html += `<div class="hole" style="left:${hx}px;top:${hy}px;width:${hw}px;height:${hh}px"></div>
+      <div class="tcard" style="left:${cardX}px;top:${cardY}px;opacity:${ck};transform:translateY(${(1 - ck) * 8}px)">
+        <b><span class="whale">${WHALE(22)}</span>${cur.title}<span style="float:right;font:14px var(--mono);color:var(--muted);margin-top:8px">${i + 2} / 7</span></b>
+        <p>${cur.body}</p><div class="ft"><span>上一步</span><span class="go">下一步</span></div></div>`;
+  }
+  if (help > 0) {
+    html += `<div class="abs" style="inset:0;background:rgba(0,0,0,${0.5 * help})"></div>
+      <div class="abs" style="left:430px;top:${230 + (1 - help) * 30}px;width:1060px;height:600px;border-radius:18px;background:#151517;border:1px solid #2f2f35;opacity:${help};box-shadow:0 30px 100px rgba(0,0,0,.6);overflow:hidden">
+        <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid #26262b"><b style="font-size:20px">新手手册</b>
+          <div style="flex:1;height:40px;border-radius:10px;border:1px solid ${q ? "#f0789b" : "#2f2f35"};background:#1c1c20;display:flex;align-items:center;padding:0 14px;font:18px var(--ui);color:${q ? "var(--ink)" : "var(--muted)"}">${q || "搜一搜，比如：撤销、语音、Key"}</div></div>
+        <div style="display:flex;height:100%">
+          <div style="width:220px;border-right:1px solid #26262b;padding:14px;display:grid;align-content:start;gap:4px;font:17px var(--ui);color:var(--ink2)">${["第一步", "让 AI 干活", "让 AI 更懂你", "项目工具", "装技能", "随手就能用"].map((x, n) => `<div style="padding:8px 12px;border-radius:8px;${n === 1 ? "background:#232328;color:var(--ink)" : ""}">${x}</div>`).join("")}<div style="padding:8px 12px;color:var(--pink)">为华人准备的小巧思</div></div>
+          <div style="flex:1;padding:22px 26px">
+            <div style="opacity:${hit};transform:translateY(${(1 - hit) * 10}px);padding:20px 22px;border-radius:14px;border:1px solid ${hit > 0.5 ? "rgba(240,120,155,.55)" : "#26262b"};background:#1c1c20">
+              <div style="display:flex;align-items:center"><b style="font-size:21px">改坏了，整轮撤销</b><span style="margin-left:auto;padding:6px 14px;border-radius:8px;border:1px solid #2f2f35;font-size:15px">带我去</span></div>
+              <p style="font:17px/1.7 var(--ui);color:var(--ink2);margin-top:8px">每一轮对话改了哪些文件都记着。不满意就点「撤销」，所有文件回到改之前，不用会 Git。</p>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+  return html + chrome(sc, t, "03");
+}
+
+function sceneMemory(sc, t) {
+  const rows = [
+    { lv: "c1", b: "工作记忆", s: "这次对话本身", sp: "每一轮都在变" },
+    { lv: "c2", b: "会话记忆", s: "每次对话一份摘要", sp: "每 8 轮更新" },
+    { lv: "c3", b: "长期记忆", s: "你的习惯、项目约定", sp: "空闲 10 分钟整理" },
+    { lv: "c4", b: "归档", s: "很久没用到的", sp: "几乎不变" },
+  ];
+  let html = rows
+    .map((r, i) => {
+      const k = back(seg(t, 0.35 + i * 0.35, 0.8 + i * 0.35));
+      const y = 210 + i * 158;
+      return `<div class="tide" style="top:${y}px;opacity:${clamp(k)};transform:translateX(${(1 - k) * 80}px);border-left:5px solid rgba(240,120,155,${1 - i * 0.24})"><span class="lv">${r.lv}</span><div><b>${r.b}</b><span>${r.s}</span></div><span class="sp">${r.sp}</span></div>`;
+    })
+    .join("");
+  // A memory sinks from c1 to c3: "记住：注释都用中文".
+  const pop = back(seg(t, 2.6, 3.0));
+  const sink = eio(seg(t, 3.6, 4.8));
+  if (pop > 0) {
+    const y = lerp(250, 250 + 2 * 158, sink);
+    html += `<div class="mchip" style="left:${1080}px;top:${y}px;transform:scale(${pop})">记住：注释都用中文 ✓</div>`;
+  }
+  // An old one drifts down into the archive.
+  const arch = seg(t, 5.6, 6.6);
+  if (arch > 0) html += `<div class="mchip" style="left:${1080}px;top:${lerp(250 + 2 * 158, 250 + 3 * 158, eio(arch))}px;background:#2c2c31;color:var(--muted);box-shadow:none;opacity:${1 - arch * 0.3}">90 天没用：放进归档</div>`;
+  const meter = eo(seg(t, 6.8, 7.2));
+  if (meter > 0) html += `<div class="meter" style="bottom:150px;opacity:${meter}">缓存命中 <b>${Math.round(lerp(60, 92, seg(t, 6.8, 7.8)))}%</b> · 没有不该断的</div>`;
+  return html + chrome(sc, t, "04");
+}
+
+function sceneChina(sc, t) {
+  const models = [
+    ["DeepSeek", "峰谷计价"], ["通义千问", "阿里云百炼"], ["Kimi", "月之暗面"], ["智谱 GLM", "国内直连"],
+    ["豆包", "火山引擎"], ["MiniMax", "国内直连"], ["小米 MiMo", "默认伙伴"],
+  ];
+  let html = models
+    .map(([n, s], i) => {
+      const k = back(seg(t, 0.5 + i * 0.3, 0.85 + i * 0.3));
+      const col = i % 4, rowI = Math.floor(i / 4);
+      const x = 150 + col * 410 + (rowI === 1 ? 205 : 0);
+      const y = 230 + rowI * 190;
+      return `<div class="model ${i === 6 ? "mimo" : ""}" style="left:${x}px;top:${y}px;opacity:${clamp(k)};transform:scale(${0.85 + 0.15 * k})"><b>${n}</b><span>${s}</span></div>`;
+    })
+    .join("");
+  const m = eo(seg(t, 3.6, 4.0));
+  if (m > 0) {
+    const yuan = lerp(0, 0.0123, seg(t, 3.8, 5.2));
+    html += `<div class="meter" style="opacity:${m}">本次对话 <span class="y">¥${yuan.toFixed(4)}</span><span class="tag">闲时价 · 北京时间</span></div>`;
+  }
+  return html + chrome(sc, t, "05");
+}
+
+function sceneEnd(sc, t) {
+  const k = back(seg(t, 0.3, 0.9));
+  const word = seg(t, 1.2, 1.9);
+  const url = typed("sikeoop.modgert.online", seg(t, 2.2, 3.2));
+  const plats = eo(seg(t, 3.3, 3.8));
+  const fade = 1 - seg(t, sc.dur - 0.6, sc.dur);
+  return `<div class="abs" style="inset:0;display:grid;place-items:center;opacity:${fade}">
+    <div style="display:grid;justify-items:center;gap:26px">
+      <div style="transform:scale(${k});filter:drop-shadow(0 0 40px rgba(240,120,155,.6))">${HEART_SVG(150)}</div>
+      <div style="font:400 120px/1 var(--qk);letter-spacing:.02em;opacity:${word};transform:translateY(${(1 - word) * 20}px)">sikeoop <span style="color:var(--pink)">4.1</span></div>
+      <div style="font:24px var(--ui);color:var(--muted);opacity:${word}">说出你想做的东西，剩下的交给 AI。</div>
+      <div style="margin-top:10px;padding:16px 30px;border-radius:999px;border:1px solid rgba(240,120,155,.5);background:var(--pinkSoft);font:500 36px var(--mono);color:#ffd6e3;min-width:560px;text-align:center;opacity:${url ? 1 : 0}">${url}<span class="caret" style="height:34px;opacity:${url.length < 22 ? 1 : (Math.floor(t * 3) % 2)}"></span></div>
+      <div style="display:flex;gap:16px;opacity:${plats};font:20px var(--ui);color:var(--ink2)">${["Windows 安装版", "Windows 免安装版", "macOS · Apple 芯片", "macOS · Intel"].map((p) => `<span style="padding:8px 18px;border-radius:999px;border:1px solid #2f2f35">${p}</span>`).join("")}</div>
+    </div></div>` + subtitle(sc, t);
+}
+
+// The opening: boot log, glyph rain gathering into the heart, "sikeoop 4.1" decoding.
+const actx = document.getElementById("ascii").getContext("2d");
+const CELLS = (() => {
+  const out = [];
+  const cw = 14, ch = 24, cx = 960, cy = 470, r = 260;
+  for (let row = -14; row <= 14; row++) for (let col = -24; col <= 24; col++) {
+    const x = cx + col * cw, y = cy + row * ch;
+    const hx = (x - cx) / r, hy = -(y - cy) / r - 0.12;
+    const a = hx * hx + hy * hy - 1, v = a * a * a - hx * hx * hy * hy * hy;
+    if (v > 0) continue;
+    const depth = Math.min(1, Math.pow(-v, 0.35) * 1.6);
+    const i = out.length;
+    const ang = hash(i, 3) * Math.PI * 2, far = 1100 + hash(i, 4) * 500;
+    out.push({ x, y, depth, glyph: ".:-=+*x#%@"[Math.min(9, Math.floor(depth * 10))], sx: cx + Math.cos(ang) * far, sy: cy + Math.sin(ang) * far, land: 1.15 + Math.hypot(x - cx, y - cy) / r * 0.7 + hash(i, 5) * 0.25 });
+  }
+  return out;
+})();
+function drawOpen(t, sc) {
+  actx.clearRect(0, 0, 1920, 1080);
+  const fadeAll = 1 - seg(t, sc.dur - 0.35, sc.dur);
+  actx.globalAlpha = fadeAll;
+  actx.font = "22px GeistMono, monospace";
+  // boot log
+  const boot = ["sikeoop 4.1.0 · booting", "> 读取记忆 c1–c4 ............ ok", "> 打开内置浏览器 ............ ok", "> 唤醒鲸鱼娘 ................ 醒了"];
+  const bootFade = 1 - seg(t, 1.6, 2.1);
+  boot.forEach((line, n) => {
+    const shown = typed(line, seg(t, 0.25 + n * 0.15, 0.4 + n * 0.15));
+    if (!shown) return;
+    actx.fillStyle = `rgba(139,139,147,${0.9 * bootFade * fadeAll})`;
+    const ok = shown.endsWith("ok") || shown.endsWith("醒了");
+    actx.fillText(ok ? shown.replace(/(ok|醒了)$/, "") : shown, 96, 110 + n * 38);
+    if (ok) { actx.fillStyle = shown.endsWith("ok") ? `rgba(127,220,163,${bootFade * fadeAll})` : `rgba(240,120,155,${bootFade * fadeAll})`; actx.fillText(shown.endsWith("ok") ? "ok" : "醒了", 96 + actx.measureText(shown.replace(/(ok|醒了)$/, "")).width, 110 + n * 38); }
+  });
+  // glyph rain
+  const rain = seg(t, 0.9, 1.3) * (1 - seg(t, 3.2, 3.8));
+  if (rain > 0) {
+    actx.fillStyle = `rgba(240,120,155,${0.16 * rain * fadeAll})`;
+    const step = Math.floor(t * 14);
+    for (let i = 0; i < 900; i++) {
+      if (hash(i, step) < 0.55) continue;
+      actx.fillText(pick(GLYPHS, i, step), Math.floor(hash(i, 1) * 137) * 14, Math.floor(hash(i, 2) * 45) * 24 + 24);
+    }
+  }
+  // heart
+  const step = Math.floor(t * 24);
+  const beat = 1 + 0.06 * Math.sin(seg(t, 2.6, 2.9) * Math.PI);
+  const glitch = (t > 2.95 && t < 3.02) || (t > 3.3 && t < 3.36);
+  const draw = (dx, tint) => CELLS.forEach((c, i) => {
+    const fly = seg(t, c.land - 0.45, c.land);
+    if (fly <= 0) return;
+    const k = eo(fly);
+    let x = lerp(c.sx, c.x, k), y = lerp(c.sy, c.y, k);
+    if (fly >= 1) { x = 960 + (x - 960) * beat; y = 470 + (y - 470) * beat; }
+    const lit = Math.max(0, 1 - Math.abs((c.y - 200) / 560 - seg(t, 2.9, 3.4)) * 8);
+    const d = Math.min(1, c.depth * 0.85 + lit);
+    actx.fillStyle = tint || `rgba(${Math.round(240 + 15 * d)},${Math.round(120 + 106 * d)},${Math.round(155 + 81 * d)},${(0.25 + 0.75 * fly) * fadeAll})`;
+    actx.fillText(fly >= 1 ? c.glyph : pick(GLYPHS, i, step), x - 7 + dx, y + 8);
+  });
+  if (glitch) { actx.globalCompositeOperation = "lighter"; draw(-6, "rgba(255,60,90,.55)"); draw(6, "rgba(60,220,255,.45)"); actx.globalCompositeOperation = "source-over"; } else draw(0);
+  // wordmark
+  if (t > 2.6) {
+    const W = "sikeoop 4.1";
+    let w = "";
+    for (let i = 0; i < W.length; i++) { const lock = 2.75 + i * 0.05; w += t < lock - 0.25 ? " " : t >= lock ? W[i] : pick("!<>-_\\/[]{}=+*^?#", i, Math.floor(t * 30)); }
+    actx.font = "400 96px QK, sans-serif";
+    actx.textAlign = "center";
+    actx.shadowColor = "rgba(240,120,155,.6)"; actx.shadowBlur = 30;
+    actx.fillStyle = "#ffd6e3";
+    actx.fillText(w, 960, 900);
+    actx.shadowBlur = 0; actx.textAlign = "left";
+  }
+  actx.globalAlpha = 1;
+  // scanlines
+  actx.fillStyle = "rgba(0,0,0,.16)";
+  for (let y = 0; y < 1080; y += 3) actx.fillRect(0, y, 1920, 1);
+}
+
+// ---- transitions: a short glitch wipe at each cut ----
+function fx(t) {
+  let out = "";
+  for (const s of SCENES) {
+    if (s.start === 0) continue;
+    const d = t - s.start;
+    if (d > -0.18 && d < 0.22) {
+      const k = 1 - Math.abs(d) / 0.22;
+      const bands = Array.from({ length: 7 }, (_, i) => {
+        const y = Math.floor(hash(i, Math.floor(t * 40)) * 1080);
+        const h = 10 + hash(i, 9) * 60;
+        const dx = (hash(i, 7) - 0.5) * 120 * k;
+        return `<div class="abs" style="left:0;right:0;top:${y}px;height:${h}px;background:rgba(240,120,155,${0.12 * k});transform:translateX(${dx}px);mix-blend-mode:screen"></div>`;
+      }).join("");
+      out += `<div class="abs" style="inset:0;background:rgba(11,11,14,${0.55 * k})"></div>${bands}`;
+    }
+  }
+  // a faint vignette always
+  out += `<div class="abs" style="inset:0;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45))"></div>`;
+  return out;
+}
+
+window.renderAt = (t) => {
+  t = clamp(t, 0, TOTAL - 0.001);
+  let sc = SCENES[0];
+  for (const s of SCENES) if (t >= s.start) sc = s;
+  const lt = t - sc.start;
+  document.getElementById("bg").style.setProperty("--gx", `${60 + 15 * Math.sin(t * 0.3)}%`);
+  document.getElementById("bg").style.setProperty("--gy", `${20 + 10 * Math.cos(t * 0.25)}%`);
+  const stage = document.getElementById("stage");
+  const canvas = document.getElementById("ascii");
+  canvas.style.display = sc.id === "open" ? "block" : "none";
+  if (sc.id === "open") { drawOpen(lt, sc); stage.innerHTML = subtitle(sc, lt); }
+  else stage.innerHTML = { browser: sceneBrowser, markdown: sceneMarkdown, tour: sceneTour, memory: sceneMemory, china: sceneChina, end: sceneEnd }[sc.id](sc, lt);
+  document.getElementById("fx").innerHTML = fx(t);
+};
+Promise.all([document.fonts.load("96px QK"), document.fonts.load("22px GeistMono"), document.fonts.load("20px Geist")]).then(() => document.fonts.ready).then(() => { window.PV.ready = true; renderAt(0); });
+</script>
+</body>
+</html>

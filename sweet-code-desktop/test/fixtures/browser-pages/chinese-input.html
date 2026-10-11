@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中文输入框</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  label { display: block; margin: 14px 0 4px; font-weight: 600; }
+  input, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; font: inherit; }
+  .echo { color: #2a7; margin-top: 6px; min-height: 1.4em; }
+  .hint { color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>中文输入框</h1>
+  <p>逐键 <code>keydown</code> 模拟进不了中文（要走输入法合成），应用 <code>Input.insertText</code> 整段写入。
+     下面两个框会分别回显值和合成状态，方便断言中文确实进去了。</p>
+
+  <label for="single">单行输入</label>
+  <input id="single" type="text" placeholder="请输入中文，如「你好世界」">
+  <div class="echo" id="single-echo"></div>
+
+  <label for="multi">多行输入</label>
+  <textarea id="multi" rows="3" placeholder="多行中文"></textarea>
+  <div class="echo" id="multi-echo"></div>
+
+  <p class="hint" id="comp">合成状态：空闲</p>
+
+  <script>
+    function wire(inputId, echoId) {
+      const el = document.getElementById(inputId);
+      const echo = document.getElementById(echoId);
+      const comp = document.getElementById("comp");
+      el.addEventListener("input", () => { echo.textContent = "当前值：" + el.value + "（" + [...el.value].length + " 字）"; });
+      el.addEventListener("compositionstart", () => { comp.textContent = "合成状态：输入中…"; });
+      el.addEventListener("compositionend", () => { comp.textContent = "合成状态：已提交"; });
+    }
+    wire("single", "single-echo");
+    wire("multi", "multi-echo");
+  </script>
+</body>
+</html>

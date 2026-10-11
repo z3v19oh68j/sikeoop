@@ -1,0 +1,226 @@
+[
+  {
+    "ref": "app_psen_familial_ad",
+    "title": "APP, PSEN1, and PSEN2 mutations in autosomal-dominant familial Alzheimer's disease",
+    "source": "genetics_review",
+    "claims": [
+      {
+        "title": "APP mutations can cause autosomal-dominant early-onset Alzheimer's disease",
+        "detail": "Pathogenic mutations in APP are reported causes of autosomal-dominant early-onset Alzheimer's disease, supporting a causal role for amyloid processing in at least familial Alzheimer's disease."
+      },
+      {
+        "title": "PSEN1 and PSEN2 mutations affect amyloid-beta production",
+        "detail": "PSEN1 and PSEN2 mutations are linked to familial Alzheimer's disease and alter gamma-secretase processing of APP, often changing amyloid-beta production or the Aβ42/Aβ40 ratio."
+      },
+      {
+        "title": "Familial genetic evidence does not automatically generalize to sporadic Alzheimer's disease",
+        "detail": "Autosomal-dominant familial Alzheimer's disease accounts for a minority of Alzheimer's cases; evidence from APP/PSEN mutations establishes strong causal evidence for that subtype but does not by itself prove the same causal primacy in common sporadic disease."
+      }
+    ]
+  },
+  {
+    "ref": "lesne_2006_nature_ab56",
+    "title": "Lesne et al. 2006 reports Aβ*56 in Tg2576 mice",
+    "source": "primary_article",
+    "claims": [
+      {
+        "title": "The paper reports a 56-kDa soluble amyloid-beta assembly",
+        "detail": "Lesne et al. 2006 reported the identification of a 56-kDa soluble amyloid-beta assembly, termed Aβ*56, in Tg2576 transgenic mice."
+      },
+      {
+        "title": "The paper reports Aβ*56 increases before plaque deposition",
+        "detail": "Lesne et al. 2006 reported that Aβ*56 appeared before overt plaque deposition in Tg2576 mice."
+      },
+      {
+        "title": "The paper links Aβ*56 to memory impairment in mice",
+        "detail": "Lesne et al. 2006 reported that the appearance of Aβ*56 coincided with memory impairment and that purified Aβ*56 impaired memory when administered to young rats."
+      },
+      {
+        "title": "The model organism is a transgenic mouse line",
+        "detail": "The experimental system in Lesne et al. 2006 was primarily Tg2576 transgenic mice, so the direct evidence concerns a mouse model rather than naturally occurring human sporadic Alzheimer's disease."
+      }
+    ]
+  },
+  {
+    "ref": "science_2022_ab56_investigation",
+    "title": "Science 2022 investigation of Aβ*56-related image concerns",
+    "source": "investigative_report",
+    "claims": [
+      {
+        "title": "Science reported image-manipulation concerns involving Aβ*56 work",
+        "detail": "A 2022 Science investigation reported concerns raised by outside image analysts about possible image manipulation in papers related to Aβ*56 and Alzheimer's disease research."
+      },
+      {
+        "title": "The investigation focused on reliability of specific experimental images",
+        "detail": "The Science investigation described concerns about duplicated or altered bands and image panels in specific publications, which bears on the reliability of those particular experimental records rather than automatically disproving every amyloid-beta mechanism."
+      },
+      {
+        "title": "The report was not itself a controlled biological replication experiment",
+        "detail": "The 2022 Science investigation was a journalistic and image-forensics report; it raised reliability concerns but did not directly perform a new biological experiment testing Alzheimer's causation."
+      }
+    ]
+  },
+  {
+    "ref": "nature_2024_lesne_retraction",
+    "title": "Nature 2024 retraction notice for Lesne et al. 2006",
+    "source": "retraction_notice",
+    "claims": [
+      {
+        "title": "Nature retracted Lesne et al. 2006",
+        "detail": "Nature published a retraction notice for Lesne et al. 2006, the article that reported Aβ*56 in Tg2576 mice."
+      },
+      {
+        "title": "The retraction states the editors no longer have confidence in the data",
+        "detail": "The Nature retraction notice states that the editors no longer have confidence in the reliability of the data presented in the Lesne et al. 2006 article."
+      },
+      {
+        "title": "The retraction targets the Aβ*56 paper rather than all amyloid-beta evidence",
+        "detail": "The retraction concerns the reliability of the specific Lesne et al. 2006 article; it does not by itself retract independent amyloid-beta genetic, biomarker, or clinical-trial evidence."
+      }
+    ]
+  },
+  {
+    "ref": "clarity_ad_lecanemab_nejm_2022",
+    "title": "CLARITY AD lecanemab trial",
+    "source": "clinical_trial",
+    "claims": [
+      {
+        "title": "Lecanemab reduced amyloid markers in early Alzheimer's disease",
+        "detail": "In the CLARITY AD trial, lecanemab treatment reduced markers of amyloid in participants with early Alzheimer's disease."
+      },
+      {
+        "title": "Lecanemab slowed decline but did not stop disease progression",
+        "detail": "The CLARITY AD trial reported slower cognitive and functional decline with lecanemab than placebo at 18 months, but participants still declined, making the result supportive but not a complete cure-level confirmation of amyloid primacy."
+      },
+      {
+        "title": "The trial population was early Alzheimer's disease with amyloid evidence",
+        "detail": "CLARITY AD enrolled participants with early Alzheimer's disease and evidence of amyloid pathology, so the finding is scoped to amyloid-positive early disease rather than all dementia."
+      }
+    ]
+  },
+  {
+    "ref": "donanemab_trial_nejm_2023_2024",
+    "title": "Donanemab anti-amyloid trial evidence",
+    "source": "clinical_trial",
+    "claims": [
+      {
+        "title": "Donanemab reduced amyloid plaque burden",
+        "detail": "Donanemab trials reported substantial reduction of amyloid plaque burden in participants with early symptomatic Alzheimer's disease."
+      },
+      {
+        "title": "Donanemab slowed clinical decline in selected participants",
+        "detail": "Donanemab trials reported slowing of clinical decline in selected amyloid-positive participants, with trial design also stratifying by tau pathology."
+      },
+      {
+        "title": "Clinical benefit is partial and context-dependent",
+        "detail": "The donanemab evidence supports amyloid as a modifiable disease pathway but the clinical effect is partial and depends on disease stage, biomarker selection, and safety tradeoffs."
+      }
+    ]
+  },
+  {
+    "ref": "solanezumab_negative_trials",
+    "title": "Solanezumab and other anti-amyloid trial limitations",
+    "source": "clinical_trial",
+    "claims": [
+      {
+        "title": "Some anti-amyloid antibodies failed to produce meaningful clinical benefit",
+        "detail": "Several anti-amyloid therapeutic programs, including solanezumab trials in symptomatic Alzheimer's disease, did not show sufficient clinical benefit to establish broad efficacy."
+      },
+      {
+        "title": "Failure of an anti-amyloid therapy does not logically disprove every amyloid mechanism",
+        "detail": "A failed anti-amyloid trial can reflect wrong target species, disease stage, insufficient target engagement, or an incorrect hypothesis; by itself it is evidence against broad simple versions of amyloid primacy, not a formal disproof of all amyloid involvement."
+      }
+    ]
+  },
+  {
+    "ref": "braak_tau_staging",
+    "title": "Braak staging of tau neurofibrillary pathology",
+    "source": "pathology_staging",
+    "claims": [
+      {
+        "title": "Tau neurofibrillary pathology follows a staged anatomical progression",
+        "detail": "Braak staging describes a stereotyped progression of neurofibrillary tau pathology from transentorhinal regions through limbic and neocortical areas."
+      },
+      {
+        "title": "Tau pathology correlates closely with clinical severity",
+        "detail": "Neuropathological staging studies report that neurofibrillary tau pathology is more closely associated with dementia severity than amyloid plaque burden alone."
+      },
+      {
+        "title": "Staging evidence is strong for progression but weaker for first cause",
+        "detail": "Braak-style tau staging supports tau as a proximate progression mechanism, but anatomical correlation over disease stage does not by itself prove tau is the earliest initiating cause."
+      }
+    ]
+  },
+  {
+    "ref": "tau_pet_clinical_progression",
+    "title": "Tau PET and clinical progression evidence",
+    "source": "imaging_study",
+    "claims": [
+      {
+        "title": "Tau PET signal tracks neurodegeneration and cognitive decline",
+        "detail": "Tau PET studies report associations between regional tau signal, neurodegeneration, and cognitive decline in Alzheimer's disease."
+      },
+      {
+        "title": "Tau PET often has stronger symptom correlation than amyloid PET",
+        "detail": "Compared with amyloid PET burden, tau PET topography is often reported to align more closely with current cognitive impairment and regional neurodegeneration."
+      },
+      {
+        "title": "Tau imaging remains partly downstream-compatible with amyloid models",
+        "detail": "Tau PET evidence can support tau-propagation models while still being compatible with models where amyloid pathology triggers or accelerates later tau spread."
+      }
+    ]
+  },
+  {
+    "ref": "trem2_cd33_microglia_genetics",
+    "title": "Microglial and immune genetic risk in Alzheimer's disease",
+    "source": "genetics_review",
+    "claims": [
+      {
+        "title": "TREM2 variants are associated with Alzheimer's disease risk",
+        "detail": "Rare variants in TREM2, a gene involved in microglial function, are associated with increased Alzheimer's disease risk."
+      },
+      {
+        "title": "CD33 and other immune-related loci implicate microglial pathways",
+        "detail": "Genetic association studies have implicated immune and microglial pathways, including loci such as CD33, in Alzheimer's disease susceptibility."
+      },
+      {
+        "title": "Immune genetic risk supports causal involvement but not necessarily sole primacy",
+        "detail": "Microglial genetic risk evidence supports immune involvement in Alzheimer's disease, but risk association does not by itself establish that neuroinflammation is the single primary initiating cause."
+      }
+    ]
+  },
+  {
+    "ref": "microglial_activation_progression",
+    "title": "Microglial activation and neuroinflammation in Alzheimer's progression",
+    "source": "mechanistic_review",
+    "claims": [
+      {
+        "title": "Microglia respond to amyloid and tau pathology",
+        "detail": "Mechanistic studies describe microglial activation in response to amyloid-beta and tau pathology, linking immune responses to disease progression."
+      },
+      {
+        "title": "Chronic neuroinflammation can amplify synaptic and neuronal injury",
+        "detail": "Reviews of Alzheimer's neuroinflammation report that chronic microglial activation and inflammatory signaling can contribute to synaptic dysfunction and neuronal injury."
+      },
+      {
+        "title": "Inflammation may be both cause and consequence",
+        "detail": "Neuroinflammation evidence is compatible with bidirectional models in which immune dysregulation contributes to disease progression while also being triggered by amyloid, tau, or neuronal damage."
+      }
+    ]
+  },
+  {
+    "ref": "integrated_atn_framework",
+    "title": "AT(N) biomarker framework separates amyloid, tau, and neurodegeneration",
+    "source": "diagnostic_framework",
+    "claims": [
+      {
+        "title": "AT(N) separates amyloid, tau, and neurodegeneration biomarker categories",
+        "detail": "The AT(N) framework classifies Alzheimer's disease biomarkers into amyloid (A), tau (T), and neurodegeneration or neuronal injury (N) categories."
+      },
+      {
+        "title": "Separate biomarker categories imply layered pathology rather than one interchangeable marker",
+        "detail": "The AT(N) framework treats amyloid, tau, and neurodegeneration as distinct biomarker dimensions, supporting analyses that separate initiating pathology, propagation, and injury."
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" font-family="PingFang SC, Heiti SC, STHeiti, Microsoft YaHei, sans-serif"><title>activity</title><desc>Native SVG paths and shapes. No embedded raster, no external images.</desc><defs><linearGradient id="surface" x2="1" y2="1"><stop stop-color="#10101B" /><stop offset=".54" stop-color="#141122" /><stop offset="1" stop-color="#18132A" /></linearGradient>
+<linearGradient id="purpleBorder" x2=".8" y2="1"><stop stop-color="#8B66D5" /><stop offset=".48" stop-color="#493068" /><stop offset="1" stop-color="#9B7BFF" /></linearGradient>
+<linearGradient id="primary" x2="1" y2="1"><stop stop-color="#62E8EA" /><stop offset="1" stop-color="#34DCE5" /></linearGradient>
+<linearGradient id="artFade"><stop stop-color="#11101D" /><stop offset="1" stop-color="#11101D" stop-opacity="0" /></linearGradient>
+<clipPath id="cardClip"><path d="M28 1H1330L1359 29V883L1330 911H28L1 883V29Z" /></clipPath>
+<clipPath id="heroClip"><rect x="552" y="60" width="806" height="314" /></clipPath></defs><g transform="translate(0 0) scale(1.0)" fill="none" stroke="#5CE1E6" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h5l3-8 4 16 3-8h5" /></g></svg>

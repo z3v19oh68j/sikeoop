@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>虚拟长列表</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  #scroller { height: 300px; overflow-y: auto; border: 1px solid rgba(127,127,127,.4); border-radius: 8px; position: relative; }
+  #spacer { position: relative; }
+  .row { position: absolute; left: 0; right: 0; height: 30px; line-height: 30px; padding: 0 12px; box-sizing: border-box; border-bottom: 1px solid rgba(127,127,127,.15); }
+  .row button { float: right; font: inherit; }
+  #status { color: #2a7; }
+  .hint { color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>虚拟长列表</h1>
+  <p>共一万行，但 DOM 里同时只有可见的那二十来行（其余靠滚动时回收重建）。
+     快照只能看到当前渲染的子集，要点到靠后的行得先滚动使其进入 DOM。</p>
+  <p class="hint">提示：<code>第 5000 行</code> 一开始不在 DOM 里。</p>
+
+  <div id="scroller">
+    <div id="spacer"></div>
+  </div>
+  <p id="status"></p>
+
+  <script>
+    const TOTAL = 10000;
+    const ROW_H = 30;
+    const scroller = document.getElementById("scroller");
+    const spacer = document.getElementById("spacer");
+    const status = document.getElementById("status");
+    spacer.style.height = (TOTAL * ROW_H) + "px";
+
+    function render() {
+      const top = scroller.scrollTop;
+      const first = Math.max(0, Math.floor(top / ROW_H) - 2);
+      const count = Math.ceil(scroller.clientHeight / ROW_H) + 4;
+      const last = Math.min(TOTAL, first + count);
+      spacer.textContent = "";
+      for (let i = first; i < last; i++) {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.style.top = (i * ROW_H) + "px";
+        row.dataset.index = String(i);
+        const btn = document.createElement("button");
+        btn.textContent = "选择";
+        btn.addEventListener("click", () => { status.textContent = "选中了第 " + i + " 行。"; });
+        row.append("第 " + i + " 行 ", btn);
+        spacer.appendChild(row);
+      }
+    }
+    scroller.addEventListener("scroll", render);
+    render();
+  </script>
+</body>
+</html>

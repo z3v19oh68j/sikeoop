@@ -1,0 +1,56 @@
+[
+  {
+    "ref": "ccma_spec/action_space",
+    "title": "Chain-Centric protocol action space",
+    "detail": "Content agents are restricted to publish_chain, attack, revise_chain, or pass. Free-form agreement and conclusion-only rebuttal are invalid actions.",
+    "source": "fixed_input"
+  },
+  {
+    "ref": "ccma_spec/step_level_attack",
+    "title": "Step-level attack requirement",
+    "detail": "An attack must target a specific chain and step. Vague disagreement or unsupported conclusion-level rejection is rejected by protocol validation.",
+    "source": "fixed_input"
+  },
+  {
+    "ref": "ccma_spec/evidence_pool",
+    "title": "Evidence-pool citation rule",
+    "detail": "Reasoning steps and attacks must cite evidence from the evidence pool. Missing or external references can be rejected or marked as requiring evidence acquisition.",
+    "source": "fixed_input"
+  },
+  {
+    "ref": "ccma_spec/unscrutinized_zone",
+    "title": "Zero-attack claims are not consensus",
+    "detail": "Claims with no attacks should be marked as unscrutinized rather than accepted as consensus, regardless of their apparent evidence independence.",
+    "source": "fixed_input"
+  },
+  {
+    "ref": "ccma_spec/no_llm_judge",
+    "title": "Coordination layer avoids LLM-as-Judge",
+    "detail": "The coordination layer should use observable behavior such as attacks, revisions, survival, evidence references, and symbolic state stabilization rather than asking an LLM judge to choose the winner.",
+    "source": "fixed_input"
+  },
+  {
+    "ref": "ccma_empirical/microbiome_claim_evidence_5ag",
+    "title": "Claim-level microbiome test reached natural stabilization",
+    "detail": "A 5-agent fixed-input microbiome obesity test with claim-level evidence ended at round 41 with SYSTEM_STATE_STABILIZED, 34 claims, 73 chains, 79 attacks, 45 evidence items, 14 active chains, 39 broken chains, and 20 archived chains.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "ccma_empirical/self_audit_v2",
+    "title": "Prior self-audit collapsed overclaims",
+    "detail": "A previous self-audit run reached SYSTEM_STATE_STABILIZED at round 44 with 64 attacks, 23 evidence items, 23 claims, 36 chains, and 22 broken chains; the main conclusion was that overclaims were attacked rather than automatically protected.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "ccma_risk/claim_duplication",
+    "title": "Observed limitation: claim duplication",
+    "detail": "In the claim-level microbiome test, many semantically similar claims were created around the same issue, suggesting weak claim canonicalization and a need for semantic merge or clustering controls.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "ccma_risk/evidence_layer_dependency",
+    "title": "Observed limitation: evidence layer dependency",
+    "detail": "The protocol's epistemic value depends on evidence-pool quality. Dynamically added evidence can re-open disputes, and unverified or over-broad evidence can pollute downstream claims.",
+    "source": "experiment_summary"
+  }
+]

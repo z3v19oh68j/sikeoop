@@ -1,0 +1,355 @@
+<title>甜心代码屋</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a soft pink-gradient app shell — lesson list | code editor | live preview + friendly console */
+:root{
+  --bg:#fff5f9;
+  --surface:#ffffff;
+  --surface-2:#fff0f6;
+  --ink:#3d2433;
+  --muted:#8e6a7e;
+  --line:#f6d3e3;
+  --accent:#ef5d9c;
+  --accent-ink:#ffffff;
+  --g1:#ff7eb3; --g2:#ff9a9e; --g3:#fecfef;
+  --ok:#2f9e6e; --warn:#c98a12; --bad:#d6406a;
+  --shadow:0 10px 30px -12px rgba(239,93,156,.35);
+  --font-display:"ZCOOL KuaiLe","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --font-code:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1e1218; --surface:#2a1921; --surface-2:#22141b; --ink:#ffe6f1; --muted:#c69bb2; --line:#4a2a3a;
+  --accent:#ff8cbe; --accent-ink:#2a0f1c; --g1:#d9487f; --g2:#c8607a; --g3:#6d3657;
+  --ok:#6fd3a5; --warn:#f0c060; --bad:#ff7d9d; --shadow:0 10px 30px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1e1218; --surface:#2a1921; --surface-2:#22141b; --ink:#ffe6f1; --muted:#c69bb2; --line:#4a2a3a;
+  --accent:#ff8cbe; --accent-ink:#2a0f1c; --g1:#d9487f; --g2:#c8607a; --g3:#6d3657;
+  --ok:#6fd3a5; --warn:#f0c060; --bad:#ff7d9d; --shadow:0 10px 30px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.6;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{min-height:100%;display:flex;flex-direction:column;gap:14px;padding-inline:16px;padding-block:14px}
+
+/* header */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;border-radius:20px;
+  background:linear-gradient(120deg,var(--g1),var(--g2) 55%,var(--g3));color:#fff;box-shadow:var(--shadow)}
+.brand{font-family:var(--font-display);font-size:26px;line-height:1.1;letter-spacing:.5px;text-shadow:0 2px 0 rgba(0,0,0,.08)}
+.brand small{display:block;font-family:var(--font-body);font-size:12.5px;opacity:.92;letter-spacing:0}
+.top .spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:8px 16px;font-weight:600;
+  background:rgba(255,255,255,.95);color:#c2306f;transition:transform .15s}
+.pill:hover{transform:translateY(-1px)}
+.pill.ghost{background:rgba(255,255,255,.22);color:#fff}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none}
+.switch input{accent-color:#fff;width:16px;height:16px}
+
+/* main grid */
+.main{flex:1;display:grid;grid-template-columns:250px minmax(0,1fr) minmax(0,1fr);gap:14px;min-height:560px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.panel h2{font-family:var(--font-display);font-weight:400;font-size:18px;margin:0}
+.ph{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.ph .spacer{flex:1}
+
+/* lessons */
+.lessons{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:4px;overflow:auto}
+.lesson{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:0;background:none;padding:10px;border-radius:12px}
+.lesson:hover{background:var(--surface-2)}
+.lesson[aria-current="true"]{background:linear-gradient(120deg,var(--g1),var(--g2));color:#fff}
+.lesson .lv{flex:none;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;margin-top:2px;background:var(--surface-2);color:var(--accent);font-variant-numeric:tabular-nums}
+.lesson[aria-current="true"] .lv{background:rgba(255,255,255,.25);color:#fff}
+.lesson b{display:block;font-weight:600}
+.lesson span.d{font-size:12px;opacity:.75}
+.guide{border-top:1px solid var(--line);padding:12px 14px;background:var(--surface-2)}
+.guide h3{margin:0 0 6px;font-size:13px;color:var(--accent);letter-spacing:.5px}
+.guide ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.guide code{font-family:var(--font-code);font-size:12px;background:var(--surface);border:1px solid var(--line);padding:0 4px;border-radius:5px}
+
+/* editor */
+.tabs{display:flex;gap:4px}
+.tab{border:1px solid transparent;background:none;border-radius:10px;padding:4px 12px;font-family:var(--font-code);font-size:12.5px;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--surface-2);border-color:var(--line);color:var(--accent);font-weight:600}
+.tab em{font-style:normal;font-family:var(--font-body);font-size:11px;margin-left:4px;opacity:.8}
+.editor{flex:1;display:flex;min-height:320px;background:var(--surface-2);position:relative}
+.gutter{flex:none;width:42px;padding:14px 8px 14px 0;text-align:right;font-family:var(--font-code);font-size:13px;line-height:1.65;color:var(--muted);opacity:.6;overflow:hidden;user-select:none;font-variant-numeric:tabular-nums;white-space:pre}
+.editor textarea{flex:1;min-width:0;border:0;resize:none;background:transparent;color:var(--ink);padding:14px 14px 14px 10px;
+  font-family:var(--font-code);font-size:13px;line-height:1.65;tab-size:2;white-space:pre;overflow:auto;outline:none}
+.hintbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.kbd{font-family:var(--font-code);font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
+.mini{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12px}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+
+/* preview */
+.right{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;min-width:0}
+.frame-wrap{flex:1;background:#fff;min-height:260px}
+iframe{width:100%;height:100%;border:0;display:block;background:#fff}
+.console{max-height:220px;min-height:120px}
+.logs{list-style:none;margin:0;padding:8px 10px;overflow:auto;font-family:var(--font-code);font-size:12.5px;display:flex;flex-direction:column;gap:4px}
+.logs li{padding:6px 10px;border-radius:10px;background:var(--surface-2);white-space:pre-wrap;word-break:break-word}
+.logs li.error{background:color-mix(in srgb,var(--bad) 12%,var(--surface));border-left:3px solid var(--bad)}
+.logs li.warn{border-left:3px solid var(--warn)}
+.logs li .why{display:block;font-family:var(--font-body);font-size:13px;margin-top:4px;color:var(--ink)}
+.logs li .why b{color:var(--bad)}
+.logs .empty{background:none;color:var(--muted);font-family:var(--font-body)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.dot.bad{background:var(--bad)}
+
+/* dictionary drawer */
+.drawer{position:fixed;inset:0;display:flex;justify-content:flex-end;background:rgba(40,10,25,.35);z-index:20}
+.drawer .sheet{width:min(420px,100%);height:100%;background:var(--surface);padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;overflow:hidden;padding-top:calc(20px + env(safe-area-inset-top,0px))}
+.drawer h2{font-family:var(--font-display);font-weight:400;font-size:22px;margin:0}
+.drawer input{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit}
+.terms{list-style:none;margin:0;padding:0;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.terms li{border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.terms code{font-family:var(--font-code);color:var(--accent);font-weight:600}
+.terms p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.terms pre{margin:6px 0 0;font-family:var(--font-code);font-size:12px;background:var(--surface-2);border-radius:8px;padding:6px 8px;overflow-x:auto}
+
+/* toast */
+[hidden]{display:none!important}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;
+  background:linear-gradient(120deg,var(--g1),var(--g2));color:#fff;padding:10px 18px;border-radius:999px;box-shadow:var(--shadow);
+  font-weight:600;transition:all .3s;pointer-events:none;z-index:30;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1100px){
+  .main{grid-template-columns:220px minmax(0,1fr)}
+  .right{grid-column:1 / -1;grid-template-rows:380px auto}
+}
+@media (max-width:720px){
+  .main{grid-template-columns:minmax(0,1fr)}
+  .lessons{flex-direction:row;overflow-x:auto}
+  .lesson{flex:none;width:auto}
+  .lesson span.d{display:none}
+  .brand{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">甜心代码屋 ♡<small>给最懒的宝贝：选一课 → 改一改 → 右边马上看到效果</small></div>
+    <div class="spacer"></div>
+    <label class="switch"><input type="checkbox" id="auto" checked> 边写边看</label>
+    <button class="pill ghost" id="openDict" type="button">看不懂的词</button>
+    <button class="pill ghost" id="resetBtn" type="button">改乱了，还原</button>
+    <button class="pill" id="runBtn" type="button">▶ 运行</button>
+  </header>
+
+  <main class="main">
+    <aside class="panel">
+      <div class="ph"><h2>小课程</h2><div class="spacer"></div><span style="font-size:12px;color:var(--muted)">从上往下玩</span></div>
+      <ul class="lessons" id="lessons"></ul>
+      <div class="guide" id="guide"></div>
+    </aside>
+
+    <section class="panel">
+      <div class="ph">
+        <div class="tabs" role="tablist" id="tabs">
+          <button class="tab" role="tab" data-k="html" type="button">HTML<em>骨架</em></button>
+          <button class="tab" role="tab" data-k="css" type="button">CSS<em>衣服</em></button>
+          <button class="tab" role="tab" data-k="js" type="button">JS<em>动作</em></button>
+        </div>
+      </div>
+      <div class="editor">
+        <div class="gutter" id="gutter" aria-hidden="true">1</div>
+        <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="代码编辑区"></textarea>
+      </div>
+      <div class="hintbar">
+        <span><span class="kbd">Tab</span> 缩进</span>
+        <span><span class="kbd">⌘/Ctrl</span>+<span class="kbd">Enter</span> 运行</span>
+        <span style="flex:1"></span>
+        <button class="mini" id="copyBtn" type="button">复制这段代码</button>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="panel">
+        <div class="ph"><h2>效果预览</h2><div class="spacer"></div><span class="dot" id="dot"></span><span id="status" style="font-size:12px;color:var(--muted)">一切正常</span></div>
+        <div class="frame-wrap"><iframe id="preview" sandbox="allow-scripts allow-modals" title="效果预览"></iframe></div>
+      </div>
+      <div class="panel console">
+        <div class="ph"><h2>悄悄话控制台</h2><div class="spacer"></div><button class="mini" id="clearBtn" type="button">清空</button></div>
+        <ul class="logs" id="logs"></ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="drawer" id="dict" hidden>
+  <div class="sheet" role="dialog" aria-label="小词典">
+    <div style="display:flex;align-items:center"><h2>宝贝小词典</h2><span style="flex:1"></span><button class="mini" id="closeDict" type="button">关掉</button></div>
+    <input id="dictSearch" placeholder="搜一搜，比如：按钮、颜色、变量" autocomplete="off">
+    <ul class="terms" id="terms"></ul>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LESSONS=[
+ {id:"hello",lv:"第1课",t:"打个招呼",d:"网页里写上你的名字",
+  steps:["在 HTML 里把 <code>你的名字</code> 改成自己的名字","右边会立刻变化，不用点任何东西","去 CSS 里把 <code>hotpink</code> 改成 <code>tomato</code> 试试"],
+  html:'<h1>你好呀，我是 你的名字 👋</h1>\n<p>这是我写的第一个网页。</p>\n<p>今天也很爱她。</p>',
+  css:'body {\n  font-family: sans-serif;\n  text-align: center;\n  padding-top: 60px;\n}\n\nh1 {\n  color: hotpink;\n}',
+  js:'// 这里的话会出现在下面的「悄悄话控制台」\nconsole.log("网页启动成功！");'},
+ {id:"button",lv:"第2课",t:"会说话的按钮",d:"点一下，文字就变",
+  steps:["点右边的按钮看看会发生什么","在 JS 里把 <code>words</code> 里的句子换成你想说的话","再加一句进去，记得句子之间用逗号隔开"],
+  html:'<button id="btn">点我一下</button>\n<p id="say">……</p>',
+  css:'body { font-family: sans-serif; text-align: center; padding-top: 60px; }\n\nbutton {\n  font-size: 18px;\n  padding: 12px 28px;\n  border: none;\n  border-radius: 999px;\n  background: linear-gradient(120deg, #ff7eb3, #ff9a9e);\n  color: white;\n  cursor: pointer;\n}\n\n#say { font-size: 22px; margin-top: 24px; }',
+  js:'// 一个装满句子的盒子（数组）\nconst words = ["今天辛苦啦", "想你了", "晚饭吃什么？", "你最棒"];\n\nconst btn = document.getElementById("btn");\nconst say = document.getElementById("say");\n\nbtn.onclick = function () {\n  // 随机挑一句\n  const i = Math.floor(Math.random() * words.length);\n  say.textContent = words[i];\n  console.log("按钮被点了，说了：" + words[i]);\n};'},
+ {id:"hearts",lv:"第3课",t:"爱心雨",d:"点哪里，哪里冒爱心",
+  steps:["在右边预览区随便点几下","把 JS 里的 <code>\"💗\"</code> 换成 <code>\"🌸\"</code> 或 <code>\"⭐\"</code>","把 CSS 里的 <code>1.5s</code> 改成 <code>4s</code>，爱心会飘得更慢"],
+  html:'<p class="tip">在这里随便点点 ✨</p>',
+  css:'body {\n  margin: 0;\n  height: 100vh;\n  background: linear-gradient(160deg, #fff0f6, #ffd6e8);\n  overflow: hidden;\n  font-family: sans-serif;\n}\n.tip { text-align: center; margin-top: 40%; color: #c2306f; }\n\n.heart {\n  position: absolute;\n  font-size: 28px;\n  animation: fly 1.5s ease-out forwards;\n  pointer-events: none;\n}\n\n@keyframes fly {\n  to { transform: translateY(-160px) scale(1.6); opacity: 0; }\n}',
+  js:'document.body.onclick = function (e) {\n  const h = document.createElement("span");\n  h.className = "heart";\n  h.textContent = "💗";\n  h.style.left = e.clientX - 14 + "px";\n  h.style.top = e.clientY - 14 + "px";\n  document.body.appendChild(h);\n\n  // 飘完以后删掉，网页不会越来越卡\n  setTimeout(function () { h.remove(); }, 1500);\n};'},
+ {id:"calc",lv:"第4课",t:"小小计算器",d:"输入两个数，帮你加起来",
+  steps:["在右边输入两个数字，点「算一下」","把 JS 里的 <code>+</code> 改成 <code>*</code>，就变成乘法了","挑战：再加一个「减」按钮"],
+  html:'<h2>小小计算器</h2>\n<input id="a" type="number" value="3">\n<span>+</span>\n<input id="b" type="number" value="5">\n<button id="go">算一下</button>\n<p id="out"></p>',
+  css:'body { font-family: sans-serif; text-align: center; padding-top: 40px; }\ninput { width: 80px; font-size: 18px; padding: 6px; border: 2px solid #ffb3d1; border-radius: 10px; }\nbutton { font-size: 16px; padding: 8px 18px; border: none; border-radius: 10px; background: #ff7eb3; color: white; }\n#out { font-size: 28px; color: #c2306f; }',
+  js:'document.getElementById("go").onclick = function () {\n  // 输入框里拿到的是文字，用 Number() 变成数字\n  const a = Number(document.getElementById("a").value);\n  const b = Number(document.getElementById("b").value);\n  const result = a + b;\n  document.getElementById("out").textContent = "答案是 " + result;\n  console.log(a, "+", b, "=", result);\n};'},
+ {id:"todo",lv:"第5课",t:"约会待办清单",d:"加事情、划掉事情",
+  steps:["在输入框写一件事，按回车","点一下某一项可以划掉它","看看 JS 里 <code>addItem</code> 这个函数，它就是「加一项」的说明书"],
+  html:'<h2>这周末要做的事 💕</h2>\n<input id="what" placeholder="比如：一起看电影">\n<ul id="list"></ul>',
+  css:'body { font-family: sans-serif; max-width: 360px; margin: 30px auto; padding: 0 16px; }\ninput { width: 100%; font-size: 16px; padding: 10px; border: 2px solid #ffb3d1; border-radius: 12px; }\nli { padding: 10px; margin-top: 8px; background: #fff0f6; border-radius: 10px; cursor: pointer; list-style: none; }\nli.done { text-decoration: line-through; opacity: .5; }\nul { padding: 0; }',
+  js:'const list = document.getElementById("list");\nconst what = document.getElementById("what");\n\nfunction addItem(text) {\n  const li = document.createElement("li");\n  li.textContent = text;\n  li.onclick = function () { li.classList.toggle("done"); };\n  list.appendChild(li);\n}\n\nwhat.onkeydown = function (e) {\n  if (e.key === "Enter" && what.value.trim() !== "") {\n    addItem(what.value);\n    what.value = "";\n  }\n};\n\naddItem("吃火锅");\naddItem("给她买奶茶");'},
+ {id:"blank",lv:"自由",t:"空白画布",d:"自己随便写",
+  steps:["这里什么都没有，想写什么就写什么","不知道写什么？点右上角「看不懂的词」找灵感","写坏了也没关系，点「改乱了，还原」"],
+  html:'<!-- 在这里写网页的骨架 -->\n',css:'/* 在这里给网页穿衣服 */\nbody { font-family: sans-serif; }\n',js:'// 在这里让网页动起来\n'}
+];
+
+const TERMS=[
+ ["HTML","网页的骨架，决定页面上「有什么」：标题、文字、按钮……","<h1>大标题</h1>"],
+ ["CSS","网页的衣服，决定东西「长什么样」：颜色、大小、位置。","h1 { color: pink; }"],
+ ["JS / JavaScript","网页的动作，决定「点了以后会怎样」。",'btn.onclick = function () { ... }'],
+ ["标签 tag","HTML 里用尖括号包起来的东西，一般成对出现，开头一个、结尾带斜杠的一个。","<p>一段文字</p>"],
+ ["按钮 button","一个可以点的按钮。","<button>点我</button>"],
+ ["输入框 input","让人在里面打字的框。","<input placeholder=\"写点什么\">"],
+ ["id","给元素起的独一无二的名字，JS 靠它找到元素。",'<p id="say"></p>\ndocument.getElementById("say")'],
+ ["颜色 color","文字颜色。可以写英文名，也可以写 #ff7eb3 这种色号。","color: hotpink;"],
+ ["背景 background","背景颜色，也能写渐变。","background: linear-gradient(pink, white);"],
+ ["变量 let / const","一个贴了名字的盒子，用来装东西。const 装了就不能换，let 可以换。",'let name = "宝贝";'],
+ ["函数 function","一份「说明书」，写好以后喊它的名字就会照着做。",'function hi() { console.log("嗨"); }\nhi();'],
+ ["数组 []","一排盒子，用来装好几个东西，从第 0 个开始数。",'const food = ["火锅", "烧烤"];\nfood[0] // 火锅'],
+ ["console.log","在下面的控制台打印一句话，用来偷看程序在干嘛。",'console.log("走到这里了");'],
+ ["if 判断","如果……就……",'if (score > 60) { console.log("及格"); }'],
+ ["onclick 点击","被点击的时候要做的事。","btn.onclick = function () { ... };"],
+ ["注释 //","给人看的备注，电脑会跳过。HTML 用 <!-- -->，CSS 用 /* */。","// 这行电脑不会执行"]
+];
+
+const LOVE=["写得真好，奖励一个抱抱 🤗","宝贝好厉害！跑起来了 ✨","今天的你也在发光 💖","程序员男友 +1 ✓","这都会？我男朋友是天才吧 🌸","休息一下，喝口水再继续 🍵"];
+
+const ERR=[
+ [/(\w+) is not defined/,m=>"「"+m[1]+"」这个名字电脑不认识。可能是<b>拼错了</b>（大小写也算），或者忘了先用 <code>let</code> / <code>const</code> 声明它。"],
+ [/Cannot read propert(?:y|ies) of (null|undefined)/,()=>"想用的东西<b>没找到</b>。最常见：<code>getElementById(\"...\")</code> 里的名字和 HTML 里的 id 对不上，检查一下拼写。"],
+ [/Cannot set propert(?:y|ies) of (null|undefined)/,()=>"想修改的元素<b>没找到</b>。检查 HTML 里的 id 和 JS 里写的是不是一模一样。"],
+ [/is not a function/,()=>"这个东西<b>不能被调用</b>。可能是函数名拼错了，或者多写/少写了括号。"],
+ [/Unexpected end of input/,()=>"代码<b>没写完</b>：大概是少了一个 <code>}</code> 或 <code>)</code>。数数左括号和右括号是不是一样多。"],
+ [/missing \) |Unexpected token '?\)'?/,()=>"<b>括号没配对</b>。每个 <code>(</code> 都要有一个 <code>)</code>。"],
+ [/Invalid or unexpected token|Unterminated string/,()=>"<b>引号没关上</b>，或者混进了中文标点（比如中文引号“”、中文分号；）。代码里的符号要用英文的。"],
+ [/Unexpected identifier|Unexpected string/,()=>"这里好像<b>少了个符号</b>：逗号、加号或者分号。看看报错那一行的上一行。"],
+ [/Assignment to constant/,()=>"用 <code>const</code> 装的东西<b>不能再换</b>。想换的话，把 const 改成 <code>let</code>。"],
+ [/Unexpected token/,()=>"这里有个<b>多余或放错的符号</b>。检查报错那一行的括号、逗号和引号，也可能是混进了中文标点。"]
+];
+
+const $=s=>document.querySelector(s);
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cur=store.get("sc_cur")||"hello";
+let tab="html";
+let drafts=store.get("sc_drafts")||{};
+let hadError=false, lastToast=0, runTimer=null;
+
+function lesson(){return LESSONS.find(l=>l.id===cur)||LESSONS[0]}
+function code(){const l=lesson();return drafts[l.id]||{html:l.html,css:l.css,js:l.js}}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function renderLessons(){
+  $("#lessons").innerHTML=LESSONS.map(l=>'<li><button class="lesson" type="button" data-id="'+l.id+'" aria-current="'+(l.id===cur)+'"><span class="lv">'+l.lv+'</span><span><b>'+l.t+'</b><span class="d">'+l.d+'</span></span></button></li>').join("");
+  const l=lesson();
+  $("#guide").innerHTML='<h3>试试看</h3><ol>'+l.steps.map(s=>"<li>"+s+"</li>").join("")+"</ol>";
+}
+function renderTabs(){document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.k===tab))}
+function loadEditor(){$("#code").value=code()[tab];gutter()}
+function gutter(){const n=$("#code").value.split("\n").length;let s="";for(let i=1;i<=n;i++)s+=i+"\n";$("#gutter").textContent=s;$("#gutter").scrollTop=$("#code").scrollTop}
+
+function save(){
+  const l=lesson();const c=Object.assign({},code());c[tab]=$("#code").value;drafts[l.id]=c;store.set("sc_drafts",drafts);
+}
+
+function run(manual){
+  const c=code();
+  $("#logs").innerHTML="";hadErrorNow=false;
+  const hook="<script>(function(){function S(t,a){parent.postMessage({__sweet:1,t:t,a:[].map.call(a,function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}})},'*')}"
+   +"['log','info','warn','error'].forEach(function(k){var o=console[k];console[k]=function(){S(k,arguments);o.apply(console,arguments)}});"
+   +"window.onerror=function(m,s,l){parent.postMessage({__sweet:1,t:'error',a:[String(m)],line:l},'*')};})()<\/script>";
+  const pre="<!doctype html><html><head><meta charset=\"utf-8\"><style>"+c.css+"</style>"+hook+"</head><body>"+c.html+"\n<script>\n";
+  offset=pre.split("\n").length-1;
+  $("#preview").srcdoc=pre+c.js+"\n<\/script></body></html>";
+  setStatus(true);
+  manualRun=manual;
+  clearTimeout(window._okT);
+  window._okT=setTimeout(()=>{
+    if(!hadErrorNow){
+      if(!$("#logs").children.length)$("#logs").innerHTML='<li class="empty">安安静静，没有报错。用 console.log("...") 可以在这里说悄悄话。</li>';
+      if((manual||hadError)&&Date.now()-lastToast>6000){toast(LOVE[Math.floor(Math.random()*LOVE.length)]);lastToast=Date.now()}
+      hadError=false;
+    }
+  },500);
+}
+let offset=0,manualRun=false,hadErrorNow=false;
+
+function explain(msg){for(const [re,f] of ERR){const m=msg.match(re);if(m)return f(m)}return "电脑看不懂这里。先检查有没有<b>拼错字</b>、<b>中文标点</b>、<b>括号没配对</b>。实在不行，点「改乱了，还原」重来。"}
+
+window.addEventListener("message",e=>{
+  const d=e.data;if(!d||!d.__sweet)return;
+  const empty=$("#logs .empty");if(empty)empty.remove();
+  const li=document.createElement("li");li.className=d.t;
+  let html=esc(d.a.join(" "));
+  if(d.t==="error"){
+    hadErrorNow=true;hadError=true;setStatus(false);
+    const line=d.line?d.line-offset:0;
+    const where=line>0?"JS 第 "+line+" 行出了问题：":"出了点小问题：";
+    html='<span>'+esc(where)+'</span>\n'+html+'<span class="why">💡 '+explain(d.a.join(" "))+'</span>';
+  }
+  li.innerHTML=html;$("#logs").appendChild(li);$("#logs").scrollTop=1e9;
+});
+
+function setStatus(ok){$("#dot").classList.toggle("bad",!ok);$("#status").textContent=ok?"一切正常":"有个小错误，看下面";}
+function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2400)}
+
+function renderTerms(q){
+  q=(q||"").trim().toLowerCase();
+  $("#terms").innerHTML=TERMS.filter(t=>!q||(t[0]+t[1]+t[2]).toLowerCase().includes(q))
+   .map(t=>'<li><code>'+esc(t[0])+'</code><p>'+esc(t[1])+'</p><pre>'+esc(t[2])+'</pre></li>').join("")||'<li><p>没找到这个词。换个说法试试，比如「颜色」「点击」。</p></li>';
+}
+
+// events
+$("#lessons").addEventListener("click",e=>{const b=e.target.closest(".lesson");if(!b)return;cur=b.dataset.id;store.set("sc_cur",cur);renderLessons();renderTabs();loadEditor();run(false)});
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;save();tab=b.dataset.k;renderTabs();loadEditor()});
+$("#code").addEventListener("input",()=>{gutter();save();if($("#auto").checked){clearTimeout(runTimer);runTimer=setTimeout(()=>run(false),600)}});
+$("#code").addEventListener("scroll",()=>{$("#gutter").scrollTop=$("#code").scrollTop});
+$("#code").addEventListener("keydown",e=>{
+  const ta=e.target;
+  if(e.key==="Tab"){e.preventDefault();const s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+"  "+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+2;ta.dispatchEvent(new Event("input"))}
+  if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){e.preventDefault();save();run(true)}
+});
+$("#runBtn").onclick=()=>{save();run(true)};
+$("#clearBtn").onclick=()=>{$("#logs").innerHTML=""};
+$("#resetBtn").onclick=function(){
+  if(this.dataset.armed){delete drafts[cur];store.set("sc_drafts",drafts);loadEditor();run(false);toast("已经还原成最开始的样子啦");this.textContent="改乱了，还原";delete this.dataset.armed;return}
+  this.dataset.armed=1;this.textContent="再点一次确认还原";setTimeout(()=>{if(this.dataset.armed){delete this.dataset.armed;this.textContent="改乱了，还原"}},3000);
+};
+$("#copyBtn").onclick=()=>{const ta=$("#code");navigator.clipboard.writeText(ta.value).then(()=>toast("复制好啦"),()=>{ta.select();toast("已选中，按 ⌘/Ctrl+C 复制")})};
+$("#openDict").onclick=()=>{$("#dict").hidden=false;renderTerms("");$("#dictSearch").focus()};
+$("#closeDict").onclick=()=>{$("#dict").hidden=true};
+$("#dict").addEventListener("click",e=>{if(e.target.id==="dict")$("#dict").hidden=true});
+$("#dictSearch").addEventListener("input",e=>renderTerms(e.target.value));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#dict").hidden=true});
+
+renderLessons();renderTabs();loadEditor();run(false);
+</script>

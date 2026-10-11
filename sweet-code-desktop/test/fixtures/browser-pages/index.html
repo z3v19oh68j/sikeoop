@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自动化浏览器 · 测试页面集</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 720px; margin: 32px auto; padding: 0 16px; }
+  h1 { font-size: 20px; }
+  ul { padding-left: 18px; }
+  li { margin: 6px 0; }
+  code { background: rgba(127,127,127,.18); padding: 1px 5px; border-radius: 4px; }
+  .hint { color: #888; }
+</style>
+</head>
+<body>
+  <h1>自动化浏览器 · 测试页面集</h1>
+  <p class="hint">每一页对应 CDP 自动化里一个容易出错的场景。期望行为见 <code>README.md</code>。</p>
+  <ul>
+    <li><a href="/form.html">普通表单</a> — 文本 / 下拉 / 勾选 / 多行 + 提交</li>
+    <li><a href="/spa.html">SPA 路由</a> — history.pushState 换页，不触发加载事件</li>
+    <li><a href="/iframe.html">iframe</a> — 同源 + 跨源（副端口）两个子帧</li>
+    <li><a href="/shadow-dom.html">Shadow DOM</a> — open 与 closed 两种影子根</li>
+    <li><a href="/overlay.html">遮挡弹窗</a> — 目标按钮被模态层盖住</li>
+    <li><a href="/animating-button.html">动画中的按钮</a> — 位置持续移动</li>
+    <li><a href="/disabled-button.html">disabled 按钮</a> — 满足条件后才可用</li>
+    <li><a href="/virtual-list.html">虚拟长列表</a> — 一万条，只渲染可见部分</li>
+    <li><a href="/contenteditable.html">contenteditable 富文本</a></li>
+    <li><a href="/chinese-input.html">中文输入框</a></li>
+    <li><a href="/delayed-element.html">延迟出现的元素</a></li>
+  </ul>
+</body>
+</html>

@@ -1,0 +1,214 @@
+[
+  {
+    "ref": "ridaura_2013_science",
+    "title": "Gut microbiota from twins discordant for obesity modulate metabolism in mice",
+    "source": "Science 2013; DOI 10.1126/science.1241214; PMID 24009397",
+    "claims": [
+      {
+        "title": "Donor population",
+        "detail": "The study used fecal microbiota samples from adult female twin pairs discordant for obesity."
+      },
+      {
+        "title": "Recipient model",
+        "detail": "Fecal microbiota from the human donors were transplanted into germ-free mice."
+      },
+      {
+        "title": "Diet condition",
+        "detail": "Recipient mice were maintained under controlled diet conditions in the gnotobiotic mouse experiment."
+      },
+      {
+        "title": "Adiposity outcome",
+        "detail": "Mice receiving microbiota from obese co-twins developed greater adiposity-related phenotypes than mice receiving microbiota from lean co-twins."
+      },
+      {
+        "title": "Cohousing result",
+        "detail": "When mice harboring obese-twin microbiota were co-housed with mice harboring lean-twin microbiota, members of the lean-donor microbiota could invade the obese-recipient communities."
+      },
+      {
+        "title": "Diet-dependent invasion result",
+        "detail": "The invasion of lean-associated bacterial taxa and the associated metabolic phenotype depended on diet composition in the experiment."
+      }
+    ]
+  },
+  {
+    "ref": "turnbaugh_2006_nature",
+    "title": "An obesity-associated gut microbiome with increased capacity for energy harvest",
+    "source": "Nature 2006; DOI 10.1038/nature05414; PMID 17183312",
+    "claims": [
+      {
+        "title": "Mouse microbiome comparison",
+        "detail": "The study compared the distal gut microbiota of genetically obese mice and lean littermates."
+      },
+      {
+        "title": "Dominant bacterial divisions",
+        "detail": "The authors reported differences in the relative abundance of dominant gut bacterial divisions between obese and lean animals."
+      },
+      {
+        "title": "Energy harvest capacity",
+        "detail": "Metagenomic and biochemical analyses indicated that the obesity-associated microbiome had increased capacity for energy harvest from the diet."
+      },
+      {
+        "title": "Human observation",
+        "detail": "The paper reported gut microbiome differences between obese and lean human volunteers."
+      },
+      {
+        "title": "Germ-free mouse colonization",
+        "detail": "Colonization of germ-free mice with microbiota from obese donors produced greater increases in body fat than colonization with microbiota from lean donors."
+      }
+    ]
+  },
+  {
+    "ref": "sonnenburg_backhed_2016_nature",
+    "title": "Diet-microbiota interactions as moderators of human metabolism",
+    "source": "Nature 2016; DOI 10.1038/nature18846; PMID 27383980",
+    "claims": [
+      {
+        "title": "Diet-microbiota interaction",
+        "detail": "The review describes diet and gut microbiota as interacting factors in human metabolism."
+      },
+      {
+        "title": "Diet shapes microbial composition",
+        "detail": "The review discusses evidence that dietary composition can alter gut microbial community structure and function."
+      },
+      {
+        "title": "Microbial metabolism of diet-derived substrates",
+        "detail": "The review describes microbial metabolism of dietary substrates into metabolites relevant to host physiology."
+      },
+      {
+        "title": "Host metabolic outcomes",
+        "detail": "The review discusses links between diet-microbiota interactions and host metabolic outcomes."
+      },
+      {
+        "title": "Need for mechanistic understanding",
+        "detail": "The review emphasizes the need to understand mechanisms connecting diet, microbiota, microbial metabolites, and host metabolism."
+      }
+    ]
+  },
+  {
+    "ref": "goodrich_2014_cell",
+    "title": "Human genetics shape the gut microbiome",
+    "source": "Cell 2014; DOI 10.1016/j.cell.2014.09.053; PMID 25417156",
+    "claims": [
+      {
+        "title": "Twin study design",
+        "detail": "The study analyzed gut microbiome data from monozygotic and dizygotic twin pairs."
+      },
+      {
+        "title": "Heritable taxa",
+        "detail": "The authors identified microbial taxa whose abundance showed evidence of host genetic influence."
+      },
+      {
+        "title": "Christensenellaceae heritability",
+        "detail": "The family Christensenellaceae was reported as one of the most heritable taxa in the study."
+      },
+      {
+        "title": "Association with leanness",
+        "detail": "Christensenellaceae abundance was associated with a lean host phenotype in the reported data."
+      },
+      {
+        "title": "Mouse transplantation test",
+        "detail": "The paper included a mouse experiment involving Christensenella minuta in a microbiota transplantation context."
+      },
+      {
+        "title": "Microbiome-host genetics relation",
+        "detail": "The study concluded that host genetic variation contributes to variation in human gut microbiome composition."
+      }
+    ]
+  },
+  {
+    "ref": "thaiss_2014_cell",
+    "title": "Transkingdom control of microbiota diurnal oscillations promotes metabolic homeostasis",
+    "source": "Cell 2014; DOI 10.1016/j.cell.2014.09.048; PMID 25417104",
+    "claims": [
+      {
+        "title": "Diurnal microbiota oscillations",
+        "detail": "The study reported diurnal oscillations in gut microbiota composition and function."
+      },
+      {
+        "title": "Feeding rhythm link",
+        "detail": "The paper linked microbiota oscillations to host feeding rhythms."
+      },
+      {
+        "title": "Host circadian disruption",
+        "detail": "Disruption of host circadian rhythms altered microbiota rhythmicity in the reported experiments."
+      },
+      {
+        "title": "Metabolic phenotype",
+        "detail": "The study reported metabolic consequences associated with disruption of microbiota diurnal oscillations."
+      },
+      {
+        "title": "Transfer experiment",
+        "detail": "The paper included microbiota transfer experiments connecting disrupted rhythmicity with metabolic phenotypes in recipient mice."
+      }
+    ]
+  },
+  {
+    "ref": "cani_2019_natmetab",
+    "title": "Microbial regulation of organismal energy homeostasis",
+    "source": "Nature Metabolism 2019; DOI 10.1038/s42255-018-0017-4",
+    "claims": [
+      {
+        "title": "Energy homeostasis review",
+        "detail": "The review discusses ways in which gut microorganisms participate in organismal energy homeostasis."
+      },
+      {
+        "title": "Microbial metabolites",
+        "detail": "The review discusses microbial metabolites, including short-chain fatty acids and bile-acid-related pathways, in relation to host metabolism."
+      },
+      {
+        "title": "Host-microbe signaling",
+        "detail": "The review describes host-microbe signaling pathways relevant to metabolic regulation."
+      }
+    ]
+  },
+  {
+    "ref": "fan_pedersen_2021_nrmicro",
+    "title": "Gut microbiota in human metabolic health and disease",
+    "source": "Nature Reviews Microbiology 2021; DOI 10.1038/s41579-020-0433-9",
+    "claims": [
+      {
+        "title": "Human metabolic health review",
+        "detail": "The review summarizes associations between gut microbiota and human metabolic health and disease."
+      },
+      {
+        "title": "Obesity and metabolic disease",
+        "detail": "The review discusses microbiome features reported in obesity and related metabolic disorders."
+      },
+      {
+        "title": "Diet and medication effects",
+        "detail": "The review discusses diet, medication, and environmental factors as contributors to microbiome variation."
+      },
+      {
+        "title": "Human intervention evidence",
+        "detail": "The review discusses human intervention studies targeting the gut microbiota in metabolic disease contexts."
+      },
+      {
+        "title": "Individual variation",
+        "detail": "The review describes substantial inter-individual variation in microbiome composition and metabolic responses."
+      }
+    ]
+  },
+  {
+    "ref": "devos_2022_gut",
+    "title": "Gut microbiome and health: mechanistic insights",
+    "source": "Gut 2022; DOI 10.1136/gutjnl-2021-326789; PMID 35105664",
+    "claims": [
+      {
+        "title": "Mechanistic review",
+        "detail": "The review discusses mechanistic links between the gut microbiome and host health."
+      },
+      {
+        "title": "Microbial products",
+        "detail": "The review discusses microbial products and metabolites as mediators of host-microbiome interactions."
+      },
+      {
+        "title": "Host context",
+        "detail": "The review discusses host context, diet, and environment as factors shaping microbiome-health relationships."
+      },
+      {
+        "title": "Translation to interventions",
+        "detail": "The review discusses challenges and opportunities in translating microbiome mechanisms into interventions."
+      }
+    ]
+  }
+]

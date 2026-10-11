@@ -1,0 +1,20 @@
+[
+  {
+    "ref": "example:official_doc",
+    "title": "Official product documentation",
+    "detail": "The official documentation states the core product capability and supported use cases.",
+    "source": "repository"
+  },
+  {
+    "ref": "example:third_party_review",
+    "title": "Third-party review",
+    "detail": "A third-party review provides an independent comparison with alternatives.",
+    "source": "repository"
+  },
+  {
+    "ref": "example:known_limitation",
+    "title": "Known limitation",
+    "detail": "A limitation note describes conditions under which the product may underperform.",
+    "source": "repository"
+  }
+]

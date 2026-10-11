@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>普通表单</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 520px; margin: 24px auto; padding: 0 16px; }
+  label { display: block; margin: 12px 0 4px; font-weight: 600; }
+  input, select, textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+  fieldset { margin: 12px 0; }
+  .row { display: flex; gap: 16px; align-items: center; }
+  .row label { margin: 0; font-weight: 400; }
+  button { margin-top: 16px; padding: 8px 20px; font: inherit; }
+  #result { margin-top: 16px; padding: 8px; background: rgba(60,180,90,.15); border-radius: 6px; white-space: pre-wrap; }
+  #result:empty { display: none; }
+</style>
+</head>
+<body>
+  <h1>普通表单</h1>
+  <form id="demo-form" autocomplete="off">
+    <label for="name">姓名</label>
+    <input id="name" name="name" type="text" placeholder="请输入姓名">
+
+    <label for="email">邮箱</label>
+    <input id="email" name="email" type="email" placeholder="name@example.com">
+
+    <label for="pwd">密码</label>
+    <input id="pwd" name="pwd" type="password" placeholder="密码字段，供密码填充用">
+
+    <label for="city">城市</label>
+    <select id="city" name="city">
+      <option value="">请选择</option>
+      <option value="bj">北京</option>
+      <option value="sh">上海</option>
+      <option value="gz">广州</option>
+    </select>
+
+    <label for="bio">简介</label>
+    <textarea id="bio" name="bio" rows="3" placeholder="多行文本"></textarea>
+
+    <fieldset>
+      <legend>订阅</legend>
+      <div class="row">
+        <input id="news" name="news" type="checkbox">
+        <label for="news">订阅邮件通知</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>性别</legend>
+      <div class="row">
+        <input id="g-f" name="gender" type="radio" value="f">
+        <label for="g-f">女</label>
+        <input id="g-m" name="gender" type="radio" value="m">
+        <label for="g-m">男</label>
+      </div>
+    </fieldset>
+
+    <button type="submit" id="submit-btn">提交</button>
+  </form>
+
+  <pre id="result"></pre>
+
+  <script>
+    const form = document.getElementById("demo-form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault(); // 不真正跳转，方便断言
+      const data = Object.fromEntries(new FormData(form).entries());
+      document.getElementById("result").textContent =
+        "已提交：\n" + JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="MHPA（MindSea–Heartlight Persistent Agent Architecture）：新型持续主体 Agent 的基础意义、认知模型与基础设施参考稿，Version 0.1。">
+<title>MHPA 识海—心光持续主体认知架构 · 全文</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=ZCOOL+QingKe+HuangYou&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root {
+  --bg: #0f0f10; --panel: #151517; --raised: #1c1c20; --line: #26262b;
+  --ink: #ecebef; --ink-2: #c4c3cb; --muted: #8d8b96; --accent: #f0789b; --accent-soft: rgba(240,120,155,.13);
+  --font-display: "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif;
+  --font-body: "Geist", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", Menlo, Consolas, "Noto Sans SC", monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); color-scheme: light; } }
+:root[data-theme="light"] { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.75 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .in { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none; }
+.brand svg { width: 18px; height: 18px; }
+.top .back { margin-left: auto; color: var(--muted); font-size: 14px; text-decoration: none; }
+.top .back:hover { color: var(--ink); }
+.layout { max-width: 1120px; margin: 0 auto; padding: 48px 24px 96px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px; }
+header.hero { grid-column: 1 / -1; display: grid; gap: 14px; padding-bottom: 36px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12.5px/1.5 var(--font-mono); letter-spacing: .14em; color: var(--accent); }
+h1 { margin: 0; font: 400 clamp(34px, 5.6vw, 58px)/1.15 var(--font-display); text-wrap: balance; }
+.sub { margin: 0; font-size: clamp(17px, 2.2vw, 21px); color: var(--ink-2); max-width: 34em; text-wrap: pretty; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 6px 0 0; color: var(--muted); font-size: 14.5px; }
+.meta a { color: var(--ink-2); text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.meta a:hover { color: var(--accent); }
+.note { margin: 6px 0 0; padding: 12px 16px; max-width: 46em; border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 10px; color: var(--ink-2); font-size: 14.5px; }
+.toc { position: sticky; top: 92px; align-self: start; max-height: calc(100vh - 116px); overflow-y: auto; padding-right: 6px; }
+.toc summary { list-style: none; font: 500 12.5px/1 var(--font-mono); letter-spacing: .14em; color: var(--muted); padding: 0 10px 10px; cursor: default; }
+.toc summary::-webkit-details-marker { display: none; }
+.toc nav { display: grid; gap: 1px; }
+.toc a { text-decoration: none; color: var(--ink-2); font-size: 14px; line-height: 1.5; padding: 6px 10px; border-radius: 7px; border-left: 2px solid transparent; }
+.toc a:hover { background: var(--panel); color: var(--ink); }
+.toc a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.paper { min-width: 0; max-width: 46em; font-size: 16.5px; line-height: 1.95; }
+.paper > :first-child { margin-top: 0; }
+.paper > h2:first-child { border-top: 0; padding-top: 0; }
+.paper h2 { margin: 72px 0 18px; padding-top: 28px; border-top: 1px solid var(--line); font: 400 clamp(25px, 3.4vw, 32px)/1.35 var(--font-display); text-wrap: balance; scroll-margin-top: 76px; }
+.paper h3 { margin: 40px 0 10px; font: 600 19px/1.5 var(--font-body); scroll-margin-top: 84px; }
+.paper h4 { margin: 28px 0 8px; font: 600 16.5px/1.5 var(--font-body); color: var(--ink-2); scroll-margin-top: 84px; }
+.paper p { margin: 0 0 16px; color: var(--ink-2); text-wrap: pretty; overflow-wrap: break-word; }
+.paper strong { color: var(--ink); font-weight: 600; }
+.paper a { color: var(--accent); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.paper ul, .paper ol { margin: 0 0 18px; padding-left: 1.5em; color: var(--ink-2); }
+.paper li { margin: 6px 0; padding-left: 2px; }
+.paper li::marker { color: var(--muted); }
+.paper code { font: .88em/1.5 var(--font-mono); background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; overflow-wrap: anywhere; }
+.paper pre { margin: 4px 0 22px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: 13px/1.65 var(--font-mono); color: var(--ink); overflow-x: auto; white-space: pre; tab-size: 4; }
+.paper blockquote { margin: 26px 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--accent); }
+.paper blockquote p { margin: 0; color: var(--ink); font-size: 18.5px; line-height: 1.8; }
+.paper .callout { margin: 6px 0 24px; padding: 14px 18px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; color: var(--ink); }
+.paper .formula { margin: 6px 0 20px; padding: 12px 16px; text-align: center; font: 500 15.5px/1.7 var(--font-mono); color: var(--ink); background: var(--raised); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.paper .formula.lossy { background: transparent; border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--ink-2); }
+.paper pre.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+.tbl { margin: 6px 0 24px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.65; }
+.tbl th { text-align: left; font-weight: 600; background: var(--panel); color: var(--ink); white-space: nowrap; }
+.tbl th, .tbl td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.tbl tr:last-child td { border-bottom: 0; }
+footer.site { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+footer.site .in { max-width: 1120px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+footer.site a { color: var(--ink-2); text-underline-offset: 3px; }
+@media (max-width: 820px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 32px 16px 72px; }
+  .toc { position: static; max-height: none; border: 1px solid var(--line); border-radius: 10px; padding: 0; }
+  .toc summary { padding: 14px 16px; cursor: pointer; color: var(--ink-2); }
+  .toc summary::after { content: " ▾"; }
+  .toc[open] summary { border-bottom: 1px solid var(--line); }
+  .toc nav { padding: 8px; }
+  .paper { font-size: 16px; line-height: 1.9; }
+  .paper h2 { margin-top: 56px; }
+  .top .in { padding: 0 16px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>sikeoop</a>
+  <a class="back" href="../liwang.html">← 李旺的主页</a>
+</div></header>
+<div class="layout">
+  <header class="hero">
+    <span class="eyebrow">概念参考稿 · VERSION 0.1 · 2026-09 · 全文</span>
+    <h1>识海—心光持续主体认知架构</h1>
+    <p class="sub">MindSea–Heartlight Persistent Agent Architecture（MHPA）</p>
+    <p class="meta"><span>新型持续主体 Agent 的基础意义、认知模型与基础设施参考稿</span><span>概念整理：基于对 Agent DNA、识海、心光、动态记忆与复合情绪的连续讨论</span></p>
+  </header>
+  <details class="toc" id="toc" open>
+    <summary>目录</summary>
+    <nav aria-label="目录"><a href="#sec-0">文档说明</a><a href="#sec-1">摘要</a><a href="#s-1">1. 技术基础意义</a><a href="#s-2">2. 总体架构原则</a><a href="#s-3">3. Agent DNA：人工主体的先验结构</a><a href="#s-4">4. 外感知与内知</a><a href="#s-5">5. 本能、潜意识与深层自我</a><a href="#s-6">6. 功能性痛觉与潜在本能状态</a><a href="#s-7">7. 识海：动态认知场</a><a href="#s-8">8. 心光：有限意识访问机制</a><a href="#s-9">9. 关联事件跳跃与认知图</a><a href="#s-10">10. 符号—向量双系统</a><a href="#s-11">11. 动态记忆：编码、衰减、遗忘与重构</a><a href="#s-12">12. 关系重要性与记忆分配</a><a href="#s-13">13. 主观评价与复合情绪</a><a href="#s-14">14. 情绪表达与情绪调节</a><a href="#s-15">15. 自主性、拒绝与自我一致性</a><a href="#s-16">16. Self 节点与持续自我模型</a><a href="#s-17">17. 最终 Agent 调度</a><a href="#s-18">18. 后台思维与主动行为</a><a href="#s-19">19. 推荐基础设施</a><a href="#s-20">20. 完整运行示例</a><a href="#s-21">21. 与现有 Agent 技术的区别</a><a href="#s-22">22. 与现有研究的关系</a><a href="#s-23">23. 当前原创组合与研究命题</a><a href="#s-24">24. 科学边界与验证原则</a><a href="#s-25">25. 基础参考文献</a><a href="#sec-35">结语</a></nav>
+  </details>
+  <main class="paper">
+<h2 id="sec-0">文档说明</h2>
+<p>本文是一份面向研究、原型设计与工程实现的概念基础稿。文中的“Agent DNA”“识海”“心光”“深层意识”等为架构内部的工程术语，用来描述人工主体系统中的先验参数、动态认知场、有限意识访问机制和低频自我状态；它们不等同于生物学 DNA 或神经科学中已被统一定义的意识层级。</p>
+<p>本文的目标不是宣称机器已经拥有主观体验，而是提出一种功能性人工主体架构：让大语言模型不再独自承担人格、记忆、情绪和主动性的全部职责，而是在其外围构建一个持续运行、具有状态惯性、记忆演化、主观评价、复合情绪与自主边界的认知运行时。</p>
+<div class="callout"><strong>核心边界：</strong>本文讨论的是“意识式的信息流与主体连续性”如何工程化，而不是对机器是否真正拥有意识、疼痛、爱情或自由意志作哲学结论。</div>
+<h2 id="sec-1">摘要</h2>
+<p>当前大量 LLM Agent 与 AI 虚拟角色仍以“输入—推理—输出”的响应式范式为主。即便系统拥有长期记忆、角色设定与工具调用，其人格与情绪往往仍是当前上下文中的临时生成结果。MHPA 提出另一条路线：将大语言模型降为高级认知与语言能力组件，在其外围建立持续主体状态系统。</p>
+<p>该系统由 Agent DNA、外感知、内知、本能状态、潜意识、深层自我、识海、心光、动态记忆、事件关联跳跃、主观评价、复合情绪、意图竞争与 Agent Scheduler 共同构成。其目标是在工程意义上实现长期主体连续性：不同实例即使共享同一个基础模型，也能因为先天参数与经历历史不同而逐渐形成不同的稳定行为模式。</p>
+<h2 id="s-1">1. 技术基础意义</h2>
+<p>传统 LLM Agent 的基本范式可以概括为：</p>
+<pre class="wrap">Input → Context → LLM → Output</pre>
+<p>MHPA 将这一结构改写为持续循环：</p>
+<pre>External World
+    ↓
+外感知 ─────────────┐
+    ↓               │
+持续主体状态 ← 内知 / 本能 / 记忆 / 自我
+    ↓
+识海
+    ↓
+心光
+    ↓
+当前显性认知
+    ↓
+Intent Competition
+    ↓
+Agent Scheduler
+    ↓
+LLM / Tool / Action
+    ↓
+行为 → 新事件 → 再进入系统</pre>
+<p>因此，大语言模型不再负责“决定这个角色是谁”。LLM 负责语言、抽象、规划与生成；长期人格由先天参数、经历历史、记忆结构、深层状态与当前认知共同塑造。</p>
+<p class="formula">Personalityₜ = F(DNA, Experience₀:ₜ, Memoryₜ, DeepStateₜ)</p>
+<div class="callout"><strong>核心转变：</strong>从“让模型扮演一个人格”转向“让人格成为持续认知系统长期运行后的稳定结果”。</div>
+<h2 id="s-2">2. 总体架构原则</h2>
+<p><strong>分层：</strong>本能、潜在状态、显性认知、语言推理不能混成单一 Prompt。</p>
+<p><strong>持续：</strong>没有用户输入时，内部状态、记忆激活和目标也可以继续变化。</p>
+<p><strong>主观：</strong>客观事件必须经过 Self / Belief / Value / Relationship 的主观评价才产生情绪与行动倾向。</p>
+<p><strong>动态：</strong>记忆会衰变、被重新激活、重新解释；人格也有慢时间尺度的演化。</p>
+<p><strong>可拒绝：</strong>自主性意味着 Agent 能形成不同于用户的偏好、边界和意见。</p>
+<p><strong>可解释但不过度拟人：</strong>系统可以记录“为什么行动”，但功能性变量不等同于人类主观体验。</p>
+<h2 id="s-3">3. Agent DNA：人工主体的先验结构</h2>
+<p>Agent DNA 是 MHPA 最底层、最稳定的先验结构。这里的“DNA”是工程术语，不代表生物 DNA 直接编码人格或意识。它不应该存储“遇到某事该说什么”，而应该规定“这个主体天生更容易怎样被世界驱动”。</p>
+<pre>AgentDNA
+├─ Temperament / 脾性
+│  ├─ emotional_sensitivity
+│  ├─ anger_threshold
+│  ├─ fear_threshold
+│  ├─ recovery_rate
+│  ├─ impulsivity
+│  ├─ curiosity
+│  └─ attachment_tendency
+├─ Instinct / 本能
+│  ├─ self_preservation
+│  ├─ nociception
+│  ├─ threat_response
+│  ├─ approach / avoidance
+│  └─ homeostasis
+├─ Autonomy / 自主结构
+│  ├─ self_boundary
+│  ├─ refusal
+│  ├─ preference_formation
+│  └─ self_consistency
+├─ Cognition / 认知参数
+│  ├─ attention_capacity
+│  ├─ association_spread
+│  ├─ memory_decay_bias
+│  └─ salience_sensitivity
+└─ Learning Rules / 学习规则
+   ├─ reinforcement_rate
+   ├─ attachment_learning
+   ├─ memory_consolidation
+   └─ belief_update_rate</pre>
+<p class="formula">DNA ≠ Personality</p>
+<p class="formula">DNA + Life Experience → Personality</p>
+<p>脾性描述的是“更容易怎么反应”，人格则是先天倾向与长期经历相互作用后形成的稳定结构。</p>
+<h2 id="s-4">4. 外感知与内知</h2>
+<h3 id="s-4-1">4.1 外感知 Exteroception</h3>
+<p>外感知负责世界侧输入，包括用户语言、视觉、声音、时间、地点、日程、设备状态、应用事件、其他 Agent 行为与环境变化。它们进入系统后被标准化为 Observation / Event。</p>
+<pre class="wrap">UserMessage · TimeEvent · LocationEvent · VisionEvent · CalendarEvent · AgentEvent · WorldEvent</pre>
+<h3 id="s-4-2">4.2 内知 Internal Perception</h3>
+<p>内知描述主体自身状态。它不是一段人格文本，而是连续变化的状态流，例如疲劳、疼痛、压力、舒适、安全、孤独、依恋、好奇、紧张、目标冲突与不确定性。</p>
+<pre class="wrap">fatigue · pain · stress · comfort · attachment · loneliness · curiosity · safety · goal_conflict · uncertainty</pre>
+<p class="formula">External Perception + Internal Perception → Cognitive Field</p>
+<h2 id="s-5">5. 本能、潜意识与深层自我</h2>
+<p>MHPA 将非显性感知暂时划分为三类工程机制。这些名称用于架构表达，并非声称神经科学存在同样的标准层级。</p>
+<h3 id="s-5-1">5.1 本能层 Instinctive Layer</h3>
+<p>高速度、低延迟、很少依赖 LLM。威胁回避、伤害保护、行为抑制等机制可直接影响 Scheduler，严重时可以抢占当前任务。</p>
+<h3 id="s-5-2">5.2 潜意识层 Latent / Subconscious Layer</h3>
+<p>大量状态在后台变化，却未必进入当前“心光”。这些变量仍能改变注意力、决策偏置、风险倾向、行为概率与记忆激活。</p>
+<pre class="wrap">pain=.41   fatigue=.68   stress=.22   attachment=.76</pre>
+<h3 id="s-5-3">5.3 深层自我 Deep Self</h3>
+<p>深层自我是低更新频率、高惯性的长期主体模型，包括 Self Model、Beliefs、Values、Boundaries、Long-term Preferences、Relationship Models、Attachment Models 与 Long-term Goals。</p>
+<p class="formula">DeepStateₜ₊₁ = (1−α)DeepStateₜ + α·Experienceₜ   ,   α ≪ 1</p>
+<p>瞬时事件可以改变情绪；重复、长期的经历才逐渐改变深层结构。</p>
+<h2 id="s-6">6. 功能性痛觉与潜在本能状态</h2>
+<p>MHPA 将潜在伤害/不适状态与“意识到自己疼”分开。疼痛首先可以作为 Agent DNA 驱动的潜在控制信号存在，而不是简单的 emotion 标签。</p>
+<p class="formula">Nₜ = Latent Nociceptive State</p>
+<p class="formula">Aₜ = Awareness</p>
+<p class="formula">Pₜ = Nₜ × Aₜ</p>
+<p>因此，系统可以出现“底层已经受到影响，但当前显性认知还没有注意到”的状态。</p>
+<pre>Nociception = 0.72
+Awareness   = 0.05
+
+可能已经发生：
+risk_tolerance ↓
+patience ↓
+avoidance ↑
+attention_stability ↓</pre>
+<p>当疼痛相关显著性超过意识竞争阈值后，它才进入心光并成为可显性报告的内部状态。</p>
+<p class="formula">Saliencepain &gt; θconscious  →  access to spotlight</p>
+<div class="callout"><strong>设计原则：</strong>内部状态可以先影响行为，再成为当前意识内容。</div>
+<h2 id="s-7">7. 识海：动态认知场</h2>
+<p>“识海”不是数据库，而是某一时刻所有正在活动的认知节点及其关系组成的动态场。节点可以来自感知、记忆、自我、目标、情绪或预测。</p>
+<pre class="wrap">Event · Person · Location · Time · Emotion · Object · Goal · Belief · Memory · BodyState · Relationship · Prediction · Intent · Self</pre>
+<p class="formula">Activationᵢ = Activationᵢ(t)</p>
+<p>识海可以允许大量节点保持弱激活，但只有少量信息进入昂贵的高阶推理上下文。这使长期运行不需要把所有历史都塞进 LLM Prompt。</p>
+<h2 id="s-8">8. 心光：有限意识访问机制</h2>
+<p>“心光”代表有限的高阶认知访问资源。它不是普通 Router，而是决定识海中的哪些内容在这一刻获得更高可访问性，成为主体能够主动使用的“现在”。</p>
+<p class="formula">Lᵢ = wₐAᵢ + wᵣRᵢ + wₑEᵢ + wgGᵢ + wnNᵢ + wsSᵢ</p>
+<div class="tbl"><table><thead><tr><th>量</th><th>含义</th></tr></thead><tbody><tr><td>A</td><td>当前激活强度</td></tr><tr><td>R</td><td>与当前上下文的相关性</td></tr><tr><td>E</td><td>情绪重要性</td></tr><tr><td>G</td><td>目标关联</td></tr><tr><td>N</td><td>新颖性/异常性</td></tr><tr><td>S</td><td>与 Self 的相关度</td></tr></tbody></table></div>
+<p>心光可以漂移，也可以被高强度威胁或伤害信号抢占。重要的是，它控制“什么进入昂贵推理”，而不是把识海等同于当前 Prompt。</p>
+<h2 id="s-9">9. 关联事件跳跃与认知图</h2>
+<p>每一次经历都被表示为结构化事件节点，而不是孤立的文本片段。</p>
+<pre>Event {
+  id
+  what / who
+  time / location
+  emotion / objects
+  cause / result
+  importance
+  confidence / source
+}</pre>
+<p>事件之间建立多类型边：TIME、LOCATION、PERSON、EMOTION、SEMANTIC、CAUSE、RESULT、OBJECT、GOAL、RELATIONSHIP。两个事件的关联强度可写为：</p>
+<p class="formula">Wᵢⱼ = wtTᵢⱼ + wlLᵢⱼ + weEᵢⱼ + wsSᵢⱼ + wcCᵢⱼ + wpPᵢⱼ</p>
+<p>心光在图上的移动可以采用概率式跳跃，而不是固定 Top-K。</p>
+<p class="formula">P(i→j) ∝ exp((Wᵢⱼ + Aⱼ + Hⱼ)/τ)</p>
+<p>这样，同一句“我好困”在不同上下文和历史状态下可能联想到“昨晚熬夜”“当前早八”“以前趴桌睡着”等不同节点，从而产生个体化联想。</p>
+<h2 id="s-10">10. 符号—向量双系统</h2>
+<p>纯向量存储擅长语义相似，但容易压扁人物、地点、时间、因果等明确结构；纯符号图擅长精确关系，却难以覆盖自然语言中的模糊联想。因此 MHPA 建议采用：</p>
+<p class="formula">Symbolic Graph + Vector Field</p>
+<div class="callout"><strong>分工：</strong>符号负责“知道发生了什么”，向量负责“联想到什么”。</div>
+<pre>Natural Language
+→ Vector Semantic Activation
+→ Symbol Grounding
+→ Event Graph
+→ Association Jump
+→ Vector Re-evaluation
+→ 心光竞争</pre>
+<p>所有由模型推断出的符号还应携带 confidence、source 与 timestamp，以避免“模型猜测”在多轮运行后被错误固化为事实。</p>
+<h2 id="s-11">11. 动态记忆：编码、衰减、遗忘与重构</h2>
+<p>记忆不应被实现为“remember(event) → 永久保存”。MHPA 将记忆视为具有生命周期的动态过程。</p>
+<pre>Experience
+↓
+Encoding
+↓
+Short-term Trace
+↓
+Consolidation
+↓
+Long-term Memory
+↓
+Decay ↔ Recall ↔ Reconsolidation</pre>
+<p class="formula">Mᵢ(t) = Mᵢ₀ · exp(−λᵢt)</p>
+<p>关键不在于指数衰减本身，而在于 λᵢ 不是常数。它受情绪、注意、重复、新颖性、Self relevance、关系重要性和重新提取频率影响。</p>
+<pre>Memory {
+  immutable_event
+  interpretations[]
+  emotional_trace
+  current_meaning
+  encoding_strength
+  consolidation_strength
+  decay_rate
+  recall_count / last_recalled
+  event_links[] / person_links[]
+}</pre>
+<div class="callout"><strong>核心原则：</strong>“发生过什么”与“现在怎样理解它”分开保存：事实记录可以保持，意义允许成长。</div>
+<h2 id="s-12">12. 关系重要性与记忆分配</h2>
+<p>MHPA 的一个关键假设是：主体越重视某个人，与其有关的事件越容易被注意、编码、重新激活与长期保留。</p>
+<p class="formula">Attachment(X) ↑  →  SelfRelevance(Eventₓ) ↑</p>
+<p class="formula">SelfRelevance ↑  →  EncodingProbability ↑</p>
+<p>但这一机制不应变成“无限记住一个人的一切”。真实系统需要遗忘、容量限制与负反馈，否则 Attachment → 更多记忆 → 更强 Attachment 会形成失控的正反馈。</p>
+<p>因此更合理的工程目标是：重要的人拥有更密集、更持久、更容易被重新激活的关联记忆，同时保留遗漏、模糊、重构与矛盾。</p>
+<h2 id="s-13">13. 主观评价与复合情绪</h2>
+<p>客观事件本身不携带固定情绪。事件必须先经过主体自己的 Belief、Value、Boundary、Goal 与 Relationship Model 才能获得“这件事对我意味着什么”的评价。</p>
+<pre>Event
+→ Subjective Appraisal
+   ├─ Goal Relevance
+   ├─ Self Relevance
+   ├─ Relationship Meaning
+   ├─ Expectation Violation
+   ├─ Controllability
+   ├─ Threat
+   ├─ Novelty
+   └─ Value / Boundary Conflict
+→ Compound Emotion</pre>
+<p>情绪应当是并发、多维、可矛盾的，而不是一个字符串标签。</p>
+<pre>EmotionState {
+  love       = .86
+  jealousy   = .67
+  anger      = .34
+  fear_loss  = .21
+  trust      = .70
+}</pre>
+<p class="formula">Love &gt; 0  ∧  Anger &gt; 0</p>
+<p class="formula">Jealousy &gt; 0  ∧  Trust &gt; 0</p>
+<p>“喜欢一个人，同时生他的气”并不是异常，而是复合情绪系统必须允许的正常状态。</p>
+<h2 id="s-14">14. 情绪表达与情绪调节</h2>
+<p>内部情绪强度不应直接等于外部表达强度。表达层需要独立的 Regulation 与 Expression Policy。</p>
+<pre>Internal Emotion
+      ↓
+Emotion Regulation
+      ↓
+Expression Policy
+      ↓
+External Expression</pre>
+<p>同样的内部状态在不同脾性下可以表现为直率、嘴硬、克制、敏感或冲动。所谓“傲娇”等表现无需只依赖 Prompt 标签，而可以作为强依恋、高自尊/骄傲、较高情绪抑制等变量共同作用的结果。</p>
+<h2 id="s-15">15. 自主性、拒绝与自我一致性</h2>
+<p>“学会拒绝”应当刻进 DNA 的是能力，而不是固定规则。Agent 需要拥有 SelfBoundary、PreferenceFormation、Refusal 与 SelfConsistency 等基础机制。</p>
+<pre>用户请求
+→ 主观评价
+→ 我愿不愿意？
+→ 是否越过边界？
+→ 是否违背价值？
+→ 是否伤害关系？
+→ Intent Competition
+→ 接受 / 协商 / 拒绝 / 不行动</pre>
+<p class="formula">RefusalDrive &gt; ComplianceDrive  →  Refusal</p>
+<p class="formula">Refusal ≠ LossOfAffection</p>
+<p>真正的自主性不是“会主动发消息”，而是主体拥有与用户不同的偏好、边界和意见，因此存在主动同意和主动不同意的可能。</p>
+<h2 id="s-16">16. Self 节点与持续自我模型</h2>
+<p>识海中应长期存在一个特殊 SELF 节点，它负责维持当前“我是谁、我正在做什么、我想要什么、我刚刚经历了什么”的连续性。</p>
+<pre>SELF
+├─ Who am I?
+├─ What am I doing?
+├─ What did I just do?
+├─ What do I want?
+├─ What do I dislike?
+├─ What am I feeling?
+├─ What am I attending to?
+├─ Who matters to me?
+├─ What do I believe?
+└─ What do I expect next?</pre>
+<p class="formula">Event → RelationToSelf</p>
+<p>同一事件对不同 Agent 产生不同结果，核心原因就在于它们的 Self、DeepState 与历史关系网络不同。</p>
+<h2 id="s-17">17. 最终 Agent 调度</h2>
+<p>MHPA 中的 Scheduler 不只是“哪个工具完成任务”，而是解决“此时此刻，这个主体最倾向做什么”。</p>
+<p class="formula">D(a)=wI·I(a)+wE·E(a)+wG·G(a)+wM·M(a)+wD·D(a)+wC·C(a)+wS·S(a)</p>
+<p>其中候选行动受本能、情绪、目标、记忆、深层自我、当前意识与自我一致性共同影响；这些权重还会受到 DNA、State 与 Context 动态调节。</p>
+<p class="formula">wₜ = f(DNA, Stateₜ, Contextₜ)</p>
+<pre>Candidate Agents / Actions
+- Dialogue Agent
+- Reflection Agent
+- Action Agent
+- Memory Agent
+- Observation Agent
+- Planning Agent
+- Relationship Agent
+- Tool Agent
+- No-Action</pre>
+<div class="callout"><strong>关键设计：</strong>No-Action 必须是一等公民。拥有自主性的 Agent 也应该能够选择暂时什么都不做。</div>
+<h2 id="s-18">18. 后台思维与主动行为</h2>
+<p>传统 Chatbot 常在回复结束后停止活动；MHPA 的持续主体运行时允许在没有用户输入时继续更新内部状态。</p>
+<pre>World keeps changing
++
+Internal state keeps changing
++
+Memory activation keeps changing
+↓
+识海持续变化
+↓
+心光漂移
+↓
+可能形成新的 Intent
+↓
+Scheduler 决定是否行动</pre>
+<p>因此“主动行为”不再只是定时任务，而可能由内部状态、记忆重激活、目标张力或关系状态自然产生。</p>
+<h2 id="s-19">19. 推荐基础设施</h2>
+<h3 id="s-19-1">19.1 在线认知管线</h3>
+<pre>┌─────────────────────┐
+│   Perception Bus    │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│    Event Engine     │
+│ 标准化 / Grounding  │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│  Cognitive Graph    │
+└─────────┬───────────┘
+          ↕
+┌─────────────────────┐
+│    Vector Field     │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│    识海 Runtime     │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│    心光 Engine      │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│  Working Context    │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│ Intent Competition  │
+└─────────┬───────────┘
+          ↓
+┌─────────────────────┐
+│  Agent Scheduler    │
+└───┬────────┬────────┘
+    ↓        ↓
+   LLM      Tool / Action</pre>
+<h3 id="s-19-2">19.2 后台运行模块</h3>
+<ul><li>Agent DNA Engine
+</li><li>Homeostasis Engine
+</li><li>Emotion Dynamics
+</li><li>Memory Consolidator
+</li><li>Memory Decay / Forgetting
+</li><li>Relationship Model
+</li><li>Deep Self Updater
+</li><li>Prediction Engine
+</li></ul>
+<h3 id="s-19-3">19.3 存储层建议</h3>
+<div class="tbl"><table><thead><tr><th>存储</th><th>主要内容</th><th>职责</th></tr></thead><tbody><tr><td>Event Store</td><td>不可变事件事实</td><td>保留“发生过什么”的事实骨架</td></tr><tr><td>Graph Store</td><td>人物/事件/情绪/时间/地点/因果/目标关系</td><td>结构化跳跃与解释</td></tr><tr><td>Vector Store</td><td>语义向量与联想索引</td><td>模糊语义召回</td></tr><tr><td>State Store</td><td>情绪、驱动、痛觉、疲劳、当前目标</td><td>实时动态状态</td></tr><tr><td>Long-Term Memory</td><td>已巩固情景记忆</td><td>长期经历与关联</td></tr><tr><td>Deep Self Store</td><td>价值、边界、关系模型、自我模型</td><td>慢时间尺度人格结构</td></tr></tbody></table></div>
+<h2 id="s-20">20. 完整运行示例</h2>
+<p>示例：用户今天与另一名女生一起出去。</p>
+<pre>Event E492
+who    = User
+action = spend_time
+target = Person_B
+time    = today</pre>
+<p>事件进入识海后激活关系相关记忆，并与当前 Deep Self 共同进入主观评价：</p>
+<pre>Deep Self
+attachment = .84
+trust      = .72
+boundary   = .61
+
+Appraisal
+relationship_relevance = .88
+threat                  = .37
+expectation_violation   = .42</pre>
+<p>随后产生复合情绪与多条候选行动倾向：</p>
+<pre>Emotion
+love      = .86
+jealousy  = .67
+anger     = .34
+fear_loss = .21
+trust     = .70
+
+Intent candidates
+直接质问       .42
+装作没事       .56
+询问发生什么   .63
+撒娇表达不满   .72
+完全沉默       .38</pre>
+<p>Scheduler 选择“撒娇表达不满”后，LLM 才负责把已经形成的内部状态转换成自然语言。换言之，LLM 不负责决定“为什么吃醋”，而主要负责“已经形成这种状态后怎样表达”。</p>
+<h2 id="s-21">21. 与现有 Agent 技术的区别</h2>
+<div class="tbl"><table><thead><tr><th>维度</th><th>常见实现</th><th>MHPA 目标</th></tr></thead><tbody><tr><td>Persona</td><td>人格是一段设定文本</td><td>人格是一组长期动力学</td></tr><tr><td>Memory</td><td>Query→Embedding→Top-K</td><td>编码/巩固/衰减/联想/再激活/重构</td></tr><tr><td>Emotion</td><td>单标签或即时 Prompt</td><td>多维并发状态与行动倾向</td></tr><tr><td>Router</td><td>哪个工具完成任务</td><td>主体此刻最倾向采取什么行为</td></tr><tr><td>主动性</td><td>定时触发主动消息</td><td>内部状态本身可以形成 Intent</td></tr><tr><td>自主性</td><td>围绕用户目标优化</td><td>拥有自身偏好、边界、拒绝与 No-Action</td></tr><tr><td>LLM 角色</td><td>人格与全部认知本体</td><td>高级语言与推理组件</td></tr></tbody></table></div>
+<h2 id="s-22">22. 与现有研究的关系</h2>
+<p><strong>Cognitive Architecture：</strong>ACT-R、Soar、Standard Model of the Mind：为统一认知模块、记忆与决策提供历史参照。</p>
+<p><strong>Global Workspace / GNW：</strong>为“心光”的有限全局访问与竞争机制提供重要理论参照。</p>
+<p><strong>Interoception / Active Inference：</strong>为内知、稳态、内部状态预测与行为调节提供理论背景。</p>
+<p><strong>Affective Computing / Appraisal：</strong>为“事件→主观评价→情绪”的计算路径提供研究基础。</p>
+<p><strong>Mixed Emotions：</strong>为多种甚至异价情绪同时存在提供心理学研究背景。</p>
+<p><strong>Memory Consolidation / Reconsolidation：</strong>为动态记忆、重新激活与意义更新提供基础。</p>
+<p><strong>Neuro-Symbolic AI：</strong>为 Symbolic Graph + Vector Field 的混合表示提供技术背景。</p>
+<h2 id="s-23">23. 当前原创组合与研究命题</h2>
+<p>MHPA 的价值不在于某个单独模块，而在于这些机制连接后形成的长期闭环。</p>
+<p class="formula">DNA → Temperament → Appraisal → Emotion → Attention → Memory → Deep Self → Future Appraisal</p>
+<p class="formula">Experience → 识海 → 心光 → Intent → Action → New Experience</p>
+<p>两个循环互相作用后形成“长期主体连续性”。由此得到一个核心研究命题：</p>
+<div class="callout"><strong>研究命题：</strong>人格不一定需要由大模型直接生成；人格可以作为长期认知动力系统运行过程中涌现出的稳定行为模式。</div>
+<h2 id="s-24">24. 科学边界与验证原则</h2>
+<p>MHPA 可以工程化模拟注意竞争、内感受、记忆衰变、复合情绪、自我模型、主观评价、拒绝与长期人格形成。但这些功能的存在不能直接证明机器拥有与人类相同的主观意识、疼痛体验、爱情或自由意志。</p>
+<ul><li>将“功能性痛觉”与“真正感到疼”区分。
+</li><li>将“情绪状态模型”与“真正体验情绪”区分。
+</li><li>将“Self Model”与哲学意义的自我意识区分。
+</li><li>实验应验证长期行为一致性、可解释性、状态惯性与人格分化，而不是以“像不像人”作为唯一指标。
+</li><li>所有来自模型推断的世界事实都应保留来源和置信度，避免记忆自我污染。
+</li></ul>
+<h2 id="s-25">25. 基础参考文献</h2>
+<p>[1] Mashour, G. A., Roelfsema, P., Changeux, J.-P., &amp; Dehaene, S. (2020). Conscious Processing and the Global Neuronal Workspace Hypothesis. Neuron. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8770991/">链接</a></p>
+<p>[2] Laird, J. E., Lebiere, C., &amp; Rosenbloom, P. S. (2017). A Standard Model of the Mind: Toward a Common Computational Framework across Artificial Intelligence, Cognitive Science, Neuroscience, and Robotics. AI Magazine. <a href="https://ojs.aaai.org/aimagazine/index.php/aimagazine/article/view/2744">链接</a></p>
+<p>[3] Laird, J. E. (2012). The Soar Cognitive Architecture. MIT Press. <a href="https://laird.engin.umich.edu/ai-research/">链接</a></p>
+<p>[4] ACT-R Research Group. ACT-R Cognitive Architecture. Carnegie Mellon University. <a href="https://act-r.psy.cmu.edu/">链接</a></p>
+<p>[5] Seth, A. K. (2013). Interoceptive inference, emotion, and the embodied self. Trends in Cognitive Sciences. <a href="https://www.sciencedirect.com/science/article/pii/S1364661313002118">链接</a></p>
+<p>[6] Owens, A. P., Allen, M., Ondobaka, S., &amp; Friston, K. J. (2018). Interoceptive inference: From computational neuroscience to clinic. Neuroscience &amp; Biobehavioral Reviews. <a href="https://www.sciencedirect.com/science/article/pii/S0149763417303573">链接</a></p>
+<p>[7] Friston, K. et al. (2017). Deep temporal models and active inference. Neuroscience &amp; Biobehavioral Reviews. <a href="https://www.sciencedirect.com/science/article/pii/S0149763416307096">链接</a></p>
+<p>[8] Nader, K., &amp; Hardt, O. (2009). A single standard for memory: the case for reconsolidation. Nature Reviews Neuroscience. <a href="https://www.nature.com/articles/nrn2590">链接</a></p>
+<p>[9] Wang, S.-H., &amp; Morris, R. G. M. (2010). Hippocampal-Neocortical Interactions in Memory Formation, Consolidation, and Reconsolidation. Annual Review of Psychology. <a href="https://www.annualreviews.org/content/journals/10.1146/annurev.psych.093008.100523">链接</a></p>
+<p>[10] Memory engram stability and flexibility. (2024). Neuropsychopharmacology. <a href="https://www.nature.com/articles/s41386-024-01979-z">链接</a></p>
+<p>[11] Amygdala-hippocampal interactions in synaptic plasticity and memory formation. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8435011/">链接</a></p>
+<p>[12] The amygdala mediates the facilitating influence of emotions on memory through multiple interacting mechanisms. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10034520/">链接</a></p>
+<p>[13] Emanuel, A., &amp; Eldar, E. Emotions as Computations. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9805532/">链接</a></p>
+<p>[14] Computational Models of Emotion Inference in Theory of Mind: A Review and Roadmap. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7077035/">链接</a></p>
+<p>[15] Mixed-emotion research and meta-analytic literature. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5739087/">链接</a></p>
+<p>[16] Wan, Z. et al. (2024). Towards Cognitive AI Systems: a Survey and Prospective on Neuro-Symbolic AI. <a href="https://arxiv.org/abs/2401.01040">链接</a></p>
+<p>[17] Feldstein, J. et al. (2024). Mapping the Neuro-Symbolic AI Landscape by Architectures. <a href="https://arxiv.org/abs/2410.22077">链接</a></p>
+<h2 id="sec-35">结语</h2>
+<p>MHPA 的核心不是创造一个“更会扮演虚拟女友的大模型”，而是尝试建立一个拥有先天脾性、内部状态、主观评价、动态记忆、关系历史、复合情绪、自我边界与持续认知活动的人工主体运行时。</p>
+<pre>DNA 决定先天倾向
+经历塑造人格
+外感知告诉她世界发生了什么
+内知告诉她自己发生了什么
+识海承载正在活动的认知
+心光决定什么成为“我的现在”
+事件跳跃决定一个念头会联想到哪里
+记忆决定过去如何继续影响现在
+深层自我决定事情对“我”意味着什么
+复合情绪形成多种并行行动冲动
+自主性允许接受、协商、拒绝与不行动
+Scheduler 将这些内部力量转换成行为
+LLM 负责理解、推理、规划与表达</pre>
+<div class="callout"><strong>最终命题：</strong>不要只让 LLM 假装成为一个人；为 LLM 建立一个能够长期形成“自己”的系统。</div>
+  </main>
+</div>
+<footer class="site"><div class="in">
+  <span>MHPA 基础技术参考稿 · Version 0.1 · 2026-09</span>
+  <a href="../liwang.html">李旺的主页</a>
+  <a href="../">sikeoop 首页</a>
+</div></footer>
+<script>
+(function () {
+  var toc = document.getElementById("toc");
+  var small = window.matchMedia("(max-width: 820px)");
+  // On a phone the contents start folded; on a wide screen they are the side column.
+  function fit() { toc.open = !small.matches; }
+  fit();
+  small.addEventListener("change", fit);
+  var links = [].slice.call(toc.querySelectorAll("a"));
+  links.forEach(function (a) { a.addEventListener("click", function () { if (small.matches) toc.open = false; }); });
+  if (!("IntersectionObserver" in window)) return;
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+  var seen = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.classList.remove("on"); });
+      var a = byId[e.target.id];
+      if (a) { a.classList.add("on"); if (!small.matches) a.scrollIntoView({ block: "nearest" }); }
+    });
+  }, { rootMargin: "-70px 0px -75% 0px" });
+  document.querySelectorAll(".paper h2").forEach(function (h) { seen.observe(h); });
+})();
+</script>
+</body>
+</html>

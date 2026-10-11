@@ -1,0 +1,21 @@
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": 1,
+    "device": {
+      "id": "phone-01",
+      "name": "Pixel 9",
+      "platform": "android",
+      "appVersion": "0.1.0",
+      "signingPublicKey": "MCowBQY...",
+      "staticDhPublicKey": "MCowBQY..."
+    },
+    "capabilities": [
+      "snapshot",
+      "notifications",
+      "secure-approval"
+    ]
+  }
+}

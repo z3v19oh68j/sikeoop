@@ -1,0 +1,27 @@
+# Chain-Centric Multi-Agent Framework
+# Core dependencies for prototype
+
+# LLM Providers
+openai>=1.0.0
+anthropic>=0.30.0
+
+# Data & Computation
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# HTTP & API
+httpx>=0.25.0
+aiohttp>=3.9.0
+
+# Structured output & parsing
+pydantic>=2.0.0
+jsonschema>=4.20.0
+
+# CLI
+rich>=13.0.0
+click>=8.0.0
+
+# Development
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

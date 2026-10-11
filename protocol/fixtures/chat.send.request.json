@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": "3",
+  "method": "chat.send",
+  "params": {
+    "requestId": "req-1",
+    "text": "修复登录接口",
+    "mode": "lazy"
+  }
+}

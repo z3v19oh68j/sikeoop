@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mobile.presence",
+  "params": {
+    "online": false,
+    "lastSeenAt": 1791567000000
+  }
+}

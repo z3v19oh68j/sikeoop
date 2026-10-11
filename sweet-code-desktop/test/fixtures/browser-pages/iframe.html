@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iframe（同源 + 跨源）</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 680px; margin: 24px auto; padding: 0 16px; }
+  section { margin: 16px 0; }
+  iframe { width: 100%; height: 160px; border: 1px solid rgba(127,127,127,.5); border-radius: 8px; }
+  .label { font-weight: 600; margin-bottom: 6px; }
+  .warn { color: #b26b00; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>iframe：同源 + 跨源</h1>
+  <p>上面是同源子帧（父页同端口），下面是跨源子帧（副端口，不同源）。
+     跨源帧用普通预加载脚本进不去，CDP 需靠 <code>Target.setAutoAttach(flatten)</code> 穿透。</p>
+
+  <section>
+    <div class="label">① 同源子帧</div>
+    <iframe id="frame-same" title="同源子帧" src="/frame-inner.html?who=同源"></iframe>
+  </section>
+
+  <section>
+    <div class="label">② 跨源子帧（副端口）</div>
+    <iframe id="frame-cross" title="跨源子帧"></iframe>
+    <p class="warn" id="cross-note"></p>
+  </section>
+
+  <script>
+    // 跨源子帧：从「另一个端口」加载，和父页不同源。
+    // 默认端口对是 7331 / 7332，互相翻转；自定义端口时按 README 调整。
+    const here = location.port;
+    const other = here === "7332" ? "7331" : "7332";
+    const crossOrigin = location.protocol + "//" + location.hostname + ":" + other;
+    const cross = document.getElementById("frame-cross");
+    cross.src = crossOrigin + "/frame-inner.html?who=跨源";
+    document.getElementById("cross-note").textContent =
+      "跨源帧来自 " + crossOrigin + "（若副端口没起，这里会加载失败，属正常）。";
+  </script>
+</body>
+</html>

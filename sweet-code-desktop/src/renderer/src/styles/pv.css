@@ -1,0 +1,45 @@
+/* ───── PV 工坊 (components/pv/*) — builds on research.css (.research, .rs-card, fields) ───── */
+.pv-inner { max-width: 1400px; }
+.pv-head-actions { display: flex; gap: 8px; align-items: center; }
+.pv-head-actions .rs-select { width: auto; max-width: 240px; }
+.pv-bench { display: grid; grid-template-columns: 200px minmax(0, 1fr) 320px; gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .pv-bench { grid-template-columns: 180px minmax(0, 1fr); } .pv-preview { grid-column: 1 / -1; } }
+@media (max-width: 760px) { .pv-bench { grid-template-columns: minmax(0, 1fr); } }
+.pv-steps ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.pv-step { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 0; border-radius: 8px; background: none; color: var(--ink-2); text-align: left; font-size: 12.5px; }
+.pv-step:hover { background: var(--panel-2); }
+.pv-step.on { background: var(--accent-soft); color: var(--ink); }
+.pv-step.later { opacity: 0.6; }
+.pv-step-name { flex: 1; }
+.pv-dot { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 600 11px var(--font-code); background: var(--panel-3); color: var(--muted); flex: none; }
+.pv-dot.done { background: var(--ok); color: var(--accent-ink); }
+.pv-dot.running { background: var(--accent); color: var(--accent-ink); animation: pulse 1s infinite; }
+.pv-dot.error { background: var(--bad); color: var(--accent-ink); }
+.pv-later { font-size: 10.5px; padding: 0 6px; border-radius: 4px; border: 1px dashed var(--line-2); color: var(--muted); }
+.pv-step .st-badge { font-size: 10px; height: 18px; padding: 0 6px; }
+.pv-empty { padding: 12px 0; }
+.pv-textarea { min-height: 340px; font-family: var(--font-code); font-size: 12.5px; }
+.pv-sb { display: flex; flex-direction: column; gap: 10px; }
+.pv-shots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pv-shot { display: flex; align-items: flex-start; gap: 8px; padding: 8px; border: 1px solid var(--line-2); border-radius: 9px; background: color-mix(in srgb, var(--panel-2) 45%, transparent); }
+.pv-shot.dragging { opacity: 0.5; border-style: dashed; }
+.pv-grip { cursor: grab; color: var(--faint); padding-top: 18px; user-select: none; }
+.pv-no { flex: none; width: 22px; height: 22px; margin-top: 16px; border-radius: 50%; display: grid; place-items: center; font: 600 11px var(--font-code); background: var(--accent-soft); color: var(--accent); }
+.pv-shot-fields { flex: 1; min-width: 0; display: grid; grid-template-columns: 64px repeat(3, minmax(0, 1fr)); gap: 6px 8px; }
+.pv-shot-fields label { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 10.5px; color: var(--muted); }
+.pv-shot-fields label.wide { grid-column: 1 / -1; }
+.pv-shot-fields input, .pv-shot-fields select { height: 28px; min-width: 0; padding: 0 7px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel-2); color: var(--ink); font-size: 12px; }
+.pv-sec { font-family: var(--font-code); }
+.pv-shot-ops { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.pv-pack { padding-top: 10px; border-top: 1px solid var(--line); }
+.pv-pack ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pv-pack li { padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--panel-2) 45%, transparent); font-size: 12.5px; }
+.pv-pack li b { margin-right: 8px; color: var(--ink); }
+.pv-pack li p { margin-top: 4px; color: var(--ink-2); line-height: 1.6; white-space: pre-wrap; }
+.pv-video { width: 100%; border-radius: 9px; background: #000; display: block; }
+.pv-video.empty { display: grid; place-items: center; color: var(--faint); font-size: 12px; border: 1px dashed var(--line-2); background: var(--panel-2); }
+.pv-video.r16x9 { aspect-ratio: 16 / 9; } .pv-video.r9x16 { aspect-ratio: 9 / 16; max-height: 520px; } .pv-video.r1x1 { aspect-ratio: 1; }
+.pv-path { font: 11px var(--font-code); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pv-create { width: min(480px, calc(100% - 32px)); }
+.pv-fld { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.pv-fld .seg { margin-top: 0; }

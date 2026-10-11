@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "11",
+  "error": {
+    "code": -32001,
+    "message": "BUSY",
+    "data": {
+      "activity": "正在运行测试"
+    }
+  }
+}

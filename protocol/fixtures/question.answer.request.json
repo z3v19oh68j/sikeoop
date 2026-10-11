@@ -1,0 +1,17 @@
+{
+  "jsonrpc": "2.0",
+  "id": "6",
+  "method": "question.answer",
+  "params": {
+    "id": "question-1",
+    "answers": [
+      {
+        "id": "q1",
+        "choices": [
+          "推荐"
+        ]
+      }
+    ],
+    "usedDefaults": false
+  }
+}

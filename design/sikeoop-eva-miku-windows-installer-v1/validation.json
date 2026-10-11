@@ -1,0 +1,17 @@
+{
+  "status": "design-only-not-integrated",
+  "svgCount": 83,
+  "renderedSVGs": 82,
+  "screens": 6,
+  "registeredLayers": 16,
+  "icons": 19,
+  "embeddedRaster": 0,
+  "contrast": {
+    "ink/surface": 16.52,
+    "muted/surface": 8.38,
+    "faint/surface": 5.61,
+    "aqua/raised": 10.68,
+    "violet/surface": 6.68,
+    "error/raised": 7.16
+  }
+}

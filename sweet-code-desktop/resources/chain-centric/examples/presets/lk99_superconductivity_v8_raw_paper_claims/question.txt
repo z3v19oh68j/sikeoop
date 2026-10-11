@@ -1,0 +1,16 @@
+Analyze competing hypotheses about the LK-99 room-temperature superconductivity controversy:
+
+Hypothesis A (True Superconductivity):
+LK-99 or a correctly synthesized Cu-substituted lead apatite phase is a room-temperature, ambient-pressure superconductor.
+
+Hypothesis B (Impurity / Measurement Artifact):
+The reported superconducting-like signals are caused by impurities, phase transitions, ferromagnetic/diamagnetic artifacts, sample inhomogeneity, contact artifacts, or measurement interpretation errors rather than bulk superconductivity.
+
+Hypothesis C (Conditional / Non-Bulk / Narrow-Phase Effect):
+Some LK-99-like samples may show unusual electronic or magnetic behavior, but any effect is not robust bulk room-temperature superconductivity and depends on narrow composition, defects, interfaces, or synthesis conditions.
+
+Questions:
+1. Which hypothesis has the strongest evidential support? Rank by evidence type, not by excitement or plausibility.
+2. Are the three hypotheses mutually exclusive, or do they occupy different levels of explanation?
+3. Which specific evidence items become unreliable, scope-limited, or overgeneralized after cross-examination?
+4. Design a decisive replication or materials-characterization experiment that would distinguish A, B, and C.

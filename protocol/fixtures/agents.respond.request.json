@@ -1,0 +1,11 @@
+{
+  "jsonrpc": "2.0",
+  "id": "10",
+  "method": "agents.respond",
+  "params": {
+    "sessionId": "cli-1",
+    "requestId": "perm-1",
+    "approved": false,
+    "feedback": "稍后再运行"
+  }
+}

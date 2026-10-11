@@ -1,0 +1,13 @@
+sikeoop sound effects
+
+From "Interface Sounds" (1.0) by Kenney — https://www.kenney.nl
+Downloaded from https://github.com/Calinou/kenney-interface-sounds
+License: Creative Commons Zero (CC0 1.0) — http://creativecommons.org/publicdomain/zero/1.0/
+Free for personal, educational and commercial use; credit is appreciated but not required.
+
+done.wav      ← confirmation_002.wav   AI finished a turn
+ask.wav       ← question_001.wav       an action waits for approval
+question.wav  ← question_003.wav       the AI asked a question
+error.wav     ← error_006.wav          something went wrong
+job.wav       ← glass_001.wav          archive / project wiki finished
+group.wav     ← drop_002.wav           a group-chat member spoke

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>disabled 按钮</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 520px; margin: 24px auto; padding: 0 16px; }
+  label { display: block; margin: 12px 0 4px; font-weight: 600; }
+  input { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+  button { margin-top: 16px; padding: 8px 20px; font: inherit; }
+  #status { color: #2a7; margin-top: 12px; }
+  .hint { color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>disabled 按钮</h1>
+  <p>提交按钮一开始是 <code>disabled</code>，填了同意框后才变可用。
+     自动化点击前应检查「可用」，对 disabled 的按钮要等它启用而不是硬点。</p>
+
+  <label for="agree-row">勾选同意后才可提交</label>
+  <div id="agree-row">
+    <input id="agree" type="checkbox">
+    <label for="agree" style="display:inline; font-weight:400;">我已阅读并同意</label>
+  </div>
+
+  <button id="submit" type="button" disabled>提交</button>
+  <p class="hint" id="btn-state">当前：禁用</p>
+  <p id="status"></p>
+
+  <script>
+    const agree = document.getElementById("agree");
+    const submit = document.getElementById("submit");
+    const state = document.getElementById("btn-state");
+    agree.addEventListener("change", () => {
+      submit.disabled = !agree.checked;
+      state.textContent = "当前：" + (submit.disabled ? "禁用" : "可用");
+    });
+    submit.addEventListener("click", () => {
+      document.getElementById("status").textContent = "提交成功。";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mobile.status",
+  "params": {
+    "status": "idle",
+    "presence": {
+      "online": true,
+      "lastSeenAt": 1791567000000
+    },
+    "computer": {
+      "id": "desktop-01",
+      "name": "MacBook"
+    },
+    "project": {
+      "name": "shop-web",
+      "path": "/work/shop-web"
+    },
+    "pendingApprovals": 0,
+    "lastReceipt": {
+      "turnId": 40,
+      "summary": "登录接口已修复。",
+      "changedFiles": 2,
+      "completedAt": 1791567000000
+    }
+  }
+}

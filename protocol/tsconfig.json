@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@shared/*": ["../sweet-code-desktop/src/shared/*"]
+    }
+  },
+  "include": ["fixtures.ts", "../sweet-code-desktop/src/shared/protocol.ts"]
+}

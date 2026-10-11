@@ -1,0 +1,612 @@
+{
+  "pool_id": "microbiome_obesity_claim_pool_v1",
+  "created": "2026-05-20",
+  "question": "Analyze competing hypotheses about gut microbiota and obesity: A Microbiota-Driven, B Diet-Driven, C Host-Genetics-Driven.",
+  "design_note": "Claim-level evidence pool. Agents should cite these claim refs, not whole papers. Review papers are marked as synthesis evidence and should not outrank direct intervention evidence.",
+  "hypotheses": {
+    "A_microbiota_driven": "Altered gut microbiota has causal influence on obesity or obesity-related metabolism.",
+    "B_diet_driven": "Dietary pattern is the upstream driver; microbiota changes are downstream or mediating.",
+    "C_host_genetics_driven": "Host genetics/circadian physiology regulate microbiota and obesity-related metabolism."
+  },
+  "sources": [
+    {
+      "source_id": "ridaura_2013_science",
+      "title": "Gut microbiota from twins discordant for obesity modulate metabolism in mice",
+      "authors": "Ridaura et al.",
+      "year": 2013,
+      "venue": "Science",
+      "doi": "10.1126/science.1241214",
+      "pmid": "24009397",
+      "pmcid": "PMC3829625",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/24009397/",
+      "source_kind": "primary_intervention"
+    },
+    {
+      "source_id": "turnbaugh_2006_nature",
+      "title": "An obesity-associated gut microbiome with increased capacity for energy harvest",
+      "authors": "Turnbaugh et al.",
+      "year": 2006,
+      "venue": "Nature",
+      "doi": "10.1038/nature05414",
+      "pmid": "17183312",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/17183312/",
+      "source_kind": "primary_intervention_and_association"
+    },
+    {
+      "source_id": "sonnenburg_backhed_2016_nature",
+      "title": "Diet-microbiota interactions as moderators of human metabolism",
+      "authors": "Sonnenburg and Bäckhed",
+      "year": 2016,
+      "venue": "Nature",
+      "doi": "10.1038/nature18846",
+      "pmid": "27383980",
+      "url": "https://www.nature.com/articles/nature18846",
+      "source_kind": "review_synthesis"
+    },
+    {
+      "source_id": "goodrich_2014_cell",
+      "title": "Human genetics shape the gut microbiome",
+      "authors": "Goodrich et al.",
+      "year": 2014,
+      "venue": "Cell",
+      "doi": "10.1016/j.cell.2014.09.053",
+      "pmid": "25417156",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25417156/",
+      "source_kind": "primary_human_twin_plus_mouse_intervention"
+    },
+    {
+      "source_id": "thaiss_2014_cell",
+      "title": "Transkingdom control of microbiota diurnal oscillations promotes metabolic homeostasis",
+      "authors": "Thaiss et al.",
+      "year": 2014,
+      "venue": "Cell",
+      "doi": "10.1016/j.cell.2014.09.048",
+      "pmid": "25417104",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25417104/",
+      "source_kind": "primary_circadian_intervention"
+    },
+    {
+      "source_id": "cani_colleagues_2019_natmetab",
+      "title": "Microbial regulation of organismal energy homeostasis",
+      "authors": "Cani and colleagues",
+      "year": 2019,
+      "venue": "Nature Metabolism",
+      "doi": "10.1038/s42255-018-0017-4",
+      "url": "https://www.nature.com/articles/s42255-018-0017-4",
+      "source_kind": "review_synthesis"
+    },
+    {
+      "source_id": "fan_pedersen_2021_nrmicro",
+      "title": "Gut microbiota in human metabolic health and disease",
+      "authors": "Fan and Pedersen",
+      "year": 2021,
+      "venue": "Nature Reviews Microbiology",
+      "doi": "10.1038/s41579-020-0433-9",
+      "url": "https://www.nature.com/articles/s41579-020-0433-9",
+      "source_kind": "review_synthesis"
+    },
+    {
+      "source_id": "devos_2022_gut",
+      "title": "Gut microbiome and health: mechanistic insights",
+      "authors": "de Vos, Tilg, Van Hul and Cani",
+      "year": 2022,
+      "venue": "Gut",
+      "doi": "10.1136/gutjnl-2021-326789",
+      "pmid": "35105664",
+      "pmcid": "PMC8995832",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/35105664/",
+      "source_kind": "review_synthesis"
+    }
+  ],
+  "claims": [
+    {
+      "ref": "ridaura_2013_science/claim_1",
+      "title": "Human twin donor microbiota transplanted into germ-free mice",
+      "detail": "Ridaura et al. transplanted fecal microbiota from adult female twin pairs discordant for obesity into germ-free mice under controlled diets. This creates a direct intervention model for testing whether donor microbiota can transfer metabolic phenotypes.",
+      "evidence_type": "germ_free_mouse_fecal_transplant",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Human-to-mouse transfer; controlled gnotobiotic mouse setting.",
+      "limitations": "Does not by itself prove microbiota is the primary cause of obesity in free-living humans.",
+      "attack_handles": ["animal_to_human_translation", "germ_free_model_artifact", "donor_selection"]
+    },
+    {
+      "ref": "ridaura_2013_science/claim_2",
+      "title": "Obese-twin microbiota recipients gained more adiposity than lean-twin recipients",
+      "detail": "In germ-free recipient mice, microbiota from obese co-twins produced greater obesity-related metabolic/adiposity phenotypes than microbiota from lean co-twins under comparable host and diet conditions.",
+      "evidence_type": "causal_intervention_animal",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["B_diet_driven_as_exclusive"],
+      "scope": "Strong causal evidence in mice for microbiota contribution.",
+      "limitations": "Strength is high for animal causality but lower for direct human causal primacy.",
+      "attack_handles": ["translation_limit", "controlled_diet_not_human_lifestyle"]
+    },
+    {
+      "ref": "ridaura_2013_science/claim_3",
+      "title": "Lean and obese donor microbiotas produced distinct metabolic profiles",
+      "detail": "The study linked donor microbiota state to recipient metabolic readouts, including microbial functional/metabolic differences rather than only taxonomic association.",
+      "evidence_type": "multiomics_mechanistic_association",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Mechanistic support inside the transplant model.",
+      "limitations": "Metabolic correlations within the model do not isolate every causal molecule.",
+      "attack_handles": ["mechanism_not_fully_identified", "multiomics_association"]
+    },
+    {
+      "ref": "ridaura_2013_science/claim_4",
+      "title": "Co-housing enabled lean-associated taxa to invade obese-microbiota recipients",
+      "detail": "When lean-microbiota and obese-microbiota recipient mice were co-housed, lean-associated bacterial taxa could invade obese-recipient communities and attenuate the obese metabolic phenotype.",
+      "evidence_type": "ecological_intervention_animal",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["A_microbiota_fixed_state"],
+      "scope": "Shows microbiota state can be ecologically modified and phenotype can change.",
+      "limitations": "Co-housing transfer is not equivalent to ordinary human exposure or treatment.",
+      "attack_handles": ["mouse_coprophagy", "ecological_transfer_context"]
+    },
+    {
+      "ref": "ridaura_2013_science/claim_5",
+      "title": "Diet modified whether protective microbiota invasion succeeded",
+      "detail": "The protective effect of lean-associated bacterial invasion depended on diet composition; diet context affected whether microbiota transfer prevented increased adiposity.",
+      "evidence_type": "diet_microbiota_interaction",
+      "supports": ["B_diet_driven", "A_microbiota_driven"],
+      "weakens": ["A_microbiota_driven_as_exclusive", "B_diet_driven_as_exclusive"],
+      "scope": "Strong evidence that microbiota and diet interact rather than form mutually exclusive explanations.",
+      "limitations": "Does not rank diet versus microbiota universally; effect depends on diet design.",
+      "attack_handles": ["interaction_not_rank", "diet_context_dependency"]
+    },
+    {
+      "ref": "ridaura_2013_science/claim_6",
+      "title": "Ridaura supports microbiota causality but not human causal primacy",
+      "detail": "The paper is high-value intervention evidence for microbiota effects, but its germ-free mouse model means it should not be cited as proving that microbiota is the primary upstream cause of human obesity.",
+      "evidence_type": "scope_boundary",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["A_microbiota_driven_as_sole_or_primary_human_cause"],
+      "scope": "Evidence grading boundary.",
+      "limitations": "Boundary statement is methodological synthesis of the study design.",
+      "attack_handles": ["overclaim_guard", "evidence_type_ranking"]
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_1",
+      "title": "Obesity associated with altered dominant gut bacterial divisions",
+      "detail": "Turnbaugh et al. reported obesity-associated shifts in dominant gut bacterial divisions in genetically obese mice and obese versus lean human volunteers.",
+      "evidence_type": "mouse_and_human_association",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Association across mouse and human observations.",
+      "limitations": "Association alone does not establish causal direction.",
+      "attack_handles": ["association_not_causation", "taxonomic_level_coarse"]
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_2",
+      "title": "Obese microbiome had increased energy-harvest potential",
+      "detail": "Metagenomic and biochemical analyses indicated that the obese-associated microbiome had increased capacity to harvest energy from diet.",
+      "evidence_type": "metagenomic_biochemical_mechanism",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Mechanistic plausibility for microbiota contribution to energy balance.",
+      "limitations": "Capacity for energy harvest is a mechanism, not proof of population-level obesity primacy.",
+      "attack_handles": ["mechanistic_capacity_vs_clinical_effect_size"]
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_3",
+      "title": "Energy-harvest trait was transmissible to germ-free mice",
+      "detail": "Colonization of germ-free mice with obese microbiota produced greater increases in body fat than colonization with lean microbiota.",
+      "evidence_type": "causal_intervention_animal",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["B_diet_driven_as_exclusive"],
+      "scope": "Direct animal intervention evidence for microbiota contribution.",
+      "limitations": "Recipient host and donor context differ from free-living humans.",
+      "attack_handles": ["animal_model", "donor_context", "not_sole_cause"]
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_4",
+      "title": "Microbiota is an additional contributing factor, not a complete explanation",
+      "detail": "The study identifies gut microbiota as an additional contributor to obesity pathophysiology, not as a replacement for diet, host genetics, or energy balance.",
+      "evidence_type": "author_scope_boundary",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["A_microbiota_driven_as_exclusive"],
+      "scope": "Causal interpretation boundary.",
+      "limitations": "Boundary is conservative and does not quantify relative contribution.",
+      "attack_handles": ["overclaim_guard", "multifactorial_causality"]
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_5",
+      "title": "Turnbaugh cannot establish diet-independent human obesity causality",
+      "detail": "Because parts of the evidence are observational and animal-transfer based, the paper should not be used to claim diet-independent microbiota causality in humans.",
+      "evidence_type": "scope_boundary",
+      "supports": [],
+      "weakens": ["A_microbiota_driven_as_sole_or_primary_human_cause"],
+      "scope": "Evidence grading boundary.",
+      "limitations": "Methodological inference from design; not a separate experiment.",
+      "attack_handles": ["translation_limit", "human_causality_limit"]
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_1",
+      "title": "Diet is a central determinant of obesity and metabolic disease context",
+      "detail": "Sonnenburg and Bäckhed review obesity and metabolic disease as strongly linked to diet, while positioning microbiota as a major moderator/mediator at the diet-metabolism interface.",
+      "evidence_type": "review_synthesis",
+      "supports": ["B_diet_driven"],
+      "weakens": ["A_microbiota_driven_as_exclusive"],
+      "scope": "High-level synthesis across diet-microbiota-metabolism research.",
+      "limitations": "Review-level statement; not a single randomized causal estimate.",
+      "attack_handles": ["review_not_primary", "broad_synthesis"]
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_2",
+      "title": "Diet can rapidly and reproducibly alter the human gut microbiome",
+      "detail": "The review summarizes evidence that dietary change can reshape gut microbiome composition/function, supporting diet as an upstream driver of microbiota state.",
+      "evidence_type": "review_synthesis_human_diet",
+      "supports": ["B_diet_driven"],
+      "weakens": ["A_microbiota_upstream_of_diet"],
+      "scope": "Diet-to-microbiota direction.",
+      "limitations": "Changing microbiota does not by itself prove downstream obesity causality.",
+      "attack_handles": ["microbiota_change_vs_weight_change"]
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_3",
+      "title": "Microbiota can mediate dietary impact on host metabolism",
+      "detail": "The review frames gut microbiota as a mediator of dietary effects on metabolic status, making diet and microbiota mechanistically coupled.",
+      "evidence_type": "review_synthesis_mechanism",
+      "supports": ["A_microbiota_driven", "B_diet_driven"],
+      "weakens": ["mutual_exclusivity"],
+      "scope": "Integrated causal model.",
+      "limitations": "Mediator role varies by nutrient, host, and microbial baseline.",
+      "attack_handles": ["interaction_model", "heterogeneous_effects"]
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_4",
+      "title": "Diet-microbiota interaction argues against mutually exclusive hypotheses",
+      "detail": "If diet changes microbiota and microbiota modifies host metabolism, then A and B are not mutually exclusive; they represent different positions in a causal chain.",
+      "evidence_type": "causal_structure_synthesis",
+      "supports": ["A_microbiota_driven", "B_diet_driven"],
+      "weakens": ["mutual_exclusivity"],
+      "scope": "Question-level interpretation.",
+      "limitations": "Does not specify which link dominates in a given population.",
+      "attack_handles": ["rank_vs_integration"]
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_5",
+      "title": "Review evidence cannot replace controlled intervention ranking",
+      "detail": "This review is useful for boundaries and integration but should not be counted as direct experimental proof that diet or microbiota is always the primary cause.",
+      "evidence_type": "scope_boundary",
+      "supports": [],
+      "weakens": ["review_as_direct_causality"],
+      "scope": "Evidence grading boundary.",
+      "limitations": "Methodological classification.",
+      "attack_handles": ["review_weight_limit"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_1",
+      "title": "Twin cohort showed host genetics influence many microbial taxa",
+      "detail": "Goodrich et al. analyzed more than 1,000 fecal samples from the TwinsUK population including 416 twin pairs, identifying microbial taxa whose abundances were influenced by host genetics.",
+      "evidence_type": "human_twin_heritability",
+      "supports": ["C_host_genetics_driven"],
+      "weakens": ["A_or_B_as_exclusive"],
+      "scope": "Human genetics-to-microbiota association.",
+      "limitations": "Heritability of taxa is not determinism and does not cover the whole microbiome equally.",
+      "attack_handles": ["heritability_scope", "environmental_confounding"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_2",
+      "title": "Christensenellaceae was identified as a highly heritable taxon",
+      "detail": "The family Christensenellaceae was highlighted as the most heritable taxon in the study and formed a co-occurrence network with other heritable bacteria and methanogenic archaea.",
+      "evidence_type": "human_twin_taxon_specific",
+      "supports": ["C_host_genetics_driven"],
+      "weakens": ["microbiota_state_purely_dietary"],
+      "scope": "Taxon-specific host genetic influence.",
+      "limitations": "A single highly heritable family cannot represent total microbiome heritability.",
+      "attack_handles": ["taxon_specific_not_global"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_3",
+      "title": "Christensenellaceae was enriched in low-BMI individuals",
+      "detail": "Christensenellaceae and associated network members were enriched among individuals with lower BMI, linking a heritable microbial feature to host metabolic phenotype.",
+      "evidence_type": "human_association",
+      "supports": ["C_host_genetics_driven", "A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Human association between microbial taxon and BMI.",
+      "limitations": "Low-BMI enrichment is association, not direct proof of causal protection in humans.",
+      "attack_handles": ["association_not_causation", "BMI_confounding"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_4",
+      "title": "Christensenella minuta amendment reduced weight gain in recipient mice",
+      "detail": "An obese-associated microbiome amended with cultured Christensenella minuta and transplanted to germ-free mice reduced weight gain and altered the recipient microbiome.",
+      "evidence_type": "defined_microbe_mouse_intervention",
+      "supports": ["A_microbiota_driven", "C_host_genetics_driven"],
+      "weakens": ["C_host_genetics_as_only_direct_path"],
+      "scope": "Causal animal evidence for a heritable-associated microbe affecting weight gain.",
+      "limitations": "Defined microbe effect in mice does not quantify host genetics' total causal share in humans.",
+      "attack_handles": ["single_taxon_model", "animal_translation"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_5",
+      "title": "Host genetics can influence microbiota in ways that affect metabolism",
+      "detail": "The combined human twin and mouse amendment evidence supports a pathway in which host genetics shapes microbiota composition and microbiota can affect metabolic phenotype.",
+      "evidence_type": "integrated_human_mouse_inference",
+      "supports": ["C_host_genetics_driven", "A_microbiota_driven"],
+      "weakens": ["B_diet_driven_as_exclusive"],
+      "scope": "Host genetics-microbiota-metabolism pathway.",
+      "limitations": "Does not prove host genetics is the dominant cause of obesity.",
+      "attack_handles": ["pathway_not_dominance", "effect_size_uncertain"]
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_6",
+      "title": "Goodrich supports host regulation but not genetic determinism",
+      "detail": "The study supports genetic influence on some microbiota features, but it should not be cited as showing that host genes determine obesity through microbiota in a strong or exclusive sense.",
+      "evidence_type": "scope_boundary",
+      "supports": ["C_host_genetics_driven"],
+      "weakens": ["C_host_genetics_driven_as_exclusive"],
+      "scope": "Evidence grading boundary.",
+      "limitations": "Methodological interpretation.",
+      "attack_handles": ["overclaim_guard", "heritability_misuse"]
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_1",
+      "title": "Gut microbiota shows diurnal compositional and functional oscillations",
+      "detail": "Thaiss et al. found intestinal microbiota in mice and humans exhibits daily oscillations in composition and function.",
+      "evidence_type": "mouse_human_temporal_microbiome",
+      "supports": ["C_host_genetics_driven", "B_diet_driven"],
+      "weakens": ["static_microbiota_model"],
+      "scope": "Temporal dynamics of microbiota.",
+      "limitations": "Diurnal oscillation alone does not establish obesity causality.",
+      "attack_handles": ["dynamic_state_not_causality"]
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_2",
+      "title": "Feeding rhythms influence microbiota oscillations",
+      "detail": "The study reports microbiota oscillations are influenced by feeding rhythms, connecting dietary timing to microbiota state.",
+      "evidence_type": "feeding_rhythm_intervention",
+      "supports": ["B_diet_driven", "C_host_genetics_driven"],
+      "weakens": ["A_microbiota_autonomous_driver"],
+      "scope": "Feeding timing-to-microbiota direction.",
+      "limitations": "Feeding rhythm differs from diet composition and total caloric intake.",
+      "attack_handles": ["timing_vs_content", "upstream_driver"]
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_3",
+      "title": "Host clock disruption or jet lag caused dysbiosis through altered feeding rhythmicity",
+      "detail": "Ablation of host molecular clock components or induction of jet lag disrupted microbiota rhythmicity and produced dysbiosis, driven by impaired feeding rhythmicity.",
+      "evidence_type": "host_circadian_intervention",
+      "supports": ["C_host_genetics_driven", "B_diet_driven"],
+      "weakens": ["microbiota_primary_in_all_contexts"],
+      "scope": "Host physiology and feeding timing can shape microbiota.",
+      "limitations": "Circadian disruption is not equivalent to ordinary host genetic obesity risk.",
+      "attack_handles": ["circadian_specificity", "host_to_microbiota_direction"]
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_4",
+      "title": "Jet-lag-associated dysbiosis promoted metabolic imbalance transferable to germ-free mice",
+      "detail": "Jet-lag-associated dysbiosis was linked to glucose intolerance and obesity-related metabolic imbalance, and microbiota transfer to germ-free mice supported microbiome-dependent mediation.",
+      "evidence_type": "circadian_microbiota_transfer",
+      "supports": ["A_microbiota_driven", "C_host_genetics_driven"],
+      "weakens": ["host_only_model"],
+      "scope": "Microbiota mediates part of circadian disruption's metabolic effect.",
+      "limitations": "Specific to circadian/jet-lag perturbation; not a general obesity etiology proof.",
+      "attack_handles": ["context_specificity", "translation_limit"]
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_5",
+      "title": "Thaiss supports a host-feeding-microbiota-metabolism loop",
+      "detail": "The strongest interpretation is a loop: host clock and feeding rhythms shape microbiota, while dysbiotic microbiota can mediate metabolic consequences.",
+      "evidence_type": "causal_structure_synthesis",
+      "supports": ["A_microbiota_driven", "B_diet_driven", "C_host_genetics_driven"],
+      "weakens": ["mutual_exclusivity"],
+      "scope": "Integrated causal model.",
+      "limitations": "Does not rank A, B, C by general causal strength.",
+      "attack_handles": ["integration_not_ranking"]
+    },
+    {
+      "ref": "cani_colleagues_2019_natmetab/claim_1",
+      "title": "Gut microbiome influences host energy metabolism through multiple mechanisms",
+      "detail": "Cani and colleagues review mechanisms by which the gut microbiome influences organismal energy homeostasis through interactions among microbes, microbial metabolites, and host cells.",
+      "evidence_type": "review_synthesis_mechanism",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Mechanistic plausibility across energy homeostasis pathways.",
+      "limitations": "Review synthesis; mechanism catalog is not causal ranking.",
+      "attack_handles": ["review_weight_limit", "mechanism_vs_effect_size"]
+    },
+    {
+      "ref": "cani_colleagues_2019_natmetab/claim_2",
+      "title": "Energy homeostasis mechanisms are multi-pathway rather than single-cause",
+      "detail": "The review emphasizes complex interactions between gut microbes, metabolites, and host cells, implying obesity causality should be modeled as networked rather than single-directional.",
+      "evidence_type": "review_synthesis_causal_complexity",
+      "supports": ["A_microbiota_driven", "B_diet_driven", "C_host_genetics_driven"],
+      "weakens": ["single_cause_model"],
+      "scope": "Causal architecture boundary.",
+      "limitations": "Conceptual synthesis; does not decide which hypothesis ranks first.",
+      "attack_handles": ["complexity_not_answer", "rank_vs_map"]
+    },
+    {
+      "ref": "cani_colleagues_2019_natmetab/claim_3",
+      "title": "Microbiota-targeted strategies are plausible but not universally proven",
+      "detail": "Microbiota modulation is biologically plausible for metabolic health, but translation to robust human obesity treatment requires intervention-specific evidence.",
+      "evidence_type": "translational_boundary",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["microbiota_treatment_as_settled"],
+      "scope": "Clinical translation boundary.",
+      "limitations": "Depends on intervention, baseline microbiome, diet, and host context.",
+      "attack_handles": ["clinical_translation", "heterogeneous_response"]
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_1",
+      "title": "Human observational evidence links microbiota to obesity and metabolic disease",
+      "detail": "Fan and Pedersen summarize two decades of observational findings suggesting gut microbiota may contribute to metabolic health and diseases including obesity.",
+      "evidence_type": "review_synthesis_human_observational",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Human association evidence.",
+      "limitations": "Observational findings are suggestive and vulnerable to confounding.",
+      "attack_handles": ["association_not_causation", "confounding"]
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_2",
+      "title": "The field is moving from census associations to cause-and-effect studies",
+      "detail": "The review explicitly frames mechanistic understanding as requiring movement from descriptive microbiota surveys to cause-and-effect studies.",
+      "evidence_type": "methodological_review",
+      "supports": [],
+      "weakens": ["association_only_rankings"],
+      "scope": "Evidence quality standard.",
+      "limitations": "Methodological claim, not direct obesity evidence.",
+      "attack_handles": ["evidence_hierarchy", "causality_standard"]
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_3",
+      "title": "Multi-omics plus mechanistic experiments are needed to identify molecular mechanisms",
+      "detail": "The review argues joint human multi-omics, host physiology measures, and mechanistic experiments in humans, animals, and cells are needed to identify mechanisms behind associations.",
+      "evidence_type": "methodological_review",
+      "supports": [],
+      "weakens": ["simple_taxonomic_biomarker_as_causality"],
+      "scope": "Design requirement for future experiments.",
+      "limitations": "Does not choose A/B/C; informs experimental design.",
+      "attack_handles": ["experimental_design", "mechanism_requirement"]
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_4",
+      "title": "Microbiota-targeted interventions are promising but nascent",
+      "detail": "The review discusses microbiota-targeted interventions for metabolic health but presents the field as emerging rather than settled clinical proof.",
+      "evidence_type": "translational_review",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["clinical_certainty"],
+      "scope": "Clinical translation boundary.",
+      "limitations": "Intervention effects vary and are not equal to etiology proof.",
+      "attack_handles": ["promise_vs_proof", "clinical_evidence_limit"]
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_5",
+      "title": "Fan and Pedersen supports cautious causal language",
+      "detail": "This review should be used to justify cautious language: microbiota may contribute to metabolic disease, but many human findings remain associative until mechanistically tested.",
+      "evidence_type": "scope_boundary",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["overconfident_microbiota_causality"],
+      "scope": "Evidence wording boundary.",
+      "limitations": "Synthesis rather than primary experiment.",
+      "attack_handles": ["overclaim_guard"]
+    },
+    {
+      "ref": "devos_2022_gut/claim_1",
+      "title": "Gut microbiome mechanisms include metabolites and host signaling pathways",
+      "detail": "de Vos et al. review mechanistic insights linking gut microbiome activity with health through microbial metabolites and host pathways relevant to metabolism.",
+      "evidence_type": "review_synthesis_mechanism",
+      "supports": ["A_microbiota_driven"],
+      "weakens": [],
+      "scope": "Mechanistic plausibility for microbiome-host metabolic links.",
+      "limitations": "Mechanistic review, not direct obesity ranking.",
+      "attack_handles": ["mechanism_vs_rank"]
+    },
+    {
+      "ref": "devos_2022_gut/claim_2",
+      "title": "Mechanistic microbiome evidence spans intestinal barrier, liver, probiotics, SCFAs, bile acids, and GLP-1",
+      "detail": "The review's indexed themes include obesity, intestinal barrier function, liver, probiotics, short-chain fatty acids, bile-salt transformations, GLP-1, insulin sensitivity, and metabolic syndrome.",
+      "evidence_type": "review_synthesis_pathways",
+      "supports": ["A_microbiota_driven"],
+      "weakens": ["single_mechanism_model"],
+      "scope": "Mechanistic pathway map.",
+      "limitations": "Pathway presence does not quantify causal primacy in obesity.",
+      "attack_handles": ["pathway_catalog_not_weight"]
+    },
+    {
+      "ref": "devos_2022_gut/claim_3",
+      "title": "Microbiome health claims require mechanistic rather than merely descriptive evidence",
+      "detail": "The review's mechanistic framing supports requiring claim-level evidence about pathways and interventions rather than whole-paper or taxonomic claims.",
+      "evidence_type": "methodological_review",
+      "supports": [],
+      "weakens": ["whole_paper_citation"],
+      "scope": "Supports claim-level evidence protocol.",
+      "limitations": "Methodological support; not a causal result.",
+      "attack_handles": ["claim_level_evidence", "evidence_granularity"]
+    },
+    {
+      "ref": "devos_2022_gut/claim_4",
+      "title": "de Vos et al. supports an integrated microbiome-host-diet model",
+      "detail": "The mechanistic review supports interpreting obesity-related microbiome evidence as interactions among microbial metabolism, host physiology, and environmental inputs rather than one isolated cause.",
+      "evidence_type": "causal_structure_synthesis",
+      "supports": ["A_microbiota_driven", "B_diet_driven", "C_host_genetics_driven"],
+      "weakens": ["mutual_exclusivity", "single_cause_model"],
+      "scope": "Question-level interpretation.",
+      "limitations": "Does not provide a single ranking by evidence strength.",
+      "attack_handles": ["integrated_model", "rank_vs_map"]
+    }
+  ],
+  "ccma_repository_items": [
+    {
+      "ref": "ridaura_2013_science/claim_1",
+      "title": "Ridaura 2013: human twin donor microbiota transplanted into germ-free mice",
+      "detail": "Type: germ-free mouse fecal transplant. Claim: fecal microbiota from obesity-discordant adult female twins were transferred to germ-free mice under controlled diets. Supports A. Boundary: intervention model, not free-living human causal primacy.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "ridaura_2013_science/claim_2",
+      "title": "Ridaura 2013: obese-twin microbiota produced greater adiposity in mice",
+      "detail": "Type: causal animal intervention. Claim: obese-donor microbiota recipients developed greater obesity-related adiposity/metabolic phenotype than lean-donor recipients. Supports A; weakens diet-only exclusivity. Boundary: germ-free mouse translation.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "ridaura_2013_science/claim_5",
+      "title": "Ridaura 2013: diet conditioned microbiota protection",
+      "detail": "Type: diet-microbiota interaction. Claim: lean-associated taxa and protection depended on diet context. Supports integrated A+B model. Boundary: does not prove a universal rank between diet and microbiota.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_2",
+      "title": "Turnbaugh 2006: obese microbiome increased energy-harvest potential",
+      "detail": "Type: metagenomic/biochemical mechanism. Claim: obese-associated microbiome had increased capacity for energy harvest from diet. Supports A mechanistically. Boundary: mechanism is not population-level causal primacy.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "turnbaugh_2006_nature/claim_3",
+      "title": "Turnbaugh 2006: obese microbiota trait transmissible to germ-free mice",
+      "detail": "Type: causal animal intervention. Claim: germ-free mice colonized with obese microbiota gained more fat than lean-microbiota recipients. Supports A; weakens diet-only exclusivity. Boundary: animal model and donor context.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_2",
+      "title": "Sonnenburg & Backhed 2016: diet reshapes gut microbiome",
+      "detail": "Type: review synthesis. Claim: diet can rapidly and reproducibly alter human gut microbiome composition/function. Supports B upstream of microbiota. Boundary: microbiota change does not equal weight change.",
+      "source": "repository_review_claim"
+    },
+    {
+      "ref": "sonnenburg_backhed_2016_nature/claim_4",
+      "title": "Sonnenburg & Backhed 2016: A and B are not mutually exclusive",
+      "detail": "Type: causal structure synthesis. Claim: diet changes microbiota and microbiota moderates metabolism, so diet-driven and microbiota-driven hypotheses are coupled. Boundary: does not rank dominance.",
+      "source": "repository_review_claim"
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_1",
+      "title": "Goodrich 2014: twin cohort shows host genetics influence taxa",
+      "detail": "Type: human twin heritability. Claim: >1000 fecal samples, 416 twin pairs; many taxa influenced by host genetics. Supports C. Boundary: heritability is partial and taxon-specific.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "goodrich_2014_cell/claim_4",
+      "title": "Goodrich 2014: C. minuta amendment reduced mouse weight gain",
+      "detail": "Type: defined microbe mouse intervention. Claim: adding Christensenella minuta to obese-associated microbiome reduced weight gain in germ-free mice. Supports A and C. Boundary: single taxon animal model.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_3",
+      "title": "Thaiss 2014: clock/jet-lag disruption produces dysbiosis through feeding rhythms",
+      "detail": "Type: host circadian intervention. Claim: host clock disruption or jet lag disrupts microbiota rhythmicity via impaired feeding rhythms. Supports B and C upstream effects. Boundary: circadian-specific.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "thaiss_2014_cell/claim_4",
+      "title": "Thaiss 2014: jet-lag dysbiosis can mediate metabolic imbalance",
+      "detail": "Type: microbiota transfer in circadian model. Claim: jet-lag-associated dysbiosis promoted glucose intolerance/obesity-related imbalance transferable to germ-free mice. Supports A/C loop. Boundary: context-specific.",
+      "source": "repository_primary_claim"
+    },
+    {
+      "ref": "fan_pedersen_2021_nrmicro/claim_2",
+      "title": "Fan & Pedersen 2021: need cause-and-effect studies",
+      "detail": "Type: methodological review. Claim: field must move from descriptive microbiota census to cause-and-effect studies. Weakens association-only rankings. Boundary: design standard, not direct causal result.",
+      "source": "repository_review_claim"
+    },
+    {
+      "ref": "devos_2022_gut/claim_3",
+      "title": "de Vos 2022: mechanistic claim-level evidence is needed",
+      "detail": "Type: methodological review. Claim: mechanistic insights support pathway-level evidence rather than whole-paper citation. Weakens coarse whole-paper evidence use. Boundary: method support, not rank result.",
+      "source": "repository_review_claim"
+    }
+  ]
+}

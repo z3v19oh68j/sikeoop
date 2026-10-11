@@ -1,0 +1,35 @@
+# systemd unit for the public relay (relay.sikeoop.modgert.online). Listens on loopback only;
+# nginx terminates TLS in front of it. Holds no secrets and writes nothing to disk.
+[Unit]
+Description=sikeoop mobile relay
+After=network.target
+
+[Service]
+Type=simple
+User=sikeoop-relay
+Group=sikeoop-relay
+WorkingDirectory=/opt/sikeoop-relay
+ExecStart=/usr/bin/env node /opt/sikeoop-relay/src/node-server.mjs
+Environment=HOST=127.0.0.1
+Environment=PORT=8787
+Environment=TRUST_PROXY=1
+Restart=always
+RestartSec=2
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryMax=256M
+TasksMax=64
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

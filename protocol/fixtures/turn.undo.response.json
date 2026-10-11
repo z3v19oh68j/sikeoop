@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": "7",
+  "result": {
+    "turnId": 41,
+    "result": {
+      "restored": [
+        "src/auth.ts"
+      ],
+      "skipped": []
+    }
+  }
+}

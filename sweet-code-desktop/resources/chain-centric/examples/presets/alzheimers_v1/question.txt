@@ -1,0 +1,22 @@
+Analyze competing hypotheses about Alzheimer's disease causation:
+
+Hypothesis A (Amyloid-Beta Cascade): Amyloid-beta plaque deposition is the primary etiological driver.
+- Hardy & Higgins (Science, 1992) -- Amyloid cascade hypothesis.
+- Selkoe (Nature Medicine, 2016) -- AB oligomers directly impair synaptic function.
+- Note: 2022 Science investigation revealed image manipulation in a key AB*56 paper (Lesne et al., 2006). Multiple AB-targeting trials have failed.
+
+Hypothesis B (Tau Propagation): Tau tangle pathology and trans-synaptic spread is the proximate lethal mechanism.
+- Braak staging (Braak & Braak, 1991) -- Tau progression correlates tightly with cognitive decline.
+- Clavaguera et al. (Nature Cell Biology, 2009) -- Tau fibril injection triggers seeding and propagation.
+- Holmes et al. (PNAS, 2014) -- Tau PET predicts cognitive trajectory better than amyloid PET.
+
+Hypothesis C (Neuroinflammation / Immune Dysfunction): Chronic microglial activation is the primary driver.
+- Heneka et al. (Lancet Neurology, 2020) -- GWAS risk variants (TREM2, CD33) converge on microglial function.
+- Tweedie et al. (Journal of Neuroinflammation, 2007) -- TNF-alpha overexpression recapitulates AD-like neurodegeneration.
+- Lecanemab (anti-AB) showed modest clinical benefit -- consistent with AB as trigger but not sole cause.
+
+Reviews: Long & Holtzman (Cell, 2019), Sala Frigerio & De Strooper (Annual Review Neuroscience, 2016).
+
+1. Which hypothesis has the strongest causal evidence? Rank by evidence type.
+2. Are the three hypotheses mutually exclusive?
+3. Design an experiment to distinguish causal primacy.

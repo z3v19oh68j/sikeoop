@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { cleanText, splitSections, isReferences, translationChunks, parseSummary } from '../../src/main/papers/text.ts';
+test('断行连字符只修复英文单词，保留公式与真正连字符',()=>{assert.equal(cleanText('multi-\nmodal\nx-y\n$ a-b $'),'multimodal\nx-y\n$ a-b $');});
+test('按页和编号标题切节并保留页码',()=>{const sections=splitSections(['My Paper\nAbstract\nAn abstract.\n1 Introduction\nSome text.','continued\n2.1 Method\nMethod body\nReferences\n[1] A source']);assert.deepEqual(sections.map(s=>[s.title,s.page]),[['正文',1],['Abstract',1],['1 Introduction',1],['2.1 Method',2],['References',2]]);assert.match(sections[2].text,/continued/);assert.ok(isReferences(sections.at(-1)!.title));assert.ok(isReferences('7. References'));assert.ok(!isReferences('Reference implementation'));});
+test('空页和空标题不产出空节',()=>{assert.deepEqual(splitSections(['','Abstract']),[]);});
+test('翻译切块精确还原，正常块不超过 2500',()=>{const source=('A long paragraph with citations.\n').repeat(500);const chunks=translationChunks(source);assert.equal(chunks.join(''),source);assert.ok(chunks.every(c=>c.length<=2500));assert.ok(chunks.length>1);});
+test('翻译切块保护公式与引用键',()=>{const formula='$$'+ 'x+'.repeat(40)+'y$$';const source='a'.repeat(90)+formula+'\\cite{sample-key}'+ 'b'.repeat(150);const chunks=translationChunks(source,100);assert.equal(chunks.join(''),source);assert.ok(chunks.some(c=>c.includes(formula)));assert.ok(chunks.some(c=>c.includes('\\cite{sample-key}')));});
+test('超长公式保持原样允许单块超过软上限',()=>{const formula='$$'+'x'.repeat(3000)+'$$';assert.deepEqual(translationChunks(formula),[formula]);});
+test('summary JSON 与 Markdown JSON 围栏可解析',()=>{const value=parseSummary('```json\n{"oneLine":"结果","problem":"问题","method":"方法"}\n```');assert.equal(value.oneLine,'结果');assert.equal(value.method,'方法');assert.equal(value.limitations,'');});
+test('summary JSON 解析失败保留原始回答',()=>{for(const text of ['not json','{}','[]','null','{"oneLine":4}'])assert.equal(parseSummary(text).oneLine,text);});

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 连中继要联网 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 通知栏的进度和审批卡 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 任务进行中的常驻通知 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <!-- 扫码配对 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- 没有摄像头的设备也能装，只是不能扫码 -->
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_whale"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Sikeoop">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 任务进行中保持连接的前台服务 -->
+        <service
+            android:name=".core.LinkService"
+            android:exported="false"
+            android:foregroundServiceType="remoteMessaging" />
+    </application>
+</manifest>

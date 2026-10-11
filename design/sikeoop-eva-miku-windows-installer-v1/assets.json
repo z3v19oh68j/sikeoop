@@ -1,0 +1,699 @@
+{
+  "assets": [
+    {
+      "file": "icons/close.svg",
+      "width": 24,
+      "height": 24,
+      "label": "close",
+      "category": "icons"
+    },
+    {
+      "file": "icons/minimize.svg",
+      "width": 24,
+      "height": 24,
+      "label": "minimize",
+      "category": "icons"
+    },
+    {
+      "file": "icons/next.svg",
+      "width": 24,
+      "height": 24,
+      "label": "next",
+      "category": "icons"
+    },
+    {
+      "file": "icons/back.svg",
+      "width": 24,
+      "height": 24,
+      "label": "back",
+      "category": "icons"
+    },
+    {
+      "file": "icons/check.svg",
+      "width": 24,
+      "height": 24,
+      "label": "check",
+      "category": "icons"
+    },
+    {
+      "file": "icons/folder.svg",
+      "width": 24,
+      "height": 24,
+      "label": "folder",
+      "category": "icons"
+    },
+    {
+      "file": "icons/terminal.svg",
+      "width": 24,
+      "height": 24,
+      "label": "terminal",
+      "category": "icons"
+    },
+    {
+      "file": "icons/workspace.svg",
+      "width": 24,
+      "height": 24,
+      "label": "workspace",
+      "category": "icons"
+    },
+    {
+      "file": "icons/sparkle.svg",
+      "width": 24,
+      "height": 24,
+      "label": "sparkle",
+      "category": "icons"
+    },
+    {
+      "file": "icons/shield.svg",
+      "width": 24,
+      "height": 24,
+      "label": "shield",
+      "category": "icons"
+    },
+    {
+      "file": "icons/install.svg",
+      "width": 24,
+      "height": 24,
+      "label": "install",
+      "category": "icons"
+    },
+    {
+      "file": "icons/play.svg",
+      "width": 24,
+      "height": 24,
+      "label": "play",
+      "category": "icons"
+    },
+    {
+      "file": "icons/warning.svg",
+      "width": 24,
+      "height": 24,
+      "label": "warning",
+      "category": "icons"
+    },
+    {
+      "file": "icons/document.svg",
+      "width": 24,
+      "height": 24,
+      "label": "document",
+      "category": "icons"
+    },
+    {
+      "file": "icons/chevron-down.svg",
+      "width": 24,
+      "height": 24,
+      "label": "chevron-down",
+      "category": "icons"
+    },
+    {
+      "file": "icons/retry.svg",
+      "width": 24,
+      "height": 24,
+      "label": "retry",
+      "category": "icons"
+    },
+    {
+      "file": "icons/user.svg",
+      "width": 24,
+      "height": 24,
+      "label": "user",
+      "category": "icons"
+    },
+    {
+      "file": "icons/users.svg",
+      "width": 24,
+      "height": 24,
+      "label": "users",
+      "category": "icons"
+    },
+    {
+      "file": "icons/sikeoop-crystal.svg",
+      "width": 32,
+      "height": 32,
+      "label": "同步晶体标",
+      "category": "icons"
+    },
+    {
+      "file": "components/button-primary-normal.svg",
+      "width": 172,
+      "height": 46,
+      "label": "primary / normal",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-hover.svg",
+      "width": 172,
+      "height": 46,
+      "label": "primary / hover",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-pressed.svg",
+      "width": 172,
+      "height": 46,
+      "label": "primary / pressed",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-disabled.svg",
+      "width": 172,
+      "height": 46,
+      "label": "primary / disabled",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-normal.svg",
+      "width": 112,
+      "height": 46,
+      "label": "secondary / normal",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-hover.svg",
+      "width": 112,
+      "height": 46,
+      "label": "secondary / hover",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-pressed.svg",
+      "width": 112,
+      "height": 46,
+      "label": "secondary / pressed",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-disabled.svg",
+      "width": 112,
+      "height": 46,
+      "label": "secondary / disabled",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-label-free.svg",
+      "width": 172,
+      "height": 46,
+      "label": "主按钮空白底板",
+      "category": "components"
+    },
+    {
+      "file": "components/checkbox-off.svg",
+      "width": 20,
+      "height": 20,
+      "label": "复选框",
+      "category": "components"
+    },
+    {
+      "file": "components/radio-off.svg",
+      "width": 20,
+      "height": 20,
+      "label": "单选框",
+      "category": "components"
+    },
+    {
+      "file": "components/checkbox-on.svg",
+      "width": 20,
+      "height": 20,
+      "label": "复选框",
+      "category": "components"
+    },
+    {
+      "file": "components/radio-on.svg",
+      "width": 20,
+      "height": 20,
+      "label": "单选框",
+      "category": "components"
+    },
+    {
+      "file": "components/input-install-directory.svg",
+      "width": 568,
+      "height": 46,
+      "label": "安装目录输入框底板",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-track.svg",
+      "width": 568,
+      "height": 8,
+      "label": "安装进度底轨",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-64.svg",
+      "width": 568,
+      "height": 8,
+      "label": "64% 安装进度",
+      "category": "components"
+    },
+    {
+      "file": "components/status-success.svg",
+      "width": 64,
+      "height": 64,
+      "label": "成功状态标",
+      "category": "components"
+    },
+    {
+      "file": "components/status-warning.svg",
+      "width": 64,
+      "height": 64,
+      "label": "失败状态标",
+      "category": "components"
+    },
+    {
+      "file": "frames/window-surface.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装器窗体底板",
+      "category": "frames"
+    },
+    {
+      "file": "frames/sidebar.svg",
+      "width": 364,
+      "height": 660,
+      "label": "品牌侧栏底板",
+      "category": "frames"
+    },
+    {
+      "file": "illustrations/eva-miku-sidebar.svg",
+      "width": 364,
+      "height": 660,
+      "label": "EVA × Miku 安装器侧栏插画",
+      "category": "illustrations"
+    },
+    {
+      "file": "illustrations/parts/hero-eva.svg",
+      "width": 364,
+      "height": 660,
+      "label": "EVA 初号机",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "illustrations/parts/hero-hair-back.svg",
+      "width": 364,
+      "height": 660,
+      "label": "初音后发",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "illustrations/parts/hero-suit.svg",
+      "width": 364,
+      "height": 660,
+      "label": "初音驾驶服",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "illustrations/parts/hero-face.svg",
+      "width": 364,
+      "height": 660,
+      "label": "初音面部",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "illustrations/parts/hero-front-hair.svg",
+      "width": 364,
+      "height": 660,
+      "label": "初音前发",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "illustrations/parts/hero-headset.svg",
+      "width": 364,
+      "height": 660,
+      "label": "耳机与轮廓光",
+      "category": "illustration-parts"
+    },
+    {
+      "file": "decorations/at-field.svg",
+      "width": 364,
+      "height": 660,
+      "label": "AT 立场六边环",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/hazard-stripes.svg",
+      "width": 100,
+      "height": 8,
+      "label": "初号机绿色警戒条",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/sync-corner.svg",
+      "width": 34,
+      "height": 34,
+      "label": "同步角标",
+      "category": "decorations"
+    },
+    {
+      "file": "screens/installer-welcome.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "欢迎",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-welcome.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "欢迎 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "installer-layered.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "Windows 安装器欢迎页 / 分层母版",
+      "category": "master"
+    },
+    {
+      "file": "layers/window-surface.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "01 · 窗体底板",
+      "category": "layers"
+    },
+    {
+      "file": "layers/sidebar-surface.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "02 · 深紫品牌侧栏",
+      "category": "layers"
+    },
+    {
+      "file": "layers/sidebar-at-field.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "03 · AT 立场背景",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-eva.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "04 · EVA 初号机",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-hair-back.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "05 · 初音后发",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-suit.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "06 · 初音驾驶服",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-face.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "07 · 初音面部",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-front-hair.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "08 · 初音前发",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-headset.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "09 · 耳机与轮廓光",
+      "category": "layers"
+    },
+    {
+      "file": "layers/sidebar-overlay.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "10 · 插画底部渐隐",
+      "category": "layers"
+    },
+    {
+      "file": "layers/sidebar-branding.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "11 · 品牌与主题文字",
+      "category": "layers"
+    },
+    {
+      "file": "layers/titlebar.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "12 · Windows 标题栏与窗口控件",
+      "category": "layers"
+    },
+    {
+      "file": "layers/step-navigation.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "13 · 安装流程导航",
+      "category": "layers"
+    },
+    {
+      "file": "layers/screen-content.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "14 · 页面内容与状态",
+      "category": "layers"
+    },
+    {
+      "file": "layers/footer-actions.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "15 · 底部操作区",
+      "category": "layers"
+    },
+    {
+      "file": "layers/window-outline.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "16 · 外框与主题细节",
+      "category": "layers"
+    },
+    {
+      "file": "screens/installer-options.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装选项",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-options.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装选项 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "screens/installer-installing.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装中",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-installing.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装中 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "screens/installer-finish.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装完成",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-finish.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装完成 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "screens/installer-error.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装失败",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-error.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "安装失败 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "screens/installer-cancel.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "取消确认",
+      "category": "screens"
+    },
+    {
+      "file": "editable/installer-cancel.svg",
+      "width": 1040,
+      "height": 660,
+      "label": "取消确认 / 可编辑文字",
+      "category": "editable"
+    },
+    {
+      "file": "previews/installer-effect.svg",
+      "width": 1440,
+      "height": 980,
+      "label": "Windows 安装器效果图",
+      "category": "previews"
+    },
+    {
+      "file": "previews/installer-flow-overview.svg",
+      "width": 1536,
+      "height": 1160,
+      "label": "四步安装流程总览",
+      "category": "previews"
+    },
+    {
+      "file": "previews/components-overview.svg",
+      "width": 1200,
+      "height": 720,
+      "label": "安装器组件总览",
+      "category": "previews"
+    }
+  ],
+  "layers": [
+    {
+      "id": "window-surface",
+      "label": "01 · 窗体底板",
+      "file": "layers/window-surface.svg"
+    },
+    {
+      "id": "sidebar-surface",
+      "label": "02 · 深紫品牌侧栏",
+      "file": "layers/sidebar-surface.svg"
+    },
+    {
+      "id": "sidebar-at-field",
+      "label": "03 · AT 立场背景",
+      "file": "layers/sidebar-at-field.svg"
+    },
+    {
+      "id": "hero-eva",
+      "label": "04 · EVA 初号机",
+      "file": "layers/hero-eva.svg"
+    },
+    {
+      "id": "hero-hair-back",
+      "label": "05 · 初音后发",
+      "file": "layers/hero-hair-back.svg"
+    },
+    {
+      "id": "hero-suit",
+      "label": "06 · 初音驾驶服",
+      "file": "layers/hero-suit.svg"
+    },
+    {
+      "id": "hero-face",
+      "label": "07 · 初音面部",
+      "file": "layers/hero-face.svg"
+    },
+    {
+      "id": "hero-front-hair",
+      "label": "08 · 初音前发",
+      "file": "layers/hero-front-hair.svg"
+    },
+    {
+      "id": "hero-headset",
+      "label": "09 · 耳机与轮廓光",
+      "file": "layers/hero-headset.svg"
+    },
+    {
+      "id": "sidebar-overlay",
+      "label": "10 · 插画底部渐隐",
+      "file": "layers/sidebar-overlay.svg"
+    },
+    {
+      "id": "sidebar-branding",
+      "label": "11 · 品牌与主题文字",
+      "file": "layers/sidebar-branding.svg"
+    },
+    {
+      "id": "titlebar",
+      "label": "12 · Windows 标题栏与窗口控件",
+      "file": "layers/titlebar.svg"
+    },
+    {
+      "id": "step-navigation",
+      "label": "13 · 安装流程导航",
+      "file": "layers/step-navigation.svg"
+    },
+    {
+      "id": "screen-content",
+      "label": "14 · 页面内容与状态",
+      "file": "layers/screen-content.svg"
+    },
+    {
+      "id": "footer-actions",
+      "label": "15 · 底部操作区",
+      "file": "layers/footer-actions.svg"
+    },
+    {
+      "id": "window-outline",
+      "label": "16 · 外框与主题细节",
+      "file": "layers/window-outline.svg"
+    }
+  ],
+  "states": {
+    "welcome": {
+      "label": "欢迎",
+      "step": 0,
+      "eyebrow": "01 / WELCOME",
+      "title": "安装 sikeoop",
+      "subtitle": "让想法、代码与 AI，在这里同步。"
+    },
+    "options": {
+      "label": "安装选项",
+      "step": 1,
+      "eyebrow": "02 / CONFIGURATION",
+      "title": "选择安装选项",
+      "subtitle": "选择安装位置与启动方式。"
+    },
+    "installing": {
+      "label": "安装中",
+      "step": 2,
+      "eyebrow": "03 / SYNCHRONIZING",
+      "title": "正在安装",
+      "subtitle": "正在部署工作区组件，请稍候。"
+    },
+    "finish": {
+      "label": "安装完成",
+      "step": 3,
+      "eyebrow": "04 / READY",
+      "title": "安装完成",
+      "subtitle": "你的 AI 工作空间，已准备就绪。"
+    },
+    "error": {
+      "label": "安装失败",
+      "step": 2,
+      "eyebrow": "03 / ATTENTION",
+      "title": "安装未完成",
+      "subtitle": "此安装位置没有足够的可用空间。"
+    },
+    "cancel": {
+      "label": "取消确认",
+      "step": 2,
+      "eyebrow": "03 / SYNCHRONIZING",
+      "title": "正在安装",
+      "subtitle": "正在部署工作区组件，请稍候。"
+    }
+  },
+  "sourceArtwork": "source/theme-vector-layered.svg",
+  "status": "native-vector-design-not-installer-executable"
+}

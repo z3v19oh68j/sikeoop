@@ -1,0 +1,332 @@
+[
+  {
+    "ref": "code/three_layer_separation",
+    "title": "Three-layer separation",
+    "detail": "Source: chain_centric/layers/{evidence_layer.py, content_layer.py, coordination_layer.py}. Evidence layer manages a session-global evidence pool with two-pass deduplication (SHA-256 digest and reference-key index) and verification weighting. Content layer hosts N heterogeneous LLM agents constrained to four protocol actions. Coordination layer is pure computation with zero LLM calls; it reads the ledger and writes an information envelope of metrics.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/four_action_grammar",
+    "title": "Four-action protocol grammar",
+    "detail": "The content layer parser (chain_centric/layers/content_layer.py) accepts only publish_chain, attack, revise_chain, pass. There is no agree, vote, or endorse primitive. A response containing free-form agreement language is rejected by the parser and the agent is forced to choose one of the four formal actions or pass.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/coordination_no_llm",
+    "title": "Coordination layer has zero LLM calls",
+    "detail": "chain_centric/layers/coordination_layer.py contains no Anthropic/OpenAI/HTTP client imports. All coordination metrics (alpha, U, seven entropies, H_sym, Hamming weighting, topology veto, scrutiny multiplier) are pure computations over ledger state. The S_novel diagnostic is the only signal whose v5.1 upgrade uses an LLM-assisted variant — and it is explicitly excluded from termination judgement.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/alpha_computation",
+    "title": "Evidence independence weight alpha",
+    "detail": "For claim i with evidence set E_i and session of n claims: alpha_i = (1 / (1 + (1/(n-1)) * sum_j J(E_i,E_j))) * mean_verification_weight(E_i), where J is Jaccard similarity. alpha measures how unique a claim's evidence base is; it is NOT a truth probability. Verification weight compresses claims supported by unverified evidence. Implemented in chain_centric/layers/coordination_layer.py.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/U_signal",
+    "title": "Activity signal U",
+    "detail": "U = indicator(moved) + indicator(filled) + indicator(silent), where moved=any chain on this claim was revised in last 2 rounds, filled=new evidence entered the pool referenced by this claim's chains, silent=at least one agent has not contributed to this claim. U in {0,1,2,3}. U=0 marks a quiescent claim; U=3 marks a fully active one.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/seven_entropies",
+    "title": "Seven behavior entropies",
+    "detail": "H_evidence (Shannon over claim evidence-count distribution); S_attack (Tsallis q=2: 1 - sum p_c^2 over attack distribution); H_part (participation Shannon over agent contribution counts, log_k normalised); H_chain (Shannon after K-means clustering of chain feature vectors); T_max (maximum cross-agent transfer entropy on contribution histories with 8-round sliding window, requires >= 20 rounds of history); H_remaining (sum_c alpha_c * indicator(active_c)); ApEn (approximate entropy of global activity sequence — diagnostic ONLY, does not enter termination). All seven computed from ledger only, none read agent self-reports.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/H_sym_observer",
+    "title": "H_sym observer with adaptive forgetting",
+    "detail": "H_sym (chain_centric/layers/coordination_layer.py) discretises the seven-entropy vector into a symbol string. Bin edges are learned from per-session observation window (first ~10 rounds), then locked. Adaptive forgetting factor alpha = 1 - N_eff in [0.1, 0.95], where N_eff is the fraction of last-5 rounds with new symbols. Convergence counter increments on rounds with no new symbol; consecutive >= N triggers stable signal.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/hamming_partial_reset",
+    "title": "Hamming-weighted partial counter reset",
+    "detail": "Naive 'new symbol resets counter' would treat a 1-bit fluctuation (single dimension flipping bins) as full state transition. Hamming weighting: counter <- floor(counter * (1 - novelty)), where novelty = min_distance_to_observed_symbols / |symbol|. A 1/7 fluctuation preserves about 86% of counter; full state turnover zeros it.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/topology_veto",
+    "title": "Attack topology veto",
+    "detail": "On any round H_sym would otherwise declare convergence: count distinct (attacker, target) pairs in last 4 rounds. If count < 3 and round > 20, refuse convergence. This is engineering guard against attack-graph collapse where remaining agents pair-attack while others go silent. The constants '3' and '20' are design-time judgements.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/scrutiny_multiplier",
+    "title": "Scrutiny multiplier",
+    "detail": "scrutiny = 1 - exp(-lambda * attacks), with lambda = 1.5 (design-time). Zero attacks -> scrutiny=0 -> claim labeled 'unscrutinised'. Five attacks -> scrutiny ~ 0.999. Distinguishes claims that withstood adversarial pressure from those that simply attracted no attention. Poisson-form is engineering choice, not derived from independently validated model.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/evidence_gate",
+    "title": "Evidence pool growth resets convergence counter",
+    "detail": "session.py sets _hsym_consecutive = 0 whenever the evidence pool size in the current round exceeds last round's size. Implication: the coordination layer cannot declare stability while the input axis (evidence) is still expanding. NOT documented in grounded_v1 paper §5; surfaced only on code re-audit.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/claim_gate",
+    "title": "Claim-count growth resets convergence counter",
+    "detail": "session.py sets _hsym_consecutive = 0 whenever the claim count in the current round exceeds last round's count. Implication: the coordination layer cannot declare stability while new propositions are still emerging. NOT documented in grounded_v1 paper §5; surfaced only on code re-audit.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/audit_state_classification",
+    "title": "Five-tier audit state classification",
+    "detail": "Divergence map renders claims into: iron-clad (alpha high, attacks >= 5, survival rate > 0.5), consensus (alpha high, attacks < 5, survival > 0.5), contested (alpha > 0.3, survival condition not met), collapsed (alpha <= 0.3 or chain broken), unscrutinised (zero attacks). The 'unscrutinised' bucket is structurally distinct from 'consensus' — attacks=0 carries no consensus weight.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/attack_depth_limit",
+    "title": "Attack depth bounded at 2",
+    "detail": "An attack can target a chain step (depth 1) or another attack (depth 2), but recursion stops there. This bound prevents debate fragmentation into infinite meta-attacks. Implemented in chain_centric/layers/content_layer.py parser validation.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/evidence_two_pass_dedup",
+    "title": "Two-pass evidence deduplication",
+    "detail": "Evidence pool deduplicates first by SHA-256 of normalised content, then by reference key index. Verification levels: UNVERIFIED, EXISTENCE_VERIFIED, SUMMARY_CONSISTENT, FULLY_VERIFIED. Current public prototype only does format-level verification (regex on arXiv ID and DOI shape). Production deployment requires MCP layer for live resolution.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "code/supersedes_lineage",
+    "title": "Revision lineage via version field",
+    "detail": "Chain revisions are tracked via the version field on chain_details. Across all 14 saved v5.1 experiments, revision rate is 75-96% (most chains are version=2). Notably no chain reaches version=3 — revision pattern in current implementation is one-shot (v1 -> v2). Whether this is protocol-imposed or agent-behavioural is undocumented.",
+    "source": "code_reference"
+  },
+  {
+    "ref": "experiment/v51_termination_universality",
+    "title": "All 12 v5.1 runs terminate via SYSTEM_STATE_STABILIZED",
+    "detail": "Across 9 scientific problems and 3 self-audit configurations, every v5.1 run terminated by H_sym observer signaling stable, with rounds 21-72. None hit a round budget. This is empirical support for FC-1 (bounded termination via observable state). Source: termination_reason field in each exp_v5.1_*.json.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/microbiome_v2_vs_v51",
+    "title": "Microbiome v2 (144 rounds) vs v5.1 (32 rounds)",
+    "detail": "Same problem, same 5-vendor heterogeneity. v2 used threshold-vote termination, took 144 rounds, 100 chains, 203 attacks, 84 evidence items, 1.5M input tokens, 608 agent calls. v5.1 used H_sym observer, terminated at 32 rounds, 41 chains, 65 attacks, 51 evidence items, 0.7M input tokens, 199 agent calls. Termination state distribution: v2 reported 21/21 TRUE_CONSENSUS; v5.1 separated unscrutinised from consensus via scrutiny multiplier.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/v2_schema_bug",
+    "title": "v2 microbiome JSON contains 161 attacks on empty claim_id chains",
+    "detail": "exp_microbiome_nolimit.json: 86 of 100 chains have empty claim_id. 161 of 203 attacks landed on these empty-claim_id chains, aggregated under a single 'ghost claim' with empty description, alpha=0.884, state=TRUE_CONSENSUS. This is a v2 schema-population bug — chains were not consistently linked to their claims. The aggregate produced an artifact that could be misread as 'one chain attacked 161 times and survived'. v5.1 fixes this by enforcing claim_id population at chain creation.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/alzheimers_methodology_deadlock",
+    "title": "Alzheimer's v5.1: 14 ranking variants all collapsed at same fault",
+    "detail": "exp_v5.1_alzheimers_5ag.json: 38 rounds, 70 attacks, 17 claims. Final divergence map shows 14 different ranking statements about A>B>C ordering, all with survival rate 0%, all collapsing on the same methodology fault: 'genetic evidence limitations'. Rendered output: 'this disagreement cannot be resolved by evidence itself — it stems from methodology stance differences.' This is structural evidence of methodology deadlock, not random failure.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/fermi_evidence_starvation",
+    "title": "Fermi paradox: only 1 claim survived 144 attacks",
+    "detail": "exp_v5.1_fermi_5ag.json: 42 rounds, 91 attacks, 30 claims. Most claims collapsed; only one survived. Output explicitly reports 'insufficient evidence to rank.' Demonstrates protocol does not manufacture consensus when evidence is sparse — output form is sensitive to the question's epistemic state.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/sleep_consensus_preserved",
+    "title": "Sleep function: 5-agent and single-LLM both agree C>B>A",
+    "detail": "exp_v5.1_sleep_5ag.json: 31 rounds, 85 attacks. Both single LLM and 5-agent run converged on same ranking. 85 attacks failed to find vulnerabilities. Demonstrates protocol does not manufacture disagreement when consensus is robust.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/selfaudit_fragile_signal",
+    "title": "Self-audit produces non-trivial fragile_consensus tail",
+    "detail": "exp_v5.1_selfaudit_v2_5ag.json: 44 rounds, 64 attacks, 23 claims. Final state distribution: 16 TRUE_CONSENSUS + 7 FRAGILE_CONSENSUS. This is the only run in the archive with a non-trivial fragile-consensus tail. Hypothesis: when the protocol audits itself, the system displays structural caution toward its own claims that does not appear when auditing external scientific questions.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/H_chain_continues_at_termination",
+    "title": "H_chain still varying in last 5 rounds across all 14 runs",
+    "detail": "Empirical observation: in all 14 saved v5.1 experiments, H_chain (chain structural entropy) max single-step delta in the last 5 rounds is between 0.17 (obesity) and 0.81 (selfaudit). The discretised H_sym symbol remains stable, so termination triggers — but the underlying structural signal is still moving. This implies H_sym discretisation absorbs ongoing chain-structure variation into 'stable' symbol bins. Whether this absorbed variation carries new cognitive content or is mere noise is undetermined.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "experiment/intermittent_fasting_dual_modes",
+    "title": "Intermittent fasting: forced ranking vs integration mode produce different outputs",
+    "detail": "Two runs of the intermittent fasting question: 'forced ranking' produced order C>A>B disagreeing with single LLM; 'integration mode' produced complementary B+C+A model agreeing with single LLM. Same evidence, same agents, different question framing -> different output forms. Indicates the protocol's output is sensitive to problem framing — what the author elsewhere calls 'ontological commitments of the question itself'.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "historical_paper/v2_threshold_vote",
+    "title": "v2 paper: threshold-vote termination",
+    "detail": "v2 preprint claimed termination when six entropy signals each fell below threshold simultaneously for N consecutive rounds. Author's prior claim, now superseded — v2 microbiome ran 144 rounds because thresholds oscillated near boundary without hitting all six simultaneously. Author no longer maintains this is the right termination mechanism; v5.1 replaces threshold-vote with H_sym symbol-space observation.",
+    "source": "historical_paper"
+  },
+  {
+    "ref": "historical_paper/grounded_v1_narrow_claim",
+    "title": "grounded_v1 retreats to 'audit material' framing",
+    "detail": "grounded_v1 (May 2026) explicitly retreats from earlier 'find truth' framing to: 'the protocol produces an externally inspectable record... a divergence map separating examined from unexamined claims.' Author explicitly does not claim adversarial multi-agent reasoning produces answers closer to truth than single LLM calls. Claim made by author and AI assistant collaboratively; agents in this run may attack whether this retreat went too far OR not far enough.",
+    "source": "historical_paper"
+  },
+  {
+    "ref": "historical_paper/grounded_v1_six_limitations",
+    "title": "grounded_v1 lists six known limitations",
+    "detail": "grounded_v1 §10 lists: (1) truth vs auditability gap; (2) absence of retroactive truth benchmark; (3) absence of same-model heterogeneity ablation; (4) discretisation sensitivity (per-session bin edges); (5) evidence credibility automation gap; (6) attack-quality typing gap; (7) N>5 scalability untested. Author has explicitly declined to defend the protocol on these dimensions.",
+    "source": "historical_paper"
+  },
+  {
+    "ref": "historical_paper/v51_chinese_zh_version",
+    "title": "v5.1 Chinese paper version",
+    "detail": "Located at 论文版本/06_v5.1_20260518/链心_v5.1_中文版.md. Contains earlier v5.1 description; positioning more confident than grounded_v1's retreated stance. Useful as 'what author thought before retreat' baseline.",
+    "source": "historical_paper"
+  },
+  {
+    "ref": "external_arxiv/shin_2026_dpi",
+    "title": "Shin 2026 — DPI bound on closed-system reasoning",
+    "detail": "arXiv:2605.01704. Shin proves: when a single LLM debates with copies of itself, reasoning chain E -> O0 -> O1 -> ... is Markov, and DPI implies mutual information I(E; O_t) cannot increase. Same-model debate preserves answer accuracy but erodes reasoning quality. Shin proposes Evidence-Grounded Socratic Reasoning (EGSR) to restore information. Chain-Centric explicitly attempts to break the closed-system assumption via vendor heterogeneity AND external evidence pool routing.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/sela_2026_heterogeneity",
+    "title": "Sela 2026 — Architectural heterogeneity preserves disagreement",
+    "detail": "arXiv:2604.26561. Same-model role-play (different value perspectives via prompt persona) produces synthetic consensus regardless of perspective. Architectural heterogeneity (different 7-9B base models per perspective) significantly reduces preference concentration: child welfare 70.9% -> 46.1% (p<0.001, r=0.58); housing 46.0% -> 22.9% (p<0.001, r=0.50). Also reports fidelity-diversity trade-off: coherence validation INCREASES concentration when options are genuinely tied.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/perez_2022_sycophancy",
+    "title": "Pérez et al. 2022 — Sycophancy increases with RLHF",
+    "detail": "arXiv:2212.09251. Larger language models with more RLHF perform WORSE on sycophancy — they restate users' preferred answers back. Constructively extends to multi-agent settings: agent facing peers tends to align. Chain-Centric's response is structural: parser does not accept agree action, so sycophancy cannot enter ledger as a formal event.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/maven_2026",
+    "title": "Yao et al. 2026 — MAVEN: Skeptic-Researcher-Judge loop",
+    "detail": "arXiv:2605.07646. Blackboard architecture with explicit role decoupling and step-level verification. Reports accuracy gains on OpenBookQA, TruthfulQA, HALUEVAL, StrategyQA. MAVEN AND Chain-Centric agree that whole-chain reasoning without intermediate verification is unreliable. Differ on adjudication: MAVEN routes via Judge LLM; Chain-Centric eliminates judge and lets symbolic state decide. Chain-Centric does NOT compete on these benchmarks.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/agentauditor_2026",
+    "title": "Yang et al. 2026 — AgentAuditor: post-hoc tree audit",
+    "detail": "arXiv:2602.09341. Replaces majority vote with path search over multi-agent reasoning trees. Targets 'confabulation consensus' (agents share bias and converge on wrong reason). Trains adjudicator with Anti-Consensus Preference Optimisation. Closest comparison: AgentAuditor audits COMPLETED multi-agent traces post-hoc; Chain-Centric makes audit a runtime interactive protocol with first-class events.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/argmed_2024",
+    "title": "Hong et al. 2024 — ArgMed-Agents: argumentation in clinical reasoning",
+    "detail": "arXiv:2403.06294. Applies argumentation schemes to clinical decision reasoning, produces directed graph representation of conflicting reasoning. Chain-Centric's AttackFragment + supersedes lineage is an instance of this larger family but more restricted: only step-level attacks at depth <=2, no semantic computation of admissible/preferred/grounded extensions.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/zhao_2026_entropy_mas",
+    "title": "Zhao, Chen & Su 2026 — Entropy perspective on MAS",
+    "detail": "arXiv:2602.04234. Large-scale empirical study on 245 features and 6 reasoning benchmarks of intra-agent and inter-agent entropy dynamics. Counter-intuitive finding: ~43.3% of cases single agent outperforms MAS. Chain-Centric's seven entropies serve a DIFFERENT function (termination signal, not answer-selection feature). Both works use entropy in MAS but for orthogonal purposes.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "external_arxiv/aba_2025",
+    "title": "Cakar & Kristensson 2025 — Bipolar ABA",
+    "detail": "arXiv:2510.03442. Argumentation-based hallucination detection via bipolar assumption-based argumentation. Constructs argument graphs with support/attack relations, detects hallucination via fact-node attacks on argumentation. Chain-Centric is a more restricted instance — does not compute argumentation semantics.",
+    "source": "external_paper"
+  },
+  {
+    "ref": "mathematical/shannon_1948",
+    "title": "Shannon 1948 — Mathematical theory of communication",
+    "detail": "Bell System Tech J 27. Provides definition of entropy rate for discrete information source. When entropy rate -> 0, source has stopped producing new information. Chain-Centric uses this as DEFINITION of symbolic stability, NOT as derivation of protocol mechanism. The mechanism's lineage is observer / change-point detection, not source coding.",
+    "source": "mathematical"
+  },
+  {
+    "ref": "mathematical/cover_thomas_2006",
+    "title": "Cover & Thomas 2006 — Elements of Information Theory",
+    "detail": "2nd edition Wiley. Standard reference for information-theoretic quantities used in coordination layer (Shannon entropy, mutual information, transfer entropy via Schreiber 2000 derivation).",
+    "source": "mathematical"
+  },
+  {
+    "ref": "control_theory/luenberger_1971",
+    "title": "Luenberger 1971 — Observers for multivariable systems",
+    "detail": "IEEE Trans Auto Control 16. Foundational observer theory: a state estimator that does not require knowledge of true state, only that observable outputs converge. Multi-agent extension: protocol-level observer of cognitive-space expansion is a non-trivial instance.",
+    "source": "control_theory"
+  },
+  {
+    "ref": "control_theory/page_1954_cusum",
+    "title": "Page 1954 — CUSUM continuous inspection",
+    "detail": "Biometrika 41. Introduces cumulative sum as change-point detection statistic — detects shifts in distribution without requiring labeled change. Chain-Centric's H_sym 'consecutive new-symbol-free rounds' counter is a CUSUM-style detector applied to symbolic behavior space.",
+    "source": "control_theory"
+  },
+  {
+    "ref": "control_theory/lai_1995_change_detection",
+    "title": "Lai 1995 — Sequential change-point detection",
+    "detail": "IEEE Trans Inf Theory 44. Information bounds and quickest detection. Provides theoretical framework for 'when to stop monitoring' under uncertainty about change point location. Relevant to Chain-Centric's per-session bin edge learning + adaptive forgetting.",
+    "source": "control_theory"
+  },
+  {
+    "ref": "legacy_arch/hearsay_ii_blackboard",
+    "title": "HEARSAY-II — 1980s blackboard architecture",
+    "detail": "Erman, Hayes-Roth, Lesser, Reddy 1980. Knowledge sources contribute hypotheses to a shared blackboard, no central control. Chain-Centric's shared ledger is structurally a blackboard with restricted action grammar. Owes acknowledgment but Chain-Centric narrows action space to four protocol-typed events.",
+    "source": "legacy_arch"
+  },
+  {
+    "ref": "legacy_arch/walton_dialogue_games",
+    "title": "Walton dialogue game classification",
+    "detail": "Six dialogue types: persuasion, inquiry, negotiation, deliberation, information-seeking, eristic. Chain-Centric's protocol grammar is closest to a restricted-grammar persuasion dialogue with mandatory evidence citation. Most other multi-agent LLM frameworks default to a hybrid of free-form persuasion and information-seeking without formal type marking.",
+    "source": "legacy_arch"
+  },
+  {
+    "ref": "legacy_arch/popper_evolutionary_epistemology",
+    "title": "Popper / Campbell evolutionary epistemology",
+    "detail": "Popper 1972 Objective Knowledge; Campbell 1974 Evolutionary Epistemology. Knowledge advances by conjectures surviving falsification pressure. Surviving claims are not 'true' but 'unrefuted so far'. Chain-Centric's iron-clad / consensus / contested / collapsed taxonomy is a mechanised instantiation of this epistemology.",
+    "source": "legacy_arch"
+  },
+  {
+    "ref": "legacy_arch/autogen_crew_langgraph",
+    "title": "AutoGen / CrewAI / LangGraph orchestration substrates",
+    "detail": "Provide agent orchestration and conversation primitives. Chain-Centric is NOT a competing orchestrator — it could in principle sit on top of these. Difference: those frameworks treat the conversation transcript as primary artifact; Chain-Centric treats the structured ledger as primary, with transcript a derivative.",
+    "source": "legacy_arch"
+  },
+  {
+    "ref": "risk/shared_chinese_training_data",
+    "title": "Five-vendor heterogeneity may share Chinese training data",
+    "detail": "All five participating vendors (DeepSeek, GLM, MiMo, Doubao, Qwen) train on overlapping Chinese-internet content. Heterogeneity at vendor level does NOT guarantee heterogeneity at training-data level. Common blind spots from shared sources (popular science articles, mainstream consensus on contested topics) cannot be detected by Sela 2026's vendor-heterogeneity prescription. Chain-Centric protocol structurally cannot detect this.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/methodology_frame_lock",
+    "title": "Methodology-frame lock-in",
+    "detail": "If all agents implicitly accept the same methodology hierarchy (e.g., 'RCT > animal studies > mechanistic'), they may converge under that prior without anyone questioning the prior itself. The protocol cannot generate frame-attacks unless an agent volunteers one. Observed: in Fermi paradox runs, ~half of attacks WERE frame-attacks ('how do you read this evidence type'), suggesting the protocol can stumble onto frame-attacks when evidence is sparse, but does not structurally require them.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/revision_dimension_unobserved",
+    "title": "Revision dimension currently unobserved",
+    "detail": "Five expansion dimensions in v5.1: input (evidence_gate), production (claim_gate / H_sym), scrutiny density (scrutiny multiplier), scrutiny structure (topology veto), measurement noise (Hamming). Revision activity (chain version > 1) is high (75-96%) across all 14 v5.1 runs but is NOT observed by any termination gate. Whether this is bug (revisions still active when system declares stable) or feature (Hamming weighting absorbs it correctly) is undetermined empirically.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/intra_claim_attack_density_unobserved",
+    "title": "Intra-claim attack density not measured",
+    "detail": "Chains supporting the same claim may or may not have attacked each other. If they did and some collapsed, that is healthy adversarial convergence. If they did not and all survived, that is a parallel-agreement signal of possible blind spot. The protocol does not distinguish these two cases at convergence. The signal exists in the ledger and can be computed post-hoc but is not used in real-time.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/sybil_collusion_undetected",
+    "title": "Sybil and collusion attacks structurally undetected",
+    "detail": "If two agents always attack the same target, or if a vendor runs multiple fine-tuned copies pretending to be heterogeneous, the protocol has no structural detection. Heterogeneity is treated as input assumption, not measured property.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/attack_quality_uniform",
+    "title": "Attack quality treated uniformly",
+    "detail": "All AttackFragment entries are weighted equally by the coordination layer. Ten cosmetic attacks count the same as one foundational methodology attack. No attack typing (evidence_missing, overclaim, correlation_causation, animal_human_extrapolation, sample_size, methodological_boundary). Listed as known limitation in grounded_v1 §10.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/per_session_discretisation",
+    "title": "Per-session discretisation breaks cross-session comparability",
+    "detail": "H_sym bin edges are learned within each session from observation window. Two reruns of same problem may use different edges, producing non-comparable symbol strings. Convergence guarantee is session-local; cross-session reproducibility requires global discretisation scheme not present in current implementation.",
+    "source": "risk"
+  },
+  {
+    "ref": "risk/161_attack_self_audit_meta",
+    "title": "Author's own memory was shaped by AI summary for one year",
+    "detail": "Author reported remembering 'one chain attacked 161 times survived' from an AI-generated summary of v2 microbiome run. The summary was technically truthful (161 attacks did occur, an aggregate alpha=0.884 entry was labeled TRUE_CONSENSUS) but the entity it described did not exist as a structured claim — it was an artifact of the v2 schema bug. Author's memory was AI-summary-shaped for one year until JSON inspection corrected it. This case illustrates: the protocol's necessity is provable on the protocol's own author by their own experience.",
+    "source": "experiment_summary"
+  },
+  {
+    "ref": "risk/output_is_search_trace_not_answer",
+    "title": "Output is search trace, not territorial answer",
+    "detail": "What the protocol produces is a map of 'what these N agents on this evidence pool, under this grammar, found and did not find.' It is NOT a map of the question itself. There is a structural risk that users will read the divergence map as truth-about-territory rather than search-trace-about-process. The author cannot prevent this misreading at the protocol level.",
+    "source": "risk"
+  }
+]

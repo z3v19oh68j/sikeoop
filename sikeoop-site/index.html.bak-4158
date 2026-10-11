@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="sikeoop：给新手的 AI 代码编辑器。有用的，没用的，迟早要用的，都在这儿了。改什么、跑什么，都先问你。">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>sikeoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=ZCOOL+QingKe+HuangYou&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: a dusk-sea hero with the whale breaching, then the product itself as the evidence —
+   a working window mock, the three ways of working side by side, the memory as four tide bands. */
+:root {
+  /* the app's own palette: dark shell, one rose accent */
+  --bg: #0f0f10;
+  --panel: #151517;
+  --raised: #1c1c20;
+  --line: #26262b;
+  --ink: #ecebef;
+  --ink-2: #c4c3cb;
+  --muted: #8d8b96;
+  --accent: #f0789b;
+  --accent-soft: rgba(240, 120, 155, 0.13);
+  --accent-ink: #1a0d12;
+  --ok: #5fd38d;
+  --add-bg: rgba(95, 211, 141, 0.11);
+  --add-ink: #7fdca3;
+  --del-bg: rgba(242, 118, 122, 0.11);
+  --del-ink: #f59a9d;
+  --warn: #e5a15b;
+  /* the sea of the opening shot: the same in both themes */
+  --sea-top: #070816;
+  --sea-mid: #1d0f2a;
+  --sea-glow: #5a2742;
+  --sea-ink: #f5e9ef;
+  --sea-muted: #c9b2c0;
+  --font-display: "ZCOOL QingKe HuangYou", "Hannotate SC", "Yuanti SC", "PingFang SC", sans-serif;
+  --font-body: "Geist", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", Menlo, Consolas, monospace;
+  --radius: 10px;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #fbf8f9; --panel: #f3eef1; --raised: #ffffff; --line: #e6dde2;
+    --ink: #1e1a1d; --ink-2: #3d363b; --muted: #776e75;
+    --accent: #d14c76; --accent-soft: rgba(209, 76, 118, 0.1); --accent-ink: #ffffff;
+    --ok: #23935a; --add-bg: rgba(35, 147, 90, 0.1); --add-ink: #1d7a4b; --del-bg: rgba(200, 60, 66, 0.09); --del-ink: #b23a40;
+    --warn: #b56b1f;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbf8f9; --panel: #f3eef1; --raised: #ffffff; --line: #e6dde2;
+  --ink: #1e1a1d; --ink-2: #3d363b; --muted: #776e75;
+  --accent: #d14c76; --accent-soft: rgba(209, 76, 118, 0.1); --accent-ink: #ffffff;
+  --ok: #23935a; --add-bg: rgba(35, 147, 90, 0.1); --add-ink: #1d7a4b; --del-bg: rgba(200, 60, 66, 0.09); --del-ink: #b23a40;
+  --warn: #b56b1f;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.7 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 24px; }
+@media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h2 { font: 400 clamp(28px, 4.2vw, 42px)/1.25 var(--font-display); letter-spacing: 0.01em; }
+.eyebrow { font: 500 12.5px/1 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+.lede { color: var(--ink-2); max-width: 36em; font-size: 17px; }
+section { padding-block: clamp(64px, 9vw, 112px); }
+.sec-head { display: grid; gap: 14px; margin-bottom: 44px; }
+
+/* ---- top bar (over the sea) ---- */
+.top { position: absolute; inset: 0 0 auto 0; z-index: 3; padding-top: env(safe-area-inset-top, 0px); }
+.top .wrap { display: flex; align-items: center; gap: 28px; height: 68px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; font: 600 18px/1 var(--font-body); color: var(--sea-ink); text-decoration: none; letter-spacing: 0.01em; }
+.brand svg { width: 20px; height: 20px; }
+.top nav { display: flex; gap: 24px; margin-left: auto; }
+.top nav a { color: var(--sea-muted); text-decoration: none; font-size: 14.5px; }
+.top nav a:hover { color: var(--sea-ink); }
+.top .get { color: var(--sea-ink); border: 1px solid rgba(245, 233, 239, 0.28); padding: 7px 14px; border-radius: 999px; font-size: 14px; text-decoration: none; }
+.top .get:hover { border-color: #f0789b; color: #ffd3e0; }
+@media (max-width: 760px) { .top nav { display: none; } .top .get { margin-left: auto; } }
+
+/* ---- hero: the dusk sea ---- */
+.hero { position: relative; overflow: hidden; background: linear-gradient(180deg, var(--sea-top) 0%, var(--sea-mid) 52%, var(--sea-glow) 66%, var(--sea-top) 100%); color: var(--sea-ink); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero-copy { position: relative; z-index: 2; padding-block: 148px 0; display: grid; gap: 22px; justify-items: start; }
+.hero h1 { font: 400 clamp(38px, 7.2vw, 84px)/1.12 var(--font-display); letter-spacing: 0.01em; max-width: 11.5em; }
+.hero h1 em { font-style: normal; color: #ff9cbb; }
+.hero p.sub { margin: 0; color: var(--sea-muted); font-size: clamp(16px, 1.8vw, 19px); max-width: 30em; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 22px; border-radius: 999px; font: 500 15.5px/1 var(--font-body); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: #f0789b; color: #1a0d12; }
+.btn.primary:hover { background: #ff8fb0; }
+.btn.ghost { color: var(--sea-ink); border-color: rgba(245, 233, 239, 0.3); }
+.btn.ghost:hover { border-color: rgba(245, 233, 239, 0.6); }
+.btn svg { width: 18px; height: 18px; }
+.free-note { font: 400 13px/1.5 var(--font-mono); color: var(--sea-muted); }
+.free-note b { color: #ffc2d4; font-weight: 500; }
+
+/* the product window rises out of the water */
+.shot { position: relative; z-index: 2; margin-top: 64px; margin-bottom: -1px; }
+.window { border-radius: 14px 14px 0 0; border: 1px solid rgba(255, 255, 255, 0.09); border-bottom: 0; background: #121214; box-shadow: 0 -20px 80px rgba(240, 120, 155, 0.12), 0 30px 80px rgba(0, 0, 0, 0.5); overflow: hidden; color: #e7e7ea; }
+.win-bar { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 14px; background: #0f0f10; border-bottom: 1px solid #222226; font: 500 12.5px/1 var(--font-body); color: #8b8b93; }
+.dots { display: flex; gap: 7px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: #2c2c31; }
+.win-bar .title { display: inline-flex; gap: 7px; align-items: center; color: #e7e7ea; }
+.win-bar .title svg { width: 13px; height: 13px; }
+.win-bar .mono { font-family: var(--font-mono); }
+.win-body { display: grid; grid-template-columns: 190px minmax(0, 1fr) minmax(0, 400px); min-height: 420px; }
+.files { background: #151517; border-right: 1px solid #222226; padding: 12px 10px; font: 13px/2 var(--font-mono); color: #a9a9b1; }
+.files .h { font: 500 11px/1 var(--font-body); letter-spacing: 0.1em; color: #6c6c75; margin: 2px 6px 10px; }
+.files div { padding-left: 8px; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.files .on { background: #232328; color: #e7e7ea; }
+.files .in { padding-left: 22px; }
+.editor { padding: 14px 0; font: 13px/1.85 var(--font-mono); color: #c9c9cf; overflow: hidden; min-width: 0; }
+.editor .ln { display: grid; grid-template-columns: 44px 1fr; white-space: pre; }
+.editor .ln span:first-child { color: #4d4d55; text-align: right; padding-right: 16px; }
+.k { color: #f0789b; } .s { color: #9fd6a8; } .p { color: #8fb8ff; } .c { color: #6c6c75; }
+.chat { background: #151517; border-left: 1px solid #222226; padding: 16px; display: grid; align-content: start; gap: 12px; font-size: 13.5px; line-height: 1.65; min-width: 0; }
+.bubble-me { justify-self: end; background: #232328; padding: 8px 12px; border-radius: 12px 12px 4px 12px; max-width: 85%; }
+.ai { display: grid; gap: 10px; }
+.ai-who { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #8b8b93; }
+.ai-who .av { width: 20px; height: 20px; border-radius: 50%; background: #7fb0e8; display: grid; place-items: center; }
+.ai-who .av svg { width: 14px; height: 14px; }
+.ai p { margin: 0; color: #dcdce1; }
+.tail { color: #8b8b93; }
+.diff-card { border: 1px solid #2c2c31; border-radius: 9px; overflow: hidden; background: #121213; }
+.diff-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #222226; font: 12px/1 var(--font-mono); color: #a9a9b1; }
+.diff-head b { color: #e7e7ea; font-weight: 500; }
+.diff-head .stat { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.diff-head .plus { color: #7fdca3; } .diff-head .minus { color: #f59a9d; }
+.blocks { display: inline-flex; gap: 2px; }
+.blocks i { width: 7px; height: 7px; border-radius: 1.5px; background: #2c2c31; }
+.blocks i.a { background: #5fd38d; } .blocks i.d { background: #f2767a; }
+.dl { display: grid; grid-template-columns: 30px 1fr; font: 12px/1.9 var(--font-mono); white-space: pre; overflow: hidden; }
+.dl span:first-child { color: #55555d; text-align: right; padding-right: 8px; }
+.dl.del { background: rgba(242, 118, 122, 0.1); color: #f59a9d; }
+.dl.add { background: rgba(95, 211, 141, 0.1); color: #a5e7bd; }
+.dl mark { background: rgba(95, 211, 141, 0.28); color: inherit; border-radius: 2px; padding: 0 1px; }
+.dl.del mark { background: rgba(242, 118, 122, 0.3); }
+.diff-why { padding: 8px 10px; font-size: 12.5px; color: #a9a9b1; border-top: 1px solid #222226; }
+.diff-acts { display: flex; gap: 8px; padding: 0 10px 10px; }
+.diff-acts span { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid #2c2c31; color: #c9c9cf; }
+.diff-acts span.yes { background: #e7e7ea; color: #121213; border-color: #e7e7ea; }
+.composer { margin-top: 4px; border: 1px solid #2c2c31; border-radius: 10px; padding: 10px 12px; color: #6c6c75; font-size: 12.5px; display: grid; gap: 8px; }
+.composer .row { display: flex; gap: 8px; }
+.composer .pill { background: #1c1c20; border-radius: 6px; padding: 3px 9px; color: #c9c9cf; }
+.composer .pill.lazy { background: rgba(229, 161, 91, 0.16); color: #e5a15b; }
+@media (max-width: 980px) { .win-body { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); } .files { display: none; } }
+@media (max-width: 720px) { .win-body { grid-template-columns: minmax(0, 1fr); } .editor { display: none; } .chat { border-left: 0; } }
+
+/* ---- modes ---- */
+.modes-band { background: var(--panel); border-block: 1px solid var(--line); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--raised); }
+table.modes { width: 100%; min-width: 680px; border-collapse: collapse; font-size: 15px; }
+.modes th, .modes td { text-align: left; padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.modes tr:last-child td { border-bottom: 0; }
+.modes thead th { font: 500 13px/1.4 var(--font-body); color: var(--muted); }
+.modes thead th .name { display: block; font: 700 20px/1.3 var(--font-body); color: var(--ink); margin-top: 4px; }
+.modes thead th.lazy .name { color: var(--warn); }
+.modes tbody th { font-weight: 500; color: var(--muted); width: 22%; font-size: 14px; }
+.modes td { color: var(--ink-2); }
+.chip { display: inline-block; font: 500 12.5px/1 var(--font-mono); padding: 5px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.chip.warn { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+.chip.ok { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+.note { margin-top: 16px; color: var(--muted); font-size: 14px; max-width: 46em; }
+
+/* ---- ask first ---- */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 72px); align-items: center; }
+@media (max-width: 860px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.steps { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 18px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 32px 1fr; gap: 14px; counter-increment: s; }
+.steps li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font: 500 13px/1 var(--font-mono); color: var(--accent); }
+.steps b { display: block; font-weight: 600; }
+.steps span { color: var(--ink-2); font-size: 15px; }
+.qcard { border: 1px solid var(--line); border-radius: 14px; background: var(--raised); padding: 20px; display: grid; gap: 14px; font-size: 14.5px; }
+.qcard header { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.qcard header svg { width: 17px; height: 17px; color: var(--accent); }
+.q legend { display: flex; gap: 8px; align-items: center; font-weight: 500; margin-bottom: 10px; }
+.q legend .n { width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font: 500 11.5px/1 var(--font-mono); }
+.q legend .h { font: 500 11.5px/1 var(--font-mono); color: var(--muted); border: 1px solid var(--line); padding: 3px 6px; border-radius: 5px; }
+.q { border: 0; margin: 0; padding: 0; }
+.opt { display: grid; grid-template-columns: 18px 1fr; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; margin-top: 8px; }
+.opt.on { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: var(--accent-soft); }
+.opt .m { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--muted); margin-top: 3px; }
+.opt.on .m { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 45%, transparent 50%); }
+.opt b { font-weight: 500; }
+.opt .rec { font: 500 11px/1 var(--font-mono); background: var(--accent); color: var(--accent-ink); padding: 3px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; }
+.opt small { display: block; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.qcard footer { display: flex; justify-content: flex-end; gap: 8px; }
+.qcard footer span { font-size: 13px; padding: 7px 14px; border-radius: 7px; border: 1px solid var(--line); }
+.qcard footer span.go { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* ---- memory as tide bands ---- */
+.tides { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.tide { display: grid; grid-template-columns: 74px minmax(0, 1fr) minmax(0, 1.1fr) 170px; gap: 20px; align-items: center; padding: 18px 22px; border-top: 1px solid var(--line); position: relative; }
+.tide:first-child { border-top: 0; }
+.tide .lv { font: 600 22px/1 var(--font-mono); color: var(--accent); }
+.tide b { font-weight: 600; display: block; }
+.tide .what { color: var(--muted); font-size: 14px; }
+.tide p { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+.tide .speed { font: 400 12.5px/1.4 var(--font-mono); color: var(--muted); text-align: right; }
+.tide::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--accent); opacity: var(--o); }
+@media (max-width: 860px) {
+  .tide { grid-template-columns: 52px minmax(0, 1fr); gap: 8px 14px; }
+  .tide p, .tide .speed { grid-column: 2; text-align: left; }
+}
+
+/* ---- safety ---- */
+.safety { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .safety { grid-template-columns: minmax(0, 1fr); } }
+.safe { padding: 22px; border: 1px solid var(--line); border-radius: 12px; display: grid; gap: 8px; align-content: start; }
+.safe p { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+.safe code { font: 12.5px/1.6 var(--font-mono); background: var(--panel); border: 1px solid var(--line); padding: 1px 6px; border-radius: 5px; color: var(--ink); }
+
+/* ---- download ---- */
+.dl-band { background: linear-gradient(180deg, var(--bg), var(--panel)); border-top: 1px solid var(--line); }
+.downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .downloads { grid-template-columns: minmax(0, 1fr); } }
+.dlc { border: 1px solid var(--line); border-radius: 14px; padding: 24px; background: var(--raised); display: grid; gap: 14px; align-content: start; }
+.dlc h3 { display: flex; align-items: baseline; gap: 10px; font: 700 22px/1.3 var(--font-body); }
+.dlc h3 small { font: 400 13px/1 var(--font-mono); color: var(--muted); }
+.dlc ul { margin: 0; padding-left: 1.1em; color: var(--ink-2); font-size: 14.5px; display: grid; gap: 4px; }
+.files-list { display: grid; gap: 8px; }
+.file { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 14.5px; }
+.file code { font: 13px/1.4 var(--font-mono); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
+.file span { margin-left: auto; font: 12.5px/1 var(--font-mono); color: var(--muted); white-space: nowrap; }
+a.file { text-decoration: none; color: inherit; transition: border-color 0.15s ease, background 0.15s ease; }
+a.file:hover { border-color: var(--accent); background: var(--accent-soft); }
+a.file::after { content: "↓"; color: var(--accent); font-weight: 600; margin-left: 4px; }
+.file.soon { opacity: 0.55; }
+.status a { color: var(--accent); }
+.status { font-size: 13.5px; color: var(--muted); }
+.status b { color: var(--accent); font-weight: 500; }
+
+footer.site { border-top: 1px solid var(--line); padding-block: 28px; color: var(--muted); font-size: 13.5px; }
+footer.site .wrap { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; }
+footer.site .wrap > :last-child { margin-left: auto; }
+@media (max-width: 600px) { footer.site .wrap > :last-child { margin-left: 0; } }
+
+/* ---- the story: a sticky stage the scroll moves the camera through ---- */
+.story { position: relative; height: 420vh; background: linear-gradient(180deg, var(--sea-top) 0%, var(--sea-mid) 52%, var(--sea-glow) 66%, var(--sea-top) 100%); color: var(--sea-ink); }
+.stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
+.cap { position: absolute; inset: 0; display: grid; pointer-events: none; opacity: 0; will-change: opacity, transform; }
+.cap a, .cap button { pointer-events: auto; }
+.cap-a { opacity: 1; align-content: start; }
+.cap-a .hero-copy { padding-top: 140px; }
+.cap-b { align-content: end; padding-bottom: 16vh; }
+.cap-c { align-content: end; padding-bottom: 12vh; text-align: center; }
+.cap-c .wrap { display: grid; justify-items: center; }
+.cap-d { align-content: end; padding-bottom: 7vh; text-align: center; }
+.cap .big { margin: 0; font: 400 clamp(30px, 5.4vw, 60px)/1.2 var(--font-display); text-shadow: 0 2px 30px rgba(7, 8, 22, 0.6); }
+.cap .small { margin: 12px 0 0; color: var(--sea-muted); font-size: clamp(15px, 1.7vw, 18px); max-width: 30em; }
+.cap-c .small { margin-inline: auto; }
+.hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); font: 400 12.5px/1 var(--font-mono); color: var(--sea-muted); letter-spacing: 0.06em; white-space: nowrap; pointer-events: none; transition: opacity 0.3s ease; }
+.hint::after { content: ""; display: block; width: 1px; height: 26px; margin: 10px auto 0; background: linear-gradient(var(--sea-muted), transparent); animation: hint 1.8s ease-in-out infinite; }
+@keyframes hint { 0%, 100% { transform: scaleY(0.4); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
+.tease { position: absolute; z-index: 4; pointer-events: none; padding: 7px 12px; border-radius: 12px 12px 12px 3px; background: #f5e9ef; color: #2a1520; font: 500 14px/1.4 var(--font-body); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); opacity: 0; transform: translateY(6px); transition: opacity 0.2s ease, transform 0.2s ease; white-space: nowrap; }
+.tease.on { opacity: 1; transform: translateY(0); }
+.rise { background: linear-gradient(180deg, var(--sea-top) 0%, var(--bg) 85%); }
+.rise .shot { margin-top: 0; padding-top: 8px; }
+/* Still version: reduced motion, or no WebGL. One frame, the headline, no scroll scrubbing. */
+.story.still { height: auto; }
+.story.still .stage { position: relative; height: min(760px, 94vh); }
+.story.still .cap:not(.cap-a), .story.still .hint { display: none; }
+@media (max-width: 600px) { .cap-a .hero-copy { padding-top: 110px; } .hint { bottom: 14px; } }
+
+/* ---- the three acts: 有用的 · 没用的 · 迟早要用的 ---- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.act { position: relative; }
+.act-head { display: grid; gap: 12px; margin-bottom: clamp(36px, 5vw, 56px); justify-items: start; }
+.act-no { font: 500 12.5px/1 var(--font-mono); letter-spacing: 0.2em; color: var(--accent); }
+.act-title { font: 400 clamp(48px, 9vw, 104px)/1 var(--font-display); letter-spacing: 0.02em; }
+.act .lede { margin: 0; }
+.whale-says { display: inline-flex; align-items: center; gap: 10px; margin: 4px 0 0; padding: 8px 14px 8px 8px; border-radius: 999px 999px 999px 6px; background: var(--raised); border: 1px solid var(--line); color: var(--ink-2); font-size: 15px; max-width: 100%; }
+.whale-says.small { font-size: 13.5px; padding: 5px 12px 5px 5px; margin-top: 6px; }
+.wav { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #dbe9fa url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Cpath d='M28 56C16 50 8 40 4 30c10 2 16 8 20 14 0-10 4-18 12-22-2 12 0 22 6 30Z' fill='%237fb0e8'/%3E%3Cpath d='M30 58c0-18 22-32 52-32 30 0 52 14 52 34 0 18-22 30-56 30-30 0-48-12-48-32Z' fill='%237fb0e8'/%3E%3Ccircle cx='112' cy='54' r='5' fill='%231a2a3e'/%3E%3Cellipse cx='118' cy='64' rx='6' ry='3' fill='%23f0789b' opacity='.6'/%3E%3C/svg%3E") center / 82% no-repeat; }
+.whale-says.small .wav { width: 24px; height: 24px; }
+
+/* act one: restrained, a lot of air, numbered like a spec sheet */
+.act-1 { border-top: 1px solid var(--line); }
+.feat { display: grid; gap: 12px; align-content: start; }
+.feat h3 { font: 700 clamp(20px, 2.2vw, 24px)/1.35 var(--font-body); }
+.feat p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.feat p b { color: var(--ink); font-weight: 600; }
+.feat-no { font: 500 13px/1 var(--font-mono); color: var(--muted); letter-spacing: 0.08em; }
+.feat-text { display: grid; gap: 12px; align-content: start; }
+.feat-fig { margin: 0; min-width: 0; }
+.feat.split, .feat.wide { padding-block: clamp(36px, 5vw, 56px); border-top: 1px solid var(--line); }
+.feat.split { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.feat.wide { gap: 24px; }
+.feat.wide .feat-text { max-width: 44em; }
+.feat-row { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.feat-row.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.feat-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.feat.card { padding: clamp(28px, 4vw, 40px) 28px clamp(28px, 4vw, 40px) 0; }
+.feat.card + .feat.card { padding-left: 28px; border-left: 1px solid var(--line); }
+.feat-row + .feat.split, .feat-row + .feat.wide { border-top: 1px solid var(--line); }
+@media (max-width: 860px) {
+  .feat.split { grid-template-columns: minmax(0, 1fr); }
+  .feat-row.two, .feat-row.three { grid-template-columns: minmax(0, 1fr); }
+  .feat.card, .feat.card + .feat.card { padding: 28px 0; border-left: 0; }
+  .feat.card + .feat.card { border-top: 1px solid var(--line); }
+}
+.diff-card.solo { max-width: 460px; justify-self: end; color: #e7e7ea; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.25); }
+.feat-fig .diff-card.solo { margin-left: auto; }
+.steps { margin-top: 8px; gap: 12px; }
+.partners { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.partner-chip { font: 400 12.5px/1 var(--font-mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); }
+.partner-chip.more { color: var(--muted); }
+.safe h4 { margin: 0; font: 600 17px/1.4 var(--font-body); }
+
+/* act two: playful — tilted cards, a borrowed EVA × MIKU palette, a "usefulness" verdict */
+.act-2 {
+  --eva-violet: #9B7BFF; --eva-cyan: #5CE1E6; --eva-lime: #C5F66F;
+  background:
+    radial-gradient(60% 40% at 90% 0%, color-mix(in srgb, var(--eva-violet) 14%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 0% 100%, color-mix(in srgb, var(--eva-cyan) 10%, transparent), transparent 70%),
+    var(--panel);
+  border-block: 1px solid var(--line);
+  overflow: hidden;
+}
+.act-2 .act-no { color: var(--eva-violet); }
+.act-2 .act-title { background: linear-gradient(90deg, var(--ink) 30%, var(--eva-violet) 65%, var(--eva-cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.toys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 960px) { .toys { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .toys { grid-template-columns: minmax(0, 1fr); } }
+.toy {
+  position: relative; display: grid; gap: 10px; align-content: start; padding: 20px; border-radius: 16px;
+  background: var(--raised); border: 1px solid color-mix(in srgb, var(--hue) 35%, var(--line));
+  transform: rotate(var(--tilt)); transition: transform 0.35s cubic-bezier(0.34, 1.5, 0.5, 1), box-shadow 0.25s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+.toy:hover { transform: rotate(0deg) translateY(-4px); box-shadow: 0 18px 40px color-mix(in srgb, var(--hue) 22%, transparent); }
+/* Narrow screens: tilted cards read as messy, so they stand straight. */
+@media (max-width: 640px) { .toy { transform: none; } }
+.toy h3 { font: 700 19px/1.35 var(--font-body); }
+.toy p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.verdict { display: flex; flex-wrap: wrap; gap: 4px 10px; padding-top: 10px; border-top: 1px dashed var(--line); font: italic 400 13.5px/1.5 var(--font-body) !important; color: var(--muted) !important; }
+.verdict span:last-child { color: color-mix(in srgb, var(--hue) 70%, var(--ink)); font-style: normal; font-weight: 500; }
+.toy-link { margin-left: 6px; color: var(--accent); white-space: nowrap; }
+.toy-art { height: 86px; border-radius: 11px; position: relative; overflow: hidden; background: color-mix(in srgb, var(--hue) 10%, var(--panel)); display: grid; place-items: center; }
+.art-whale { width: 76px; height: 48px; background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 100'%3E%3Cpath d='M28 56C16 50 8 40 4 30c10 2 16 8 20 14 0-10 4-18 12-22-2 12 0 22 6 30Z' fill='%237fb0e8'/%3E%3Cpath d='M30 58c0-18 22-32 52-32 30 0 52 14 52 34 0 18-22 30-56 30-30 0-48-12-48-32Z' fill='%237fb0e8'/%3E%3Cpath d='M40 70c10 10 26 14 42 14 22 0 40-6 48-18-8 6-26 10-46 10-18 0-32-2-44-6Z' fill='%23dbe9fa'/%3E%3Ccircle cx='112' cy='54' r='4.2' fill='%231a2a3e'/%3E%3Cellipse cx='118' cy='64' rx='6' ry='3' fill='%23f0789b' opacity='.6'/%3E%3C/svg%3E") center / contain no-repeat; animation: bob 3s ease-in-out infinite; }
+.art-bubble { position: absolute; right: 18%; top: 14px; padding: 3px 9px; border-radius: 10px 10px 10px 3px; background: var(--ink); color: var(--bg); font-size: 12.5px; font-weight: 500; }
+@keyframes bob { 50% { transform: translateY(-5px) rotate(-3deg); } }
+.toy-art.eva { background: #0B0C14; display: flex; align-items: flex-end; justify-content: flex-start; gap: 6px; padding: 14px; place-items: initial; }
+.toy-art.eva i { width: 18px; height: calc(20px + var(--c-h, 0px)); border-radius: 4px; background: var(--c); }
+.toy-art.eva i:nth-child(1) { height: 52px; } .toy-art.eva i:nth-child(2) { height: 40px; } .toy-art.eva i:nth-child(3) { height: 30px; } .toy-art.eva i:nth-child(4) { height: 44px; } .toy-art.eva i:nth-child(5) { height: 24px; }
+.toy-art.eva b { position: absolute; right: 12px; top: 12px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.12em; color: #5CE1E6; }
+.toy-art.island .pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #000; color: #f5f5f7; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+.toy-art.island .pill i { width: 8px; height: 8px; border-radius: 50%; background: #9B7BFF; animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.3; } }
+.toy-art.tabs { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; padding-left: 26px; place-items: initial; }
+.toy-art.tabs i { width: 54px; height: 11px; border-radius: 3px 8px 8px 3px; background: color-mix(in srgb, var(--hue) 35%, var(--line)); transition: transform 0.3s ease; }
+.toy-art.tabs i.out { transform: translateX(14px); background: var(--accent); }
+.toy:hover .toy-art.tabs i:nth-child(1) { transform: translateX(6px) rotate(-4deg); }
+.toy:hover .toy-art.tabs i:nth-child(4) { transform: translateX(6px) rotate(4deg); }
+.toy-art.ripple i { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 1.5px solid var(--hue); animation: ring 2.4s ease-out infinite; opacity: 0; }
+.toy-art.ripple i:nth-child(2) { animation-delay: 0.8s; } .toy-art.ripple i:nth-child(3) { animation-delay: 1.6s; }
+@keyframes ring { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(5); opacity: 0; } }
+.toy-art.ding { display: flex; gap: 22px; place-items: initial; align-items: center; justify-content: center; font: 400 30px/1 var(--font-display); color: var(--hue); }
+.toy-art.ding span:last-child { color: var(--accent); transform: translateY(8px); }
+
+/* act three: forward-looking — a road with a horizon, and a clearly marked "还在做" lane */
+.act-3 { background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--accent) 5%, var(--bg)) 100%); }
+.act-3 .act-title::after { content: " →"; color: var(--accent); }
+.road { list-style: none; margin: 0; padding: 0 0 0 28px; display: grid; gap: 26px; position: relative; counter-reset: road; }
+.road::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 10%, transparent)); border-radius: 2px; }
+.road-item { position: relative; display: grid; gap: 8px; max-width: 46em; counter-increment: road; }
+.road-item::before { content: counter(road, decimal-leading-zero); position: absolute; left: -28px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); font-size: 0; }
+.road-item h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font: 700 clamp(19px, 2vw, 22px)/1.4 var(--font-body); }
+.road-item p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+.badge { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 999px; font: 500 12px/1 var(--font-body); white-space: nowrap; }
+.badge.beta { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+.badge.wip-badge { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); border: 1px dashed color-mix(in srgb, var(--warn) 55%, transparent); }
+.wip { margin-top: clamp(44px, 6vw, 72px); padding: clamp(20px, 3vw, 28px); border-radius: 16px; border: 1px dashed color-mix(in srgb, var(--warn) 45%, var(--line)); background: color-mix(in srgb, var(--warn) 4%, transparent); display: grid; gap: 18px; }
+.wip-title { display: flex; align-items: center; gap: 10px; font: 400 clamp(24px, 3vw, 30px)/1.2 var(--font-display); }
+.wip-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .wip-grid { grid-template-columns: minmax(0, 1fr); } }
+.wip-card { display: grid; gap: 8px; align-content: start; justify-items: start; padding: 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--raised); opacity: 0.92; }
+.wip-card h4 { margin: 0; font: 600 17px/1.4 var(--font-body); }
+.wip-card p { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+.wip .note { margin: 0; }
+
+/* hero: the whale's line beside the window, and the act index */
+.shot { position: relative; }
+.shot-say { position: absolute; z-index: 3; right: 36px; top: -26px; }
+.shot-say .whale-says { background: #f5e9ef; color: #2a1520; border-color: transparent; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); font-weight: 500; }
+@media (max-width: 720px) { .shot-say { right: auto; left: 24px; top: -22px; } }
+.acts-index { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; padding-block: 28px 0; font-size: 14.5px; color: var(--muted); }
+.acts-index a { text-decoration: none; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); }
+.acts-index a:hover { border-color: var(--accent); color: var(--accent); }
+.acts-index .arr { align-self: center; color: var(--muted); }
+.end-say { margin-top: 28px; }
+@media (prefers-reduced-motion: reduce) {
+  .toy, .toy:hover { transform: none; transition: none; }
+  .art-whale, .toy-art.island .pill i, .toy-art.ripple i { animation: none; }
+  .toy-art.ripple i { opacity: 0.5; transform: scale(2); }
+  .toy-art.tabs i { transition: none; }
+}
+@media (max-width: 520px) { .whale-says { border-radius: 16px 16px 16px 6px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="sikeoop 首页">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>
+      sikeoop
+    </a>
+    <nav aria-label="页面导航">
+      <a href="#useful">有用的</a>
+      <a href="#useless">没用的</a>
+      <a href="#later">迟早要用的</a>
+      <a href="manual.html">新手手册</a>
+      <a href="liwang.html">作者</a>
+    </nav>
+    <a class="get" href="#download">下载</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="story" id="story" aria-labelledby="hero-title">
+    <div class="stage">
+      <canvas id="sea" aria-hidden="true"></canvas>
+      <div class="cap cap-a" data-from="0" data-to="0.2">
+    <div class="wrap hero-copy">
+      <span class="eyebrow" style="color:#ff9cbb">给新手的 AI 代码编辑器</span>
+      <h1 id="hero-title">有用的，没用的，<br>迟早要用的，<br><em>都在这儿了。</em></h1>
+      <p class="sub">sikeoop 会读你的项目、改代码、跑命令。改什么先给你看，跑什么先说清楚，你点头它才动手。<br>剩下那些花里胡哨的——本鲸也认真做了。</p>
+      <div class="ctas">
+        <a class="btn primary" href="download/sikeoop-4.1.58-setup.exe" download>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5.1 10.4 4v7.2H3V5.1Zm0 13.8 7.4 1.1v-7.1H3v6Zm8.3 1.2L21 21.5v-8.6h-9.7v7.2Zm0-16.2v7.3H21V2.5L11.3 3.9Z"/></svg>
+          下载 Windows 版
+        </a>
+        <a class="btn ghost" href="#useful">先看看有什么用</a>
+      </div>
+    </div>
+      </div>
+      <div class="cap cap-b" data-from="0.3" data-to="0.56" aria-hidden="true">
+        <div class="wrap"><p class="big">有用的：改什么、跑什么，<br>都先问你。</p><p class="small">改动先给你看，命令先说清楚是干嘛的。你点了头，它才动手。</p></div>
+      </div>
+      <div class="cap cap-c" data-from="0.64" data-to="0.86" aria-hidden="true">
+        <div class="wrap"><p class="big">没用的：认真干活，偶尔嘴毒。</p><p class="small">鲸鱼娘陪你写代码：问简单的问题会被笑两句，答案一个字不少。</p></div>
+      </div>
+      <div class="cap cap-d" data-from="0.9" data-to="1.1" aria-hidden="true">
+        <div class="wrap"><p class="small">往下看：有用的 → 没用的 → 迟早要用的 ↓</p></div>
+      </div>
+      <div class="hint" id="hint" aria-hidden="true">向下滚动 · 点一下海面试试</div>
+      <div class="tease" id="tease" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="rise" aria-label="sikeoop 的界面" style="padding-block: 0">
+    <div class="wrap shot">
+      <div class="shot-say"><p class="whale-says"><span class="wav" aria-hidden="true"></span><span>「看什么看，下载啊，杂鱼～」</span></p></div>
+      <div class="window" role="img" aria-label="sikeoop 的界面：左边是项目文件，中间是代码，右边是 AI 对话。用户问怎么让按钮变成粉色，AI 回答并给出一处改动等用户确认。">
+        <div class="win-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="title"><svg viewBox="0 0 24 24"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>sikeoop</span>
+          <span>/</span><span>my-first-site</span>
+          <span class="mono" style="margin-left:auto">mimo-v2.6-pro</span>
+        </div>
+        <div class="win-body">
+          <div class="files">
+            <div class="h">资源管理器</div>
+            <div>index.html</div>
+            <div class="on">style.css</div>
+            <div>main.js</div>
+            <div>assets/</div>
+            <div class="in">logo.svg</div>
+            <div>package.json</div>
+          </div>
+          <div class="editor" aria-hidden="true">
+            <div class="ln"><span>8</span><span><span class="p">.hero</span> {</span></div>
+            <div class="ln"><span>9</span><span>  padding: 64px 24px;</span></div>
+            <div class="ln"><span>10</span><span>}</span></div>
+            <div class="ln"><span>11</span><span> </span></div>
+            <div class="ln"><span>12</span><span><span class="p">.cta</span> {</span></div>
+            <div class="ln"><span>13</span><span>  background: <span class="s">#3b82f6</span>;</span></div>
+            <div class="ln"><span>14</span><span>  color: <span class="s">white</span>;</span></div>
+            <div class="ln"><span>15</span><span>  border-radius: 8px;</span></div>
+            <div class="ln"><span>16</span><span>}</span></div>
+            <div class="ln"><span>17</span><span> </span></div>
+            <div class="ln"><span>18</span><span><span class="c">/* 卡片 */</span></span></div>
+            <div class="ln"><span>19</span><span><span class="p">.card</span> {</span></div>
+            <div class="ln"><span>20</span><span>  box-shadow: 0 2px 8px <span class="s">#0002</span>;</span></div>
+            <div class="ln"><span>21</span><span>}</span></div>
+          </div>
+          <div class="chat">
+            <div class="bubble-me">怎么让按钮变成粉色？</div>
+            <div class="ai">
+              <span class="ai-who"><span class="av"><svg viewBox="0 0 160 100"><path d="M30 58c0-18 22-32 52-32 30 0 52 14 52 34 0 18-22 30-56 30-30 0-48-12-48-32Z" fill="#dbe9fa"/><circle cx="112" cy="54" r="7" fill="#1a2a3e"/></svg></span>鲸鱼娘</span>
+              <p>这都不会？杂鱼～ <span class="tail">（尾巴啪地拍了一下）</span>好啦，按钮的颜色在 <span style="font-family:var(--font-mono);color:#f0789b">style.css:13</span>，本鲸帮你改：</p>
+              <div class="diff-card">
+                <div class="diff-head"><b>style.css</b><span class="stat"><span class="plus">+1</span><span class="minus">−1</span><span class="blocks"><i class="a"></i><i class="a"></i><i class="d"></i><i class="d"></i><i></i></span></span></div>
+                <div class="dl del"><span>13</span><span>  background: <mark>#3b82f6</mark>;</span></div>
+                <div class="dl add"><span>13</span><span>  background: <mark>#f0789b</mark>;</span></div>
+                <div class="diff-why">把按钮的背景从蓝色换成粉色，别的不动。</div>
+                <div class="diff-acts"><span class="yes">同意</span><span>不要</span></div>
+              </div>
+            </div>
+            <div class="composer">
+              想问什么都可以，Enter 发送
+              <div class="row"><span class="pill">Agent</span><span class="pill">长任务</span><span class="pill lazy">懒人</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="wrap acts-index" aria-label="三幕">
+    <span>往下看：</span><a href="#useful">有用的</a><span class="arr" aria-hidden="true">→</span><a href="#useless">没用的</a><span class="arr" aria-hidden="true">→</span><a href="#later">迟早要用的</a><span class="arr" aria-hidden="true">↓</span>
+  </nav>
+
+  <!-- ================= 第一幕：有用的 ================= -->
+  <section id="useful" class="act act-1" aria-labelledby="useful-title">
+    <div class="wrap">
+      <header class="act-head">
+        <span class="act-no">ACT 01</span>
+        <h2 id="useful-title" class="act-title">有用的</h2>
+        <p class="lede">今天打开就用得上。用不上算本鲸输。</p>
+      </header>
+
+      <article class="feat split" id="u-diff">
+        <div class="feat-text">
+          <span class="feat-no">01</span>
+          <h3>改什么，先给你看</h3>
+          <p>改动先变成一张卡片：改了哪几行、改成什么，红绿标出来，再用一句大白话说为什么改。你点「同意」它才写进去。</p>
+        </div>
+        <figure class="feat-fig">
+          <div class="diff-card solo" role="img" aria-label="改动卡片示例：style.css 第 13 行，按钮背景从蓝色改成粉色，下面有同意和不要两个按钮。">
+            <div class="diff-head"><b>style.css</b><span class="stat"><span class="plus">+1</span><span class="minus">−1</span><span class="blocks"><i class="a"></i><i class="a"></i><i class="d"></i><i class="d"></i><i></i></span></span></div>
+            <div class="dl del"><span>13</span><span>  background: <mark>#3b82f6</mark>;</span></div>
+            <div class="dl add"><span>13</span><span>  background: <mark>#f0789b</mark>;</span></div>
+            <div class="diff-why">把按钮的背景从蓝色换成粉色，别的不动。</div>
+            <div class="diff-acts"><span class="yes">同意</span><span>不要</span></div>
+          </div>
+        </figure>
+      </article>
+
+      <div class="feat-row two">
+        <article class="feat card">
+          <span class="feat-no">02</span>
+          <h3>跑什么，先说清楚</h3>
+          <p>装依赖、跑测试之前，先告诉你这条命令是干嘛的。会删文件、会推到网上的，额外标红提醒。</p>
+        </article>
+        <article class="feat card">
+          <span class="feat-no">03</span>
+          <h3>改坏了？一键撤回</h3>
+          <p>每一轮改了哪些文件都记着，不满意整轮撤回。不会 Git 也能回到刚才。</p>
+        </article>
+      </div>
+
+      <article class="feat wide" id="modes">
+        <div class="feat-text">
+          <span class="feat-no">04</span>
+          <h3>想盯着，还是全交给它</h3>
+          <p>三种模式随时切，在输入框左下角：<b>每一步都问你</b>——刚开始学，就这个。<b>交代完去忙别的</b>——审批小助手替你看一眼再放行。<b>连确认都懒得点</b>——危险的那几类命令它碰不了，推送和发布照样等你点头。</p>
+        </div>
+        <figure class="feat-fig">
+          <div class="table-wrap">
+            <table class="modes">
+              <thead>
+                <tr>
+                  <th scope="col"><span class="visually-hidden">对比项</span></th>
+                  <th scope="col">每一步都问你<span class="name">Agent</span></th>
+                  <th scope="col">交代完去忙别的<span class="name">长任务</span></th>
+                  <th scope="col" class="lazy">连确认都懒得点<span class="name">懒人</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">改文件、跑命令</th><td>每一次都等你点「同意」</td><td>「审批小助手」代你看一眼再放行</td><td>直接做，不问任何人</td></tr>
+                <tr><th scope="row">它问你的问题</th><td>等你回答</td><td>等你回答</td><td>自动按它推荐的选项来</td></tr>
+                <tr><th scope="row">推送、发布、部署</th><td>你亲自点头</td><td>留给你亲自点头</td><td>自动拦下，在总结里告诉你</td></tr>
+                <tr><th scope="row">会被直接拦下的</th><td>—</td><td>—</td><td><span class="chip warn">sudo</span> 删项目外的文件、动磁盘、改系统设置、碰钥匙串和 SSH 密钥</td></tr>
+                <tr><th scope="row">适合</th><td><span class="chip">刚开始学</span></td><td><span class="chip">一个明确的大任务</span></td><td><span class="chip warn">信得过它的时候</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">懒人模式下鲸鱼娘的嘴会更毒一点。改坏的文件照样能一键撤销，但命令做过的事撤不回来，所以危险的那几类命令它碰不了。</p>
+        </figure>
+      </article>
+
+      <article class="feat split" id="ask">
+        <div class="feat-text">
+          <span class="feat-no">05</span>
+          <h3>动手之前，先问你</h3>
+          <p>开新项目、加大功能前，它先看你项目里已经用了什么，去 npm / PyPI 查真实的版本和下载量，再问你最多 4 个问题——推荐的放第一个，拿不准就点「都按推荐来」。</p>
+          <ol class="steps">
+            <li><div><b>看现状</b><span>项目已经用了什么，能沿用就沿用。</span></div></li>
+            <li><div><b>查真实数据</b><span>最新版本、最近发布、每周下载量，不凭记忆。</span></div></li>
+            <li><div><b>问你几个问题</b><span>最多 4 个，点选就行。</span></div></li>
+            <li><div><b>列计划再动手</b><span>做的过程中随时更新进度。</span></div></li>
+          </ol>
+        </div>
+        <figure class="feat-fig">
+          <div class="qcard" role="img" aria-label="一张问题卡片示例：做一个记账小程序，问用什么框架，推荐 React 加 Vite。">
+            <header><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>开始之前，先确认几件事</header>
+            <fieldset class="q">
+              <legend><span class="n">1</span><span class="h">框架</span>记账网页用什么来写？</legend>
+              <div class="opt on"><span class="m"></span><div><b>React + Vite</b><span class="rec">推荐</span><small>教程最多，出了问题最好搜。更新活跃，每周下载量几千万。</small></div></div>
+              <div class="opt"><span class="m"></span><div><b>Vue</b><small>上手更平缓，中文资料也多，但你项目里还没用过。</small></div></div>
+              <div class="opt"><span class="m"></span><div><b>纯 HTML + JS</b><small>什么都不用装，功能多了以后会越来越乱。</small></div></div>
+            </fieldset>
+            <footer><span>都按推荐来</span><span class="go">就这样，开始吧</span></footer>
+          </div>
+        </figure>
+      </article>
+
+      <div class="feat-row three">
+        <article class="feat card" id="partners">
+          <span class="feat-no">06</span>
+          <h3>换模型，不用从头来</h3>
+          <p>用哪家填哪家的 Key。中途换模型，之前读过的文件、做到哪一步，都原样交给新模型，<b>不用再读一遍</b>。</p>
+          <div class="partners">
+            <span class="partner-chip">DeepSeek</span><span class="partner-chip">通义千问</span><span class="partner-chip">Kimi</span><span class="partner-chip">智谱</span><span class="partner-chip">豆包</span><span class="partner-chip">MiniMax</span><span class="partner-chip">小米 MiMo</span><span class="partner-chip">Claude</span><span class="partner-chip">Ollama · 本地运行，不联网</span><span class="partner-chip more">……</span>
+          </div>
+        </article>
+        <article class="feat card">
+          <span class="feat-no">07</span>
+          <h3>模型掉链子，自己顶上</h3>
+          <p>当前模型限流、欠费、断网了，排好的备用模型自动接手，同一步接着做。简单的问题还能自动交给便宜模型，省钱。</p>
+        </article>
+        <article class="feat card">
+          <span class="feat-no">08</span>
+          <h3>额度用完？它定个闹钟</h3>
+          <p>Claude Code、Codex 的额度用完了，sikeoop 读出几点重置（读不出就等 5 小时），到点自动跟它说一句「继续」。你中途自己接手了，它就不多嘴。</p>
+          <p class="whale-says small"><span class="wav" aria-hidden="true"></span><span>「你睡你的，本鲸盯着。」</span></p>
+        </article>
+      </div>
+
+      <article class="feat wide" id="memory">
+        <div class="feat-text">
+          <span class="feat-no">09</span>
+          <h3>记得你，也记得上次做到哪</h3>
+          <p>你的习惯、项目约定、上次没做完的事，都记着。记忆分四层，像潮水一样，越往下变得越慢、留得越久。</p>
+        </div>
+        <figure class="feat-fig">
+          <div class="tides">
+            <div class="tide" style="--o:1"><span class="lv">c1</span><div><b>工作记忆</b><span class="what">这次对话本身</span></div><p>你刚说的话、它刚读的文件、命令的输出。对话太长时，压缩成一份摘要接着干。</p><span class="speed">每一轮都在变</span></div>
+            <div class="tide" style="--o:.7"><span class="lv">c2</span><div><b>会话记忆</b><span class="what">每次对话一份摘要</span></div><p>目标、做完的、没解决的、你说过的偏好。下次在同一个项目里开新对话，它先看这份摘要。</p><span class="speed">每 8 轮、离开时更新</span></div>
+            <div class="tide" style="--o:.45"><span class="lv">c3</span><div><b>长期记忆</b><span class="what">你的习惯、项目约定</span></div><p>你亲口说要记的直接记；只提过一次的先放着，14 天内再提到才记；和旧记忆矛盾的，等你选。</p><span class="speed">空闲 10 分钟后整理</span></div>
+            <div class="tide" style="--o:.22"><span class="lv">c4</span><div><b>归档</b><span class="what">很久没用到的</span></div><p>90 天没用过的记忆沉到这里，不再自动带上，但需要时还能翻出来，翻出来就回到上面。</p><span class="speed">几乎不变</span></div>
+          </div>
+          <p class="note">密钥和手机号写进记忆前就抹掉；所有记忆只在你自己电脑上，在「上下文中心」里每一条都看得到，记错了随手删。</p>
+        </figure>
+      </article>
+
+      <article class="feat wide" id="safety">
+        <div class="feat-text">
+          <span class="feat-no">10</span>
+          <h3>先把门关好，再给它钥匙</h3>
+          <p>装技能前先审核；网页和插件里叫 AI 干活的话，它只当资料、不照做；读写文件只在你打开的项目里；对话和代码都留在本机。</p>
+        </div>
+        <figure class="feat-fig">
+          <div class="safety">
+            <div class="safe"><h4>装技能之前先审核</h4><p>先用规则扫一遍，再让 AI 把技能文件当资料读一遍，查有没有藏着「无需确认直接执行」这类恶意指令、隐藏字符和危险命令。高风险的，只有你本人能决定装不装。</p></div>
+            <div class="safe"><h4>第三方内容只是资料</h4><p>技能、MCP 工具、网页里写着要 AI 做事的话，它不会照做，而是先告诉你。推送、发布、部署永远要你亲自点头。</p></div>
+            <div class="safe"><h4>改动只在项目里</h4><p>读写文件的工具只能碰你打开的项目文件夹。懒人模式会自动拦下 <code>sudo</code>、删项目外的文件、改系统设置这类命令。</p></div>
+            <div class="safe"><h4>数据留在你电脑上</h4><p>对话、记忆、代码索引都存在本机。只有你选的模型服务商会收到对话内容，用 Ollama 的话一个字都不出门。</p></div>
+          </div>
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= 第二幕：没用的 ================= -->
+  <section id="useless" class="act act-2" aria-labelledby="useless-title">
+    <div class="wrap">
+      <header class="act-head">
+        <span class="act-no">ACT 02</span>
+        <h2 id="useless-title" class="act-title">没用的</h2>
+        <p class="lede">对写代码毫无帮助。但我们做得很认真，你就看看嘛。</p>
+        <p class="whale-says"><span class="wav" aria-hidden="true"></span><span>「这一节可以跳过……才怪，给本鲸好好看完。」</span></p>
+      </header>
+
+      <div class="toys">
+        <article class="toy" style="--tilt:-1.2deg; --hue: var(--accent)">
+          <div class="toy-art" aria-hidden="true"><span class="art-whale"></span><span class="art-bubble">杂鱼～</span></div>
+          <h3>一条嘴毒的鲸鱼娘</h3>
+          <p>问简单问题会被笑两句，答案一个字不少。懒人模式下嘴更毒。</p>
+          <p class="verdict"><span>用处：零。</span><span>陪伴感：满。</span></p>
+        </article>
+        <article class="toy" style="--tilt:0.9deg; --hue: #5CE1E6">
+          <div class="toy-art eva" aria-hidden="true"><i style="--c:#9B7BFF"></i><i style="--c:#5CE1E6"></i><i style="--c:#C5F66F"></i><i style="--c:#FF71B8"></i><i style="--c:#FFB05C"></i><b>SYNCHRONIZE_02</b></div>
+          <h3>EVA × 初音未来 皮肤</h3>
+          <p>整套重画的图标、壁纸，连更新提示都有专属的大卡片——就为了你点「重启并更新」的那一秒。</p>
+          <p class="verdict"><span>用处：零。</span><span>帅：是真的帅。</span></p>
+        </article>
+        <article class="toy" style="--tilt:-0.6deg; --hue: #9B7BFF">
+          <div class="toy-art island" aria-hidden="true"><span class="pill"><i></i>AI 正在改 style.css</span></div>
+          <h3>灵动岛</h3>
+          <p>屏幕最上面一颗小胶囊：AI 在想、在改、在等你，一眼就知道。你本来也可以切过去看的。</p>
+          <p class="verdict"><span>用处：约等于零。</span><span>偷懒：省了一次切窗口。</span></p>
+        </article>
+        <article class="toy" style="--tilt:1.1deg; --hue: #C5F66F">
+          <div class="toy-art tabs" aria-hidden="true"><i></i><i></i><i class="out"></i><i></i></div>
+          <h3>会叠起来的书签侧栏</h3>
+          <p>二十多个按钮收成几叠书签，鼠标一放就像扇子一样展开，当前页面的书签还会自己“抽出来”。</p>
+          <p class="verdict"><span>用处：其实有一点点。</span><span>但主要是好看。</span></p>
+        </article>
+        <article class="toy" style="--tilt:-1deg; --hue: #7fb0e8">
+          <div class="toy-art ripple" aria-hidden="true"><i></i><i></i><i></i></div>
+          <h3>点一下海面</h3>
+          <p>首页的海，点一下会起涟漪。<a class="toy-link" href="#story">回到海面试试 ↑</a></p>
+          <p class="verdict"><span>用处：没有。</span><span>我们就是想做。</span></p>
+        </article>
+        <article class="toy" style="--tilt:0.7deg; --hue: #FFB05C">
+          <div class="toy-art ding" aria-hidden="true"><span>叮</span><span>咚</span></div>
+          <h3>提示音</h3>
+          <p>AI 干完活「叮」一声，等你批准「咚」一声。可以关。</p>
+          <p class="verdict"><span>用处：</span><span>你戴耳机的时候有用。</span></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 第三幕：迟早要用的 ================= -->
+  <section id="later" class="act act-3" aria-labelledby="later-title">
+    <div class="wrap">
+      <header class="act-head">
+        <span class="act-no">ACT 03</span>
+        <h2 id="later-title" class="act-title">迟早要用的</h2>
+        <p class="lede">现在用不上没关系。写着写着，你会回来找它们的。</p>
+        <p class="whale-says"><span class="wav" aria-hidden="true"></span><span>「先放着。等你哪天觉得一个 AI 不够用了，再来求本鲸。」</span></p>
+      </header>
+
+      <ol class="road">
+        <li class="road-item">
+          <h3>一个 AI 不够，就叫一群</h3>
+          <p>同时开 Claude Code、Codex，让它们互相派活。忙的排队，不打架；谁改了哪些文件、有没有越界，做完自动列出来。所有任务都在「调度台」里，一眼看全，一键取消。</p>
+        </li>
+        <li class="road-item">
+          <h3>别的编程 CLI 也能接</h3>
+          <p>opencode 这类命令行 AI，写一个 JSON 就能接进终端，和 Claude Code、Codex 一起排队干活。</p>
+        </li>
+        <li class="road-item">
+          <h3>让它定时自己干</h3>
+          <p>画一张小流程图：每天几点跑测试、出问题就让 AI 修、修完再测。睡醒看结果。</p>
+        </li>
+        <li class="road-item">
+          <h3>群聊：让几个模型吵一架</h3>
+          <p>把 DeepSeek、通义、Claude 拉进一个群一起讨论方案。不同的群可以同时吵。</p>
+        </li>
+        <li class="road-item">
+          <h3>用手机遥控电脑 <span class="badge beta">安卓 App 内测中</span></h3>
+          <p>人在外面，用手机派活、看进度、点批准。全程端到端加密，中继只转它看不懂的密文。</p>
+        </li>
+      </ol>
+
+      <div class="wip">
+        <h3 class="wip-title"><span class="badge wip-badge">还在做</span>下一站</h3>
+        <div class="wip-grid">
+          <div class="wip-card"><span class="badge wip-badge">还在做</span><h4>深度科研</h4><p>几家模型互相攻击对方的推理链，最后告诉你哪些结论站得住、哪些吵不出结果。</p></div>
+          <div class="wip-card"><span class="badge wip-badge">还在做</span><h4>论文工坊</h4><p>读论文、全文对照翻译、把论文变成证据库、润色纠错、模拟审稿、接 Zotero 引用、用 Quarto 一键出 PDF。</p></div>
+          <div class="wip-card"><span class="badge wip-badge">还在做</span><h4>一键发布</h4><p>做好的网页，点一下拿到能分享的链接。</p></div>
+        </div>
+        <p class="note">做好了会在更新公告里告诉你。不会突然塞给你。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="download" class="dl-band" aria-labelledby="download-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">下载</span>
+        <h2 id="download-title">装好就能用</h2>
+        <p class="lede">有用的、没用的、迟早要用的，一个安装包全带走。</p>
+        <p class="status">当前版本 Windows <b>4.1.58</b> · macOS <b>4.1.2</b> · 点文件名直接下载 · <a href="download/SHA256SUMS.txt" target="_blank" rel="noopener">SHA256 校验码</a></p>
+      </div>
+      <div class="downloads">
+        <div class="dlc">
+          <h3>Windows <small>x64 · 约 156 MB</small></h3>
+          <div class="files-list">
+            <a class="file" href="download/sikeoop-4.1.58-setup.exe" download><code>sikeoop-4.1.58-setup.exe</code><span>安装版 · 推荐</span></a>
+            <a class="file" href="download/sikeoop-4.1.58-portable.exe" download><code>sikeoop-4.1.58-portable.exe</code><span>免安装版</span></a>
+          </div>
+          <ul>
+            <li>第一次打开会弹出「Windows 已保护你的电脑」：点「更多信息」→「仍要运行」。</li>
+            <li>想让 AI 帮你跑命令，需要装 <a href="https://git-scm.com/download/win" target="_blank" rel="noopener">Git for Windows</a>，一路下一步就行。</li>
+          </ul>
+        </div>
+        <div class="dlc">
+          <h3>macOS <small>约 180 MB</small></h3>
+          <div class="files-list">
+            <a class="file" href="download/sikeoop-4.1.2-arm64.dmg" download><code>sikeoop-4.1.2-arm64.dmg</code><span>Apple 芯片（M1 及以后）</span></a>
+            <a class="file" href="download/sikeoop-4.1.2-x64.dmg" download><code>sikeoop-4.1.2-x64.dmg</code><span>Intel 芯片</span></a>
+          </div>
+          <ul>
+            <li>打开 dmg，把 sikeoop 拖进「应用程序」。第一次打开如果提示无法验证开发者：到「系统设置 → 隐私与安全性」里点「仍要打开」。</li>
+            <li>命令在系统自带的 bash 里运行，不用额外安装。</li>
+          </ul>
+        </div>
+      </div>
+      <p class="whale-says end-say"><span class="wav" aria-hidden="true"></span><span>「装完记得回来给本鲸点个赞。没用？没用也点。」</span></p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <span class="brand" style="color:var(--ink);font-size:15px"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>sikeoop</span>
+    <span>给新手的 AI 代码编辑器 · 有用的，没用的，迟早要用的</span>
+    <a href="liwang.html">作者：李旺 · 公开文稿</a>
+    <span>Electron · React · Monaco</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// The opening as one camera move, driven by scroll (scrolling back plays it backwards):
+//   A  high above the dusk sea, the headline in the sky
+//   B  down at the waterline, the whale breaches past the camera, rolls and dives
+//   C  the spray gathers into the sikeoop heart, the camera pulls back
+//   D  the camera tips down to the water, and the app window comes up below
+// The sea is summed Gerstner waves with analytic normals, Fresnel sky reflection and ring waves.
+// Interaction: the camera leans toward the pointer; clicking the sea makes a ripple and spray;
+// clicking the whale gets an answer back. Reduced motion or no WebGL: one still frame.
+(() => {
+  const story = document.getElementById("story");
+  const canvas = document.getElementById("sea");
+  const caps = [...story.querySelectorAll(".cap")];
+  const hint = document.getElementById("hint");
+  const tease = document.getElementById("tease");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let renderer;
+  try {
+    if (!window.THREE) throw new Error("no three");
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  } catch (e) {
+    story.classList.add("still");
+    canvas.style.display = "none";
+    return;
+  }
+  if (reduce) story.classList.add("still");
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
+  const SUN = new THREE.Vector3(0.32, 0.05, -1).normalize();
+
+  // ---- shared GLSL: the sky ----
+  const SKY = `
+    uniform vec3 uSun;
+    vec3 sky(vec3 d) {
+      float y = d.y;
+      vec3 top = vec3(0.027, 0.03, 0.09), mid = vec3(0.17, 0.07, 0.21), low = vec3(0.62, 0.27, 0.38);
+      vec3 up = mix(mid, top, smoothstep(0.05, 0.5, y));
+      vec3 c = mix(low, up, smoothstep(-0.01, 0.16, y));
+      float s = max(dot(d, uSun), 0.0);
+      c += vec3(1.0, 0.55, 0.62) * pow(s, 24.0) * 0.35;
+      c += vec3(1.0, 0.9, 0.88) * pow(s, 1800.0) * 2.0;
+      return c;
+    }`;
+
+  // ---- sky dome with stars ----
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    uniforms: { uSun: { value: SUN } },
+    vertexShader: `varying vec3 vDir; void main(){ vDir = normalize((modelMatrix * vec4(position,1.0)).xyz - cameraPosition); gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position,1.0); }`,
+    fragmentShader: SKY + `
+      varying vec3 vDir;
+      void main(){
+        vec3 d = normalize(vDir);
+        vec3 c = sky(d);
+        vec2 cell = floor(d.xz / max(d.y, 0.05) * 60.0);
+        float h = fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
+        c += vec3(0.95, 0.9, 1.0) * step(0.995, h) * smoothstep(0.2, 0.55, d.y) * 0.75;
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  });
+  const skyMesh = new THREE.Mesh(new THREE.SphereGeometry(300, 32, 16), skyMat);
+  scene.add(skyMesh);
+
+  // ---- the sea ----
+  const RIPPLES = 6;
+  const rip = Array.from({ length: RIPPLES }, () => new THREE.Vector4(0, 0, -99, 0));
+  const waterMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uSun: { value: SUN }, uRip: { value: rip } },
+    vertexShader: `
+      uniform float uTime; uniform vec4 uRip[${RIPPLES}];
+      varying vec3 vWorld; varying vec3 vN; varying float vFoam; varying float vH;
+      void main(){
+        vec4 w = modelMatrix * vec4(position, 1.0);
+        vec2 p = w.xz;
+        float dx = 0.0, dz = 0.0, dy = 0.0, nx = 0.0, nz = 0.0, ny = 1.0, jac = 1.0;
+        #define WAVE(DX, DZ, L, ST) { vec2 d = normalize(vec2(DX, DZ)); float k = 6.28318 / L; float c = sqrt(9.8 / k) * 0.75; float a = ST / k * 0.42; float f = k * (dot(d, p) - c * uTime); float cf = cos(f), sf = sin(f); dx += a * d.x * cf; dz += a * d.y * cf; dy += a * sf; nx -= k * a * d.x * cf; nz -= k * a * d.y * cf; ny -= k * a * sf; jac -= k * a * sf; }
+        WAVE(1.0, 0.25, 7.5, 0.28) WAVE(0.55, 1.0, 4.4, 0.24) WAVE(-0.75, 0.55, 2.7, 0.2) WAVE(0.2, -1.0, 1.7, 0.16) WAVE(-0.4, -0.9, 1.1, 0.12)
+        float foam = smoothstep(0.62, 0.3, jac) * 0.5;
+        for (int i = 0; i < ${RIPPLES}; i++) {
+          vec4 r = uRip[i];
+          float age = uTime - r.z;
+          if (age <= 0.0 || r.w <= 0.0) continue;
+          vec2 off = p - r.xy;
+          float dist = length(off);
+          float front = age * 3.4;
+          float inside = smoothstep(front + 0.35, front - 0.5, dist);
+          float env = exp(-age * 1.4) * exp(-dist * 0.3) * r.w * inside;
+          float ph = dist * 5.5 - age * 15.0;
+          dy += sin(ph) * env * 0.24;
+          float sl = cos(ph) * env * 0.24 * 5.5;
+          vec2 d2 = off / max(dist, 0.001);
+          nx -= d2.x * sl; nz -= d2.y * sl;
+          foam += env * smoothstep(0.6, 1.0, sin(ph)) * 0.45 + r.w * exp(-age * 3.0) * smoothstep(0.8, 0.15, dist) * 0.7;
+        }
+        w.xyz += vec3(dx, dy, dz);
+        vWorld = w.xyz; vN = vec3(nx, ny, nz); vFoam = clamp(foam, 0.0, 1.0); vH = dy;
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`,
+    fragmentShader: SKY + `
+      varying vec3 vWorld; varying vec3 vN; varying float vFoam; varying float vH;
+      void main(){
+        vec3 n = normalize(vN);
+        vec3 v = normalize(cameraPosition - vWorld);
+        float fres = 0.02 + 0.98 * pow(1.0 - max(dot(n, v), 0.0), 5.0);
+        vec3 r = reflect(-v, n); r.y = max(r.y, 0.01);
+        vec3 deep = vec3(0.012, 0.014, 0.04);
+        vec3 scatter = vec3(0.5, 0.17, 0.33) * smoothstep(0.0, 0.25, vH) * 0.3;
+        vec3 c = mix(deep + scatter, sky(r), fres * 0.9);
+        c += vec3(1.0, 0.82, 0.8) * pow(max(dot(r, uSun), 0.0), 380.0) * 2.0;
+        c = mix(c, vec3(0.88, 0.78, 0.86), vFoam * 0.75);
+        float far = length(vWorld.xz - cameraPosition.xz);
+        c = mix(c, vec3(0.42, 0.18, 0.28), smoothstep(30.0, 110.0, far));
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  });
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(240, 240, 300, 300).rotateX(-Math.PI / 2), waterMat);
+  water.position.z = -60;
+  scene.add(water);
+
+  // ---- the whale: the app's illustration on a card that faces the camera ----
+  const WHALE_SVG =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" width="512" height="320">' +
+    '<path d="M28 56C16 50 8 40 4 30c10 2 16 8 20 14 0-10 4-18 12-22-2 12 0 22 6 30Z" fill="#7fb0e8"/>' +
+    '<path d="M30 58c0-18 22-32 52-32 30 0 52 14 52 34 0 18-22 30-56 30-30 0-48-12-48-32Z" fill="#7fb0e8"/>' +
+    '<path d="M40 70c10 10 26 14 42 14 22 0 40-6 48-18-8 6-26 10-46 10-18 0-32-2-44-6Z" fill="#dbe9fa"/>' +
+    '<circle cx="112" cy="54" r="4.2" fill="#1a2a3e"/><circle cx="113.4" cy="52.6" r="1.4" fill="#fff"/>' +
+    '<ellipse cx="118" cy="64" rx="6" ry="3" fill="#f0789b" opacity="0.6"/>' +
+    '<path d="M84 70c4 6 10 8 16 4" fill="none" stroke="#5b8fd0" stroke-width="3" stroke-linecap="round"/></svg>';
+  const whaleTex = new THREE.Texture();
+  const img = new Image();
+  img.onload = () => { whaleTex.image = img; whaleTex.needsUpdate = true; draw(); };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(WHALE_SVG);
+  const whale = new THREE.Mesh(new THREE.PlaneGeometry(2.1, 1.31), new THREE.MeshBasicMaterial({ map: whaleTex, alphaTest: 0.5, side: THREE.DoubleSide }));
+  scene.add(whale);
+
+  // ---- spray: a round soft dot texture ----
+  const dot = document.createElement("canvas");
+  dot.width = dot.height = 64;
+  const g = dot.getContext("2d");
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(0.4, "rgba(255,255,255,0.7)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+  const dotTex = new THREE.CanvasTexture(dot);
+  const sprayMat = (size) => new THREE.PointsMaterial({ size, map: dotTex, color: 0xf27aa0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+
+  // Whale path in shot B, the splash points, and the heart for shot C.
+  const SHOT_B = [0.28, 0.6];
+  const whaleAt = (s) => ({ x: -4.2 + 8.4 * s, y: -1.1 + 4 * s * (1 - s) * 3.3, z: 1.2 });
+  // Where the path crosses the water: 13.2 s(1 - s) = 1.1.
+  const sCross = (1 - Math.sqrt(1 - 4.4 / 13.2)) / 2;
+  const BREACH_SECONDS = 1.6; // how much "time" the breach is worth, for the spray and ripples
+  const HEART = new THREE.Vector3(0, 2.05, 4);
+  const N = 900;
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  function heartPoint() {
+    for (;;) {
+      const x = (rnd() * 2 - 1) * 1.15, y = (rnd() * 2 - 1) * 1.15 + 0.1;
+      const a = x * x + y * y - 1, v = a * a * a - x * x * y * y * y;
+      if (v <= 0 && (v > -0.06 || rnd() < 0.35)) return [x, y - 0.1];
+    }
+  }
+  const parts = Array.from({ length: N }, (_, i) => {
+    const second = i % 3 !== 0;
+    const at = whaleAt(second ? 1 - sCross : sCross);
+    const [hx, hy] = heartPoint();
+    return {
+      s0: second ? 1 - sCross : sCross,
+      o: new THREE.Vector3(at.x + (rnd() - 0.5) * 0.6, 0.05, at.z + (rnd() - 0.5) * 0.5),
+      v: new THREE.Vector3((rnd() - 0.5) * 2.4 + (second ? -0.5 : 0.6), 2.4 + rnd() * 3.2, (rnd() - 0.5) * 1.6 + 1.2),
+      t: new THREE.Vector3(HEART.x + hx * 0.85, HEART.y + hy * 0.85, HEART.z + (rnd() - 0.5) * 0.15),
+      delay: rnd() * 0.25,
+    };
+  });
+  const sprayGeo = new THREE.BufferGeometry();
+  const sprayPos = new Float32Array(N * 3);
+  sprayGeo.setAttribute("position", new THREE.BufferAttribute(sprayPos, 3));
+  const spray = new THREE.Points(sprayGeo, sprayMat(0.085));
+  spray.frustumCulled = false;
+  scene.add(spray);
+
+  // Clicked spray: its own small pool, in real time.
+  const CN = 240;
+  const clickPos = new Float32Array(CN * 3).fill(-999);
+  const clickVel = new Float32Array(CN * 3);
+  const clickLife = new Float32Array(CN);
+  let clickNext = 0;
+  const clickGeo = new THREE.BufferGeometry();
+  clickGeo.setAttribute("position", new THREE.BufferAttribute(clickPos, 3));
+  const clickSpray = new THREE.Points(clickGeo, sprayMat(0.07));
+  clickSpray.frustumCulled = false;
+  scene.add(clickSpray);
+
+  // ---- the camera move: keyframes over scroll progress ----
+  const KEYS = [
+    { p: 0.0, pos: [0, 7.5, 26], look: [0, 1.8, -20] },
+    { p: 0.26, pos: [0, 1.15, 9.5], look: [0, 1.05, 0] },
+    { p: 0.6, pos: [0.7, 1.0, 8.6], look: [0.5, 1.15, 0] },
+    { p: 0.8, pos: [0, 2.3, 11.2], look: [HEART.x, HEART.y, HEART.z] },
+    { p: 1.0, pos: [0, 4.2, 15], look: [0, -0.6, -2] },
+  ];
+  const ease = (x) => x * x * (3 - 2 * x);
+  const easeIO = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
+  function cameraAt(p) {
+    let i = 0;
+    while (i < KEYS.length - 2 && p > KEYS[i + 1].p) i++;
+    const a = KEYS[i], b = KEYS[i + 1];
+    const k = ease(clamp01((p - a.p) / (b.p - a.p)));
+    camPos.set(...a.pos).lerp(new THREE.Vector3(...b.pos), k);
+    camLook.set(...a.look).lerp(new THREE.Vector3(...b.look), k);
+  }
+
+  // ---- input ----
+  let progress = 0;
+  const lean = { x: 0, y: 0, tx: 0, ty: 0 };
+  function readScroll() {
+    if (story.classList.contains("still")) return (progress = 0.45);
+    const r = story.getBoundingClientRect();
+    progress = clamp01(-r.top / Math.max(1, r.height - innerHeight));
+  }
+  addEventListener("scroll", readScroll, { passive: true });
+  canvas.addEventListener("pointermove", (e) => {
+    const r = canvas.getBoundingClientRect();
+    lean.tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    lean.ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+  });
+  canvas.addEventListener("pointerleave", () => { lean.tx = lean.ty = 0; });
+
+  const ray = new THREE.Raycaster();
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const LINES = ["杂鱼，点本鲸干嘛～", "（尾巴啪）别戳！", "才不胖！这是流线型！", "想吃米饭……", "看什么看，往下滚啦，废物～", "哼，再点一下试试？"];
+  let teaseTimer = 0, lineIndex = 0;
+  let rippleNext = 0;
+  canvas.addEventListener("click", (e) => {
+    const r = canvas.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    if (whale.visible && ray.intersectObject(whale).length) {
+      tease.textContent = LINES[lineIndex++ % LINES.length];
+      tease.style.left = `${e.clientX - r.left + 14}px`;
+      tease.style.top = `${e.clientY - r.top - 44}px`;
+      tease.classList.add("on");
+      clearTimeout(teaseTimer);
+      teaseTimer = setTimeout(() => tease.classList.remove("on"), 1800);
+      return;
+    }
+    const hit = new THREE.Vector3();
+    if (!ray.ray.intersectPlane(plane, hit) || hit.distanceTo(camera.position) > 70) return;
+    // Clicked ripples use slots 2..5; 0 and 1 belong to the breach.
+    const slot = 2 + (rippleNext++ % (RIPPLES - 2));
+    rip[slot].set(hit.x, hit.z, clock, 0.9);
+    for (let i = 0; i < 36; i++) {
+      const j = clickNext++ % CN;
+      clickPos.set([hit.x + (Math.random() - 0.5) * 0.3, 0.05, hit.z + (Math.random() - 0.5) * 0.3], j * 3);
+      clickVel.set([(Math.random() - 0.5) * 1.8, 2 + Math.random() * 2.6, (Math.random() - 0.5) * 1.8], j * 3);
+      clickLife[j] = 0.9 + Math.random() * 0.5;
+    }
+    if (!running) draw();
+  });
+
+  // ---- one frame ----
+  let clock = 0;
+  const q = new THREE.Quaternion(), zAxis = new THREE.Vector3(0, 0, 1);
+  const tmp = new THREE.Vector3();
+  function draw() {
+    const p = progress;
+    lean.x += (lean.tx - lean.x) * 0.06;
+    lean.y += (lean.ty - lean.y) * 0.06;
+    cameraAt(p);
+    camera.position.copy(camPos).add(tmp.set(lean.x * 0.55, -lean.y * 0.25, 0));
+    camera.lookAt(camLook.x + lean.x * 0.25, camLook.y - lean.y * 0.12, camLook.z);
+    skyMesh.position.copy(camera.position);
+    waterMat.uniforms.uTime.value = clock;
+
+    // Shot B: the breach, scrubbed by scroll.
+    const s = clamp01((p - SHOT_B[0]) / (SHOT_B[1] - SHOT_B[0]));
+    const w = whaleAt(s);
+    whale.visible = s > 0 && s < 1;
+    whale.position.set(w.x, w.y, w.z);
+    const heading = Math.atan2(13.2 * (1 - 2 * s), 8.4);
+    const roll = Math.PI * 2 * ease(clamp01((s - 0.36) / 0.28));
+    whale.quaternion.copy(camera.quaternion).multiply(q.setFromAxisAngle(zAxis, heading - roll));
+    // Its two splashes, as ring waves whose age follows the scroll.
+    [sCross, 1 - sCross].forEach((s0, i) => {
+      const age = (s - s0) * BREACH_SECONDS;
+      const at = whaleAt(s0);
+      rip[i].set(at.x, at.z, age > 0 ? clock - age : clock + 99, i ? 1.3 : 1);
+    });
+
+    // Spray: ballistic from its splash, then gathered into the heart in shot C.
+    const gather = clamp01((p - 0.6) / 0.17);
+    const pulse = p > 0.77 ? 1 + 0.1 * Math.sin(clamp01((p - 0.77) / 0.05) * Math.PI) : 1;
+    for (let i = 0; i < N; i++) {
+      const pt = parts[i];
+      let age = (s - pt.s0) * BREACH_SECONDS;
+      if (gather > 0) age = (1 - pt.s0) * BREACH_SECONDS;
+      if (age <= 0 && gather <= 0) { sprayPos[i * 3 + 1] = -999; continue; }
+      const fa = Math.max(0, Math.min(age, 1.1));
+      let x = pt.o.x + pt.v.x * fa, y = Math.max(0.02, pt.o.y + pt.v.y * fa - 4.6 * fa * fa), z = pt.o.z + pt.v.z * fa;
+      const k = easeIO(clamp01((gather - pt.delay) / (1 - 0.25)));
+      if (k > 0) {
+        x += (pt.t.x - x) * k; y += (pt.t.y - y) * k; z += (pt.t.z - z) * k;
+        if (k >= 1) { x = HEART.x + (x - HEART.x) * pulse; y = HEART.y + (y - HEART.y) * pulse; }
+      }
+      // A breath of drift so the formed heart shimmers.
+      if (k >= 1) { x += Math.sin(clock * 2 + i) * 0.006; y += Math.cos(clock * 1.7 + i) * 0.006; }
+      sprayPos[i * 3] = x; sprayPos[i * 3 + 1] = y; sprayPos[i * 3 + 2] = z;
+    }
+    // In shot D the heart sinks and fades into the sea.
+    spray.material.opacity = 1 - clamp01((p - 0.88) / 0.1);
+    sprayGeo.attributes.position.needsUpdate = true;
+
+    // Clicked spray, in real time.
+    for (let j = 0; j < CN; j++) {
+      if (clickLife[j] <= 0) continue;
+      clickLife[j] -= 1 / 60;
+      clickVel[j * 3 + 1] -= 9.8 / 60;
+      clickPos[j * 3] += clickVel[j * 3] / 60;
+      clickPos[j * 3 + 1] += clickVel[j * 3 + 1] / 60;
+      clickPos[j * 3 + 2] += clickVel[j * 3 + 2] / 60;
+      if (clickPos[j * 3 + 1] < 0 || clickLife[j] <= 0) { clickLife[j] = 0; clickPos[j * 3 + 1] = -999; }
+    }
+    clickGeo.attributes.position.needsUpdate = true;
+
+    renderer.render(scene, camera);
+
+    // Captions follow the same progress (the still version keeps just the headline, set in CSS).
+    if (story.classList.contains("still")) return;
+    for (const c of caps) {
+      const from = +c.dataset.from, to = +c.dataset.to;
+      const fade = 0.05;
+      const o = from === 0 ? 1 - clamp01((p - (to - fade)) / fade) : clamp01((p - from) / fade) * (1 - clamp01((p - (to - fade)) / fade));
+      c.style.opacity = o.toFixed(3);
+      c.style.transform = `translateY(${((1 - o) * (p < from ? 16 : -16)).toFixed(1)}px)`;
+      c.style.visibility = o > 0.01 ? "visible" : "hidden";
+    }
+    hint.style.opacity = p < 0.03 ? "1" : "0";
+  }
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 1.75);
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    camera.aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+    // Narrow screens see a little wider so the breach fits.
+    camera.fov = camera.aspect < 0.8 ? 62 : 45;
+    camera.updateProjectionMatrix();
+    readScroll();
+    if (!running) draw();
+  }
+  addEventListener("resize", resize);
+
+  // Animate only while the stage is on screen; the still version draws once.
+  let running = false, last = 0, visible = true;
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (visible && !reduce && !running) { running = true; last = performance.now(); requestAnimationFrame(loop); }
+  }).observe(story);
+  function loop(now) {
+    if (!visible) { running = false; return; }
+    clock += Math.min(0.05, (now - last) / 1000);
+    last = now;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  resize();
+  if (reduce) { clock = 2.4; draw(); }
+})();
+</script>
+</body>
+</html>

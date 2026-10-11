@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "10",
+  "result": {
+    "accepted": true,
+    "requestId": "perm-1"
+  }
+}

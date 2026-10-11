@@ -1,0 +1,313 @@
+[
+  {
+    "ref": "lee_kim_2023_arxiv_2307_12008",
+    "title": "The First Room-Temperature Ambient-Pressure Superconductor",
+    "source": "Lee et al. 2023; arXiv:2307.12008",
+    "claims": [
+      {
+        "title": "Material identity",
+        "detail": "The paper described LK-99 as a Cu-substituted lead apatite material with a formula related to Pb10-xCux(PO4)6O."
+      },
+      {
+        "title": "Room-temperature ambient-pressure claim",
+        "detail": "The paper claimed superconductivity at room temperature and ambient pressure."
+      },
+      {
+        "title": "Resistivity claim",
+        "detail": "The authors reported electrical-resistivity behavior interpreted as consistent with a superconducting transition."
+      },
+      {
+        "title": "Magnetic response claim",
+        "detail": "The paper reported magnetic measurements interpreted as evidence of superconducting behavior."
+      },
+      {
+        "title": "Levitation-related observation",
+        "detail": "The paper discussed partial levitation or magnetic response observations as part of the evidence package."
+      },
+      {
+        "title": "Synthesis sensitivity",
+        "detail": "The preparation of LK-99 was described through a solid-state synthesis route involving precursor materials and heat treatment."
+      }
+    ]
+  },
+  {
+    "ref": "lee_kim_2023_arxiv_2307_12037",
+    "title": "Superconductor Pb10-xCux(PO4)6O showing levitation at room temperature and atmospheric pressure and mechanism",
+    "source": "Lee et al. 2023; arXiv:2307.12037",
+    "claims": [
+      {
+        "title": "Related LK-99 claim",
+        "detail": "This companion preprint also presented LK-99 / Cu-substituted lead apatite as a candidate room-temperature, ambient-pressure superconductor."
+      },
+      {
+        "title": "Levitation emphasis",
+        "detail": "The paper emphasized levitation-like behavior at room temperature and atmospheric pressure."
+      },
+      {
+        "title": "Mechanism discussion",
+        "detail": "The authors proposed a mechanism involving structural features of the Cu-substituted lead apatite phase."
+      },
+      {
+        "title": "Non-mainstream evidence status",
+        "detail": "The work was released as a preprint at the time and required independent replication for confirmation."
+      }
+    ]
+  },
+  {
+    "ref": "griffin_2023_arxiv_2307_16892",
+    "title": "Origin of correlated isolated flat bands in copper-substituted lead phosphate apatite",
+    "source": "Griffin 2023; arXiv:2307.16892",
+    "claims": [
+      {
+        "title": "Computational study",
+        "detail": "The paper used electronic-structure calculations to study copper-substituted lead phosphate apatite."
+      },
+      {
+        "title": "Flat-band result",
+        "detail": "The calculations found isolated flat bands under some Cu-substitution configurations."
+      },
+      {
+        "title": "Correlation implication",
+        "detail": "The paper discussed the possibility that flat bands could be relevant to correlated electronic behavior."
+      },
+      {
+        "title": "No direct superconductivity proof",
+        "detail": "The computational result did not by itself demonstrate experimental superconductivity in synthesized LK-99 samples."
+      }
+    ]
+  },
+  {
+    "ref": "sinead_griffin_2023_lbnl_summary",
+    "title": "LBNL summary of LK-99 electronic-structure calculation",
+    "source": "Lawrence Berkeley National Laboratory news/research summary, 2023",
+    "claims": [
+      {
+        "title": "Theory-not-replication scope",
+        "detail": "The LBNL-related discussion presented the calculation as theoretical work, not as an experimental replication of superconductivity."
+      },
+      {
+        "title": "Flat bands as plausibility signal",
+        "detail": "The theoretical result was discussed as potentially relevant to why the material attracted interest."
+      },
+      {
+        "title": "Experimental confirmation requirement",
+        "detail": "The theoretical work required experimental confirmation before any room-temperature-superconductivity claim could be established."
+      }
+    ]
+  },
+  {
+    "ref": "awana_2023_arxiv_lk99_replication",
+    "title": "Synthesis and characterization attempts on LK-99-like samples",
+    "source": "Awana et al. 2023; LK-99 replication preprint / reports",
+    "claims": [
+      {
+        "title": "Replication attempt",
+        "detail": "The authors synthesized LK-99-like samples following reported or related procedures."
+      },
+      {
+        "title": "No zero resistance",
+        "detail": "The authors did not observe robust zero electrical resistance characteristic of bulk superconductivity in their samples."
+      },
+      {
+        "title": "Magnetic behavior",
+        "detail": "The samples exhibited magnetic responses that were not sufficient to establish bulk superconductivity."
+      },
+      {
+        "title": "Sample characterization",
+        "detail": "The study used characterization methods such as structural and transport measurements to evaluate the samples."
+      }
+    ]
+  },
+  {
+    "ref": "guo_2023_arxiv_lk99_no_superconductivity",
+    "title": "Absence of superconductivity in LK-99-like materials",
+    "source": "Independent LK-99 replication studies, 2023 preprints",
+    "claims": [
+      {
+        "title": "Independent synthesis",
+        "detail": "Independent groups reported synthesis of LK-99-like or Cu-substituted lead apatite samples."
+      },
+      {
+        "title": "No Meissner effect",
+        "detail": "Some replication studies did not observe a robust Meissner effect expected for bulk superconductivity."
+      },
+      {
+        "title": "No superconducting transport",
+        "detail": "Some replication studies did not observe reproducible zero-resistance transport behavior."
+      },
+      {
+        "title": "Composition sensitivity",
+        "detail": "The studies reported sample-dependent phases or composition variation in synthesized materials."
+      }
+    ]
+  },
+  {
+    "ref": "puphal_2023_arxiv_2308_06256",
+    "title": "Single crystal synthesis, structure, and magnetism of Pb10-xCux(PO4)6O",
+    "source": "Puphal et al. 2023; arXiv:2308.06256",
+    "claims": [
+      {
+        "title": "Single-crystal focus",
+        "detail": "The study investigated single crystals related to Cu-substituted lead apatite."
+      },
+      {
+        "title": "Structural characterization",
+        "detail": "The paper characterized the crystal structure and composition of the material."
+      },
+      {
+        "title": "Insulating behavior",
+        "detail": "The authors reported behavior inconsistent with metallic bulk superconductivity in the studied crystals."
+      },
+      {
+        "title": "Magnetism characterization",
+        "detail": "The study characterized magnetic properties and did not establish room-temperature bulk superconductivity."
+      },
+      {
+        "title": "Single-crystal scope",
+        "detail": "The result constrains the investigated crystal samples and compositions rather than every conceivable LK-99-like synthesis condition."
+      }
+    ]
+  },
+  {
+    "ref": "kumar_2023_arxiv_lk99",
+    "title": "Synthesis and transport/magnetic characterization of LK-99-like materials",
+    "source": "Multiple LK-99 replication preprints, 2023",
+    "claims": [
+      {
+        "title": "Transport measurement",
+        "detail": "Replication reports measured electrical transport in LK-99-like samples."
+      },
+      {
+        "title": "No robust superconducting transition",
+        "detail": "Several reports did not observe a robust superconducting transition at room temperature."
+      },
+      {
+        "title": "Magnetic artifacts possible",
+        "detail": "Magnetic signals in heterogeneous samples can arise from mechanisms other than superconducting flux expulsion."
+      },
+      {
+        "title": "Polycrystalline sample issue",
+        "detail": "Polycrystalline or multiphase samples complicate interpretation of transport and magnetic measurements."
+      }
+    ]
+  },
+  {
+    "ref": "liu_2023_cu2s_impurity",
+    "title": "Cu2S impurity and phase-transition explanation for LK-99-like anomalies",
+    "source": "LK-99 impurity / Cu2S analysis studies, 2023",
+    "claims": [
+      {
+        "title": "Impurity hypothesis",
+        "detail": "Some analyses attributed superconducting-like transport anomalies in LK-99-like samples to impurity phases such as copper sulfide rather than the apatite phase."
+      },
+      {
+        "title": "Cu2S transition",
+        "detail": "Copper sulfide phases can show transitions or transport changes near temperatures relevant to some reported anomalies."
+      },
+      {
+        "title": "Explains resistivity drop",
+        "detail": "The impurity explanation was proposed to account for resistivity-drop features without requiring superconductivity."
+      },
+      {
+        "title": "Requires phase identification",
+        "detail": "Testing this explanation requires careful phase characterization and separation of impurity contributions from the target apatite phase."
+      }
+    ]
+  },
+  {
+    "ref": "jiang_2023_lk99_ferromagnetism",
+    "title": "Ferromagnetism / magnetic artifact explanations for LK-99 levitation-like observations",
+    "source": "LK-99 magnetic artifact analyses and replications, 2023",
+    "claims": [
+      {
+        "title": "Partial levitation ambiguity",
+        "detail": "Partial levitation-like behavior can be produced by magnetic anisotropy, ferromagnetic contamination, or torque effects and is not by itself proof of superconductivity."
+      },
+      {
+        "title": "Meissner requirement",
+        "detail": "Bulk superconductivity requires robust flux expulsion or shielding behavior, not only partial magnetic lifting."
+      },
+      {
+        "title": "Sample heterogeneity",
+        "detail": "Heterogeneous samples can combine multiple magnetic phases, complicating interpretation of levitation-like behavior."
+      },
+      {
+        "title": "Magnetization curves",
+        "detail": "Magnetization measurements can help distinguish superconducting diamagnetism from ferromagnetic or paramagnetic artifacts."
+      }
+    ]
+  },
+  {
+    "ref": "nature_2023_lk99_news",
+    "title": "Nature news coverage: LK-99 is not a room-temperature superconductor",
+    "source": "Nature news explainer, 2023",
+    "claims": [
+      {
+        "title": "Community replication outcome",
+        "detail": "Nature reported that multiple independent replication and analysis efforts failed to confirm room-temperature superconductivity in LK-99."
+      },
+      {
+        "title": "Impurity explanation coverage",
+        "detail": "Nature discussed impurity phases and other mundane explanations for LK-99's reported anomalous signals."
+      },
+      {
+        "title": "Scientific status",
+        "detail": "The article described the original room-temperature-superconductivity claim as not supported by the later body of evidence."
+      },
+      {
+        "title": "News article scope",
+        "detail": "The Nature item is secondary reporting and summarizes the state of the replication literature rather than being itself a primary experiment."
+      }
+    ]
+  },
+  {
+    "ref": "science_2023_lk99_news",
+    "title": "Science news coverage of LK-99 replication failures",
+    "source": "Science news reporting, 2023",
+    "claims": [
+      {
+        "title": "Replication failure reporting",
+        "detail": "Science reported that independent groups failed to verify LK-99 as a room-temperature superconductor."
+      },
+      {
+        "title": "Original evidence challenged",
+        "detail": "The reporting described challenges to the original interpretation of resistivity and magnetic observations."
+      },
+      {
+        "title": "Conventional explanation",
+        "detail": "The reporting discussed non-superconducting explanations such as impurities or material-specific artifacts."
+      },
+      {
+        "title": "Secondary-source scope",
+        "detail": "The Science item is journalistic reporting summarizing research activity rather than a standalone replication experiment."
+      }
+    ]
+  },
+  {
+    "ref": "materials_characterization_general",
+    "title": "General materials-characterization requirements for superconductivity claims",
+    "source": "Standard superconductivity characterization criteria",
+    "claims": [
+      {
+        "title": "Zero resistance criterion",
+        "detail": "A superconductivity claim normally requires reproducible zero-resistance transport below a transition temperature."
+      },
+      {
+        "title": "Meissner effect criterion",
+        "detail": "A superconductivity claim normally requires magnetic evidence such as Meissner effect or shielding/flux expulsion consistent with superconductivity."
+      },
+      {
+        "title": "Bulk fraction issue",
+        "detail": "Bulk superconductivity requires evidence that the superconducting phase occupies a significant volume fraction, not only trace or filamentary behavior."
+      },
+      {
+        "title": "Phase purity issue",
+        "detail": "Multiphase samples require careful structural and chemical analysis to attribute any observed transition to the proposed superconducting phase."
+      },
+      {
+        "title": "Reproducibility issue",
+        "detail": "Independent replication across samples and laboratories is important for establishing a new superconducting material claim."
+      }
+    ]
+  }
+]

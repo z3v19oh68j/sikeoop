@@ -1,0 +1,26 @@
+/* A tool call while the model is still writing its arguments: the card shows the latest of them. */
+
+.tool-chip.preparing .dot {
+  animation: tool-pulse 1s ease-in-out infinite;
+}
+
+.tool-partial {
+  margin: 6px 0 0;
+  max-height: 120px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: var(--font-code);
+  font-size: 11px;
+  color: var(--muted);
+  /* The newest text is at the bottom: keep it in view as the arguments grow. */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+@keyframes tool-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}

@@ -1,0 +1,261 @@
+[
+  {
+    "ref": "moncrieff_2022_molecular_psychiatry_serotonin_umbrella_review",
+    "title": "Moncrieff et al. 2022 umbrella review of serotonin and depression",
+    "source": "umbrella_review",
+    "claims": [
+      {
+        "title": "The review evaluated major lines of serotonin-depression evidence",
+        "detail": "Moncrieff et al. 2022 reviewed evidence from areas including serotonin metabolite studies, receptor studies, transporter studies, tryptophan depletion, SERT gene association, and gene-environment interaction research in relation to depression."
+      },
+      {
+        "title": "The review reports no consistent support for a simple serotonin-deficiency account",
+        "detail": "The review concluded that the main bodies of evidence did not consistently show that depression is caused by lower serotonin concentrations or reduced serotonin activity."
+      },
+      {
+        "title": "The review concerns the simple chemical-imbalance formulation",
+        "detail": "The review primarily bears on the claim that depression is caused by a simple serotonin deficiency; it does not by itself rule out more complex roles for serotonin in mood regulation, treatment response, stress sensitivity, or neural plasticity."
+      },
+      {
+        "title": "Umbrella-review evidence is limited by the quality and heterogeneity of included studies",
+        "detail": "The review synthesizes prior reviews and studies with varied populations, measures, and designs, so its conclusions depend on the quality and comparability of the included evidence base."
+      }
+    ]
+  },
+  {
+    "ref": "jauhar_2023_molecular_psychiatry_serotonin_response",
+    "title": "Jauhar et al. 2023 response discussing serotonin evidence after Moncrieff et al.",
+    "source": "scholarly_response",
+    "claims": [
+      {
+        "title": "The response argues that serotonin mechanisms can remain clinically relevant",
+        "detail": "The response argues that rejecting a simplistic low-serotonin theory does not eliminate possible serotonin involvement in depression or antidepressant response."
+      },
+      {
+        "title": "The response emphasizes complexity rather than a single-deficit model",
+        "detail": "The response frames serotonergic mechanisms as part of a broader neurobiological system involving receptor subtypes, plasticity, stress response, and treatment effects rather than as a single static deficiency."
+      },
+      {
+        "title": "The response does not establish serotonin deficiency as the primary cause",
+        "detail": "The response defends the relevance of serotonergic biology but does not by itself provide direct causal proof that major depressive disorder is primarily caused by low serotonin."
+      }
+    ]
+  },
+  {
+    "ref": "cipriani_2018_lancet_antidepressant_network_meta_analysis",
+    "title": "Cipriani et al. 2018 network meta-analysis of antidepressant efficacy",
+    "source": "network_meta_analysis",
+    "claims": [
+      {
+        "title": "Antidepressants were more efficacious than placebo over short-term acute treatment",
+        "detail": "Cipriani et al. 2018 reported that all included antidepressants were more efficacious than placebo for adults with major depressive disorder in short-term acute treatment trials."
+      },
+      {
+        "title": "The analysis compares treatment efficacy and acceptability",
+        "detail": "The network meta-analysis compared multiple antidepressants on acute response and acceptability, drawing on randomized controlled trials."
+      },
+      {
+        "title": "Treatment efficacy does not directly prove the untreated cause of depression",
+        "detail": "Evidence that antidepressants improve symptoms does not logically establish that depression is caused by deficiency in the neurotransmitter system targeted by those drugs; drug mechanism and disease etiology can differ."
+      },
+      {
+        "title": "Trial evidence is mostly short-term and population-averaged",
+        "detail": "The evidence base is strongest for average acute symptom response over weeks, and is less direct for long-term causal disease mechanisms or individual biological subtypes."
+      }
+    ]
+  },
+  {
+    "ref": "cowan_2021_molecular_psychiatry_serotonin_release_pet",
+    "title": "Cowan et al. PET study of serotonin release capacity in depression",
+    "source": "imaging_study",
+    "claims": [
+      {
+        "title": "The study measured serotonin release capacity using PET imaging",
+        "detail": "The study used positron emission tomography methods to examine serotonin release capacity in people with depression compared with healthy controls."
+      },
+      {
+        "title": "The study reported altered serotonin release capacity in depression",
+        "detail": "The study reported evidence consistent with reduced serotonin release capacity in a depressed group, contributing biological evidence relevant to serotonergic mechanisms."
+      },
+      {
+        "title": "Imaging association alone does not establish causal primacy",
+        "detail": "A cross-sectional or case-control imaging difference can support biological involvement, but does not by itself prove whether the serotonin alteration is an initiating cause, consequence, compensation, subtype marker, or treatment-related feature."
+      }
+    ]
+  },
+  {
+    "ref": "miller_raison_2016_nature_reviews_immunology_inflammation_depression",
+    "title": "Miller and Raison 2016 review of inflammation and depression",
+    "source": "mechanistic_review",
+    "claims": [
+      {
+        "title": "Inflammation is associated with depressive symptoms in a subset of patients",
+        "detail": "The review summarizes evidence that inflammatory markers and immune activation are associated with depressive symptoms, with stronger relevance in some patient subgroups."
+      },
+      {
+        "title": "Cytokines can affect neurotransmission, neuroendocrine function, and behavior",
+        "detail": "The review describes pathways through which cytokine signaling can influence monoamines, glutamate, hypothalamic-pituitary-adrenal axis function, sleep, motivation, and sickness-behavior-like symptoms."
+      },
+      {
+        "title": "Inflammation evidence supports a causal pathway but not universal causation",
+        "detail": "The evidence supports inflammation as a plausible and sometimes causal contributor to depressive phenotypes, but does not show that all major depressive disorder is primarily caused by immune dysregulation."
+      }
+    ]
+  },
+  {
+    "ref": "interferon_alpha_depression_evidence",
+    "title": "Interferon-alpha treatment and depression risk",
+    "source": "clinical_observation",
+    "claims": [
+      {
+        "title": "Interferon-alpha treatment can induce depressive symptoms",
+        "detail": "Clinical observations and studies of interferon-alpha treatment report that immune stimulation can induce depressive symptoms in a proportion of treated patients."
+      },
+      {
+        "title": "Immune challenge provides temporally ordered causal evidence",
+        "detail": "Because immune activation precedes symptom development in interferon-treated patients, this evidence has stronger causal direction than ordinary cross-sectional inflammation-depression associations."
+      },
+      {
+        "title": "Interferon-induced depression is a specific immune-challenge context",
+        "detail": "Depression emerging during interferon-alpha therapy is a medically induced immune-activation context and may not generalize directly to all spontaneous major depressive disorder."
+      }
+    ]
+  },
+  {
+    "ref": "raison_2013_jama_psychiatry_infliximab_trd",
+    "title": "Raison et al. 2013 infliximab trial in treatment-resistant depression",
+    "source": "randomized_trial",
+    "claims": [
+      {
+        "title": "Infliximab did not show overall superiority to placebo in the full sample",
+        "detail": "In a randomized trial of infliximab for treatment-resistant depression, the overall treatment effect in the full sample was not superior to placebo."
+      },
+      {
+        "title": "Baseline inflammatory markers moderated treatment response",
+        "detail": "The trial reported that patients with higher baseline inflammatory markers, including elevated CRP, showed signals of better response to infliximab than patients without elevated inflammation."
+      },
+      {
+        "title": "The trial supports inflammatory-subtype reasoning more than universal inflammation causation",
+        "detail": "The pattern is consistent with inflammation being important for a subgroup, while the negative overall result limits claims that blocking inflammation is broadly effective for all treatment-resistant depression."
+      }
+    ]
+  },
+  {
+    "ref": "kohler_2014_jama_psychiatry_anti_inflammatory_meta_analysis",
+    "title": "Kohler et al. 2014 meta-analysis of anti-inflammatory treatment in depression",
+    "source": "meta_analysis",
+    "claims": [
+      {
+        "title": "Anti-inflammatory treatments showed antidepressant effects in pooled analyses",
+        "detail": "The meta-analysis reported that some anti-inflammatory treatments were associated with reductions in depressive symptoms across included randomized trials."
+      },
+      {
+        "title": "The included interventions and populations were heterogeneous",
+        "detail": "The evidence included different anti-inflammatory agents, study designs, clinical populations, and baseline inflammation profiles."
+      },
+      {
+        "title": "Meta-analytic symptom improvement does not identify a single primary cause",
+        "detail": "Pooled evidence of benefit from anti-inflammatory interventions supports immune involvement but does not prove that inflammation is the primary cause of depression in all patients."
+      }
+    ]
+  },
+  {
+    "ref": "duman_aghajanian_2012_nature_medicine_synaptic_dysfunction_depression",
+    "title": "Duman and Aghajanian 2012 synaptic dysfunction model of depression",
+    "source": "mechanistic_review",
+    "claims": [
+      {
+        "title": "The review links depression to synaptic dysfunction and impaired plasticity",
+        "detail": "Duman and Aghajanian 2012 reviewed evidence that depression involves synaptic deficits, impaired neuroplasticity, and altered neural circuit function."
+      },
+      {
+        "title": "Stress can reduce synaptic connectivity in mood-related circuits",
+        "detail": "The review describes animal and human evidence that chronic stress can reduce synaptic connections and alter prefrontal-limbic circuitry relevant to depressive behavior."
+      },
+      {
+        "title": "Rapid-acting antidepressant effects are linked to synaptogenic signaling",
+        "detail": "The review discusses evidence that rapid antidepressant effects of agents such as ketamine involve glutamate signaling, mTOR-related pathways, and synaptic remodeling."
+      },
+      {
+        "title": "Mechanistic convergence does not by itself prove first cause",
+        "detail": "Evidence that plasticity and synaptic function are altered in depression may identify a proximate mechanism or final common pathway, but does not alone prove that impaired plasticity is always the initiating cause."
+      }
+    ]
+  },
+  {
+    "ref": "duman_monteggia_2006_bdnf_depression_review",
+    "title": "Duman and Monteggia 2006 BDNF model of depression and treatment",
+    "source": "mechanistic_review",
+    "claims": [
+      {
+        "title": "Stress and depression are associated with reduced BDNF-related signaling in some models",
+        "detail": "The review describes evidence that stress can reduce BDNF expression and neurotrophic support in brain regions implicated in depression."
+      },
+      {
+        "title": "Antidepressant treatment can increase BDNF-related signaling",
+        "detail": "The review discusses evidence that chronic antidepressant treatment can increase BDNF expression or signaling pathways associated with neuroplasticity."
+      },
+      {
+        "title": "BDNF effects vary by brain region and context",
+        "detail": "BDNF-related mechanisms can differ across brain regions and experimental contexts, limiting overly simple claims that depression is caused by globally low BDNF."
+      }
+    ]
+  },
+  {
+    "ref": "ketamine_rapid_antidepressant_trials",
+    "title": "Ketamine rapid antidepressant trial evidence",
+    "source": "clinical_trial",
+    "claims": [
+      {
+        "title": "Ketamine can produce rapid antidepressant effects",
+        "detail": "Randomized clinical studies report that ketamine can produce rapid reductions in depressive symptoms in some patients, including treatment-resistant depression."
+      },
+      {
+        "title": "Ketamine evidence implicates glutamatergic and plasticity-related mechanisms",
+        "detail": "The rapid time course and mechanistic studies of ketamine support the relevance of glutamatergic signaling, synaptic remodeling, and plasticity-related pathways."
+      },
+      {
+        "title": "Ketamine response does not prove plasticity impairment is the sole primary cause",
+        "detail": "A treatment effect through plasticity-related mechanisms can identify an effective intervention pathway without proving that impaired plasticity is the only or earliest cause of major depressive disorder."
+      }
+    ]
+  },
+  {
+    "ref": "hpa_axis_stress_depression_review",
+    "title": "HPA-axis and stress-circuit evidence in depression",
+    "source": "mechanistic_review",
+    "claims": [
+      {
+        "title": "Stress-system dysregulation is observed in subsets of depression",
+        "detail": "Reviews report abnormalities of hypothalamic-pituitary-adrenal axis function and stress-response circuitry in some patients with depression."
+      },
+      {
+        "title": "Early-life stress increases later depression risk",
+        "detail": "Longitudinal and epidemiological evidence links early-life adversity and chronic stress exposure to increased risk of later depressive disorders."
+      },
+      {
+        "title": "Stress-circuit evidence bridges upstream exposure and downstream plasticity",
+        "detail": "Stress-system evidence can be interpreted as connecting environmental exposures to changes in neuroplasticity, inflammation, monoamine signaling, and mood-related circuit function."
+      }
+    ]
+  },
+  {
+    "ref": "heterogeneity_precision_psychiatry_depression",
+    "title": "Depression heterogeneity and precision psychiatry evidence",
+    "source": "review",
+    "claims": [
+      {
+        "title": "Major depressive disorder is clinically and biologically heterogeneous",
+        "detail": "Reviews of depression heterogeneity emphasize that major depressive disorder contains diverse symptom profiles, trajectories, treatment responses, and biological correlates."
+      },
+      {
+        "title": "One-mechanism explanations can overgeneralize across subtypes",
+        "detail": "Because depression is heterogeneous, a mechanism with strong evidence in one subgroup may be overgeneralized if presented as the universal primary cause for all depression."
+      },
+      {
+        "title": "Biomarker-stratified designs are needed to compare causal hypotheses",
+        "detail": "Precision psychiatry approaches argue for stratifying patients by biomarkers, stress history, inflammatory status, treatment response, and neural measures to test mechanistic subtypes."
+      }
+    ]
+  }
+]

@@ -1,0 +1,90 @@
+/* EVA × MIKU skin (design/sikeoop-eva-miku-v1). Active while <html data-sikeoop-theme="eva-miku">; see skin.ts. */
+:root[data-sikeoop-theme="eva-miku"] {
+  --bg: #0B0C14;
+  --panel: #141122;
+  --panel-2: #1D1930;
+  --panel-3: #28223E;
+  --editor: #0B0C14;
+  --ink: #F0EEF8;
+  --ink-2: #CEC9DD;
+  --muted: #A6A0B8;
+  --faint: #847B92;
+  --line: #302946;
+  --line-2: #514466;
+  --accent: #5CE1E6;
+  --accent-ink: #0C1C26;
+  --accent-soft: rgba(92,225,230,0.12);
+  --primary: #5CE1E6;
+  --primary-ink: #0C1C26;
+  --ok: #C5F66F;
+  --bad: #FF7C95;
+  --warn: #FFB05C;
+  --code-bg: #0B0C14;
+  --add-bg: rgba(197,246,111,0.10);
+  --add-ink: #C5F66F;
+  --del-bg: rgba(255,124,149,0.10);
+  --del-ink: #FF7C95;
+  --shadow: 0 12px 32px rgba(0,0,0,0.48);
+  --radius: 8px;
+  --eva-violet: #9B7BFF;
+  --eva-pink: #FF71B8;
+  --eva-icon-accent: #5CE1E6;
+  color-scheme: dark;
+}
+
+:root[data-sikeoop-theme="eva-miku"] .activitybar button.on {
+  background: var(--panel-2); color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+:root[data-sikeoop-theme="eva-miku"] .tree-row.active {
+  background: rgba(92,225,230,.10); color: var(--accent);
+}
+:root[data-sikeoop-theme="eva-miku"] .composer-box:focus-within {
+  border-color: var(--accent); box-shadow: 0 0 0 1px rgba(92,225,230,.12);
+}
+:root[data-sikeoop-theme="eva-miku"] .titlebar,
+:root[data-sikeoop-theme="eva-miku"] .statusbar {
+  background-image: linear-gradient(110deg, #0B0C14 60%, #21172D);
+}
+:root[data-sikeoop-theme="eva-miku"] .editor-empty {
+  position: relative; isolation: isolate;
+  background: var(--editor);
+}
+:root[data-sikeoop-theme="eva-miku"] .editor-empty::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(90deg, rgba(11,12,20,.94), rgba(11,12,20,.42)), url("./wallpaper.png");
+  background-position: center, right center; background-size: cover; background-repeat: no-repeat;
+}
+:root[data-sikeoop-theme="eva-miku"] .editor-empty .inner {
+  padding: 24px; border: 1px solid var(--line-2); border-radius: 12px;
+  background: rgba(20,17,34,.94); color: var(--ink-2);
+}
+:root[data-sikeoop-theme="eva-miku"] .editor-empty .mark {
+  color: var(--accent); background: var(--panel-2);
+}
+:root[data-sikeoop-theme="eva-miku"] ::selection { background: rgba(92,225,230,.25); }
+:root[data-sikeoop-theme="eva-miku"] ::-webkit-scrollbar-thumb { background-color: var(--line-2); }
+
+/* The welcome title over the wallpaper (EditorPane's empty state). */
+:root[data-sikeoop-theme="eva-miku"] .skin-hero { position: absolute; top: 12%; left: 6%; display: grid; gap: 10px; pointer-events: none; }
+:root[data-sikeoop-theme="eva-miku"] .skin-hero b { font: 700 clamp(28px, 4vw, 52px)/1 var(--font-code); letter-spacing: 0.04em; background: linear-gradient(90deg, var(--ink) 40%, var(--accent) 60%, var(--eva-violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:root[data-sikeoop-theme="eva-miku"] .skin-hero span { font: 500 13px var(--font-code); letter-spacing: 0.32em; color: var(--muted); }
+
+/* Sync badge and waveform under the title, and the three launch cards (EditorPane). */
+:root[data-sikeoop-theme="eva-miku"] .skin-sync { position: relative; width: 120px; height: 104px; margin-top: 28px; display: grid; place-content: center; justify-items: center; color: var(--accent); }
+:root[data-sikeoop-theme="eva-miku"] .skin-sync svg { position: absolute; inset: 0; }
+:root[data-sikeoop-theme="eva-miku"] .skin-sync em { font: 600 22px var(--font-code); font-style: normal; color: var(--accent); }
+:root[data-sikeoop-theme="eva-miku"] .skin-sync em small { font-size: 13px; color: var(--ink-2); }
+:root[data-sikeoop-theme="eva-miku"] .skin-sync > small { font: 7px var(--font-code); letter-spacing: 0.1em; color: var(--muted); }
+:root[data-sikeoop-theme="eva-miku"] .skin-wave { display: flex; align-items: center; gap: 3px; height: 30px; margin-top: 8px; }
+:root[data-sikeoop-theme="eva-miku"] .skin-wave span { width: 2px; border-radius: 1px; background: var(--accent); opacity: 0.8; }
+
+:root[data-sikeoop-theme="eva-miku"] .skin-launch { position: absolute; left: 6%; right: 6%; bottom: 7%; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+:root[data-sikeoop-theme="eva-miku"] .skin-launch button { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 14px 8px; padding: 18px 18px 16px; border: 1px solid var(--line-2); border-radius: 10px; background: rgba(20, 17, 34, 0.86); color: var(--ink); font: 15px var(--font-ui); text-align: left; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+:root[data-sikeoop-theme="eva-miku"] .skin-launch button:hover { border-color: var(--accent); background: rgba(29, 25, 48, 0.94); }
+:root[data-sikeoop-theme="eva-miku"] .skin-launch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+:root[data-sikeoop-theme="eva-miku"] .skin-launch .icon { width: 30px; height: 30px; color: var(--accent); grid-column: 1 / -1; }
+:root[data-sikeoop-theme="eva-miku"] .skin-launch .icon.go { width: 16px; height: 16px; grid-column: 2; grid-row: 2; align-self: center; color: var(--ink-2); }
+/* The launch cards take over from the shortcut hint card, which would cover the character. */
+:root[data-sikeoop-theme="eva-miku"] .editor-empty .inner { display: none; }
+@media (max-height: 640px) { :root[data-sikeoop-theme="eva-miku"] .skin-sync, :root[data-sikeoop-theme="eva-miku"] .skin-wave { display: none; } }

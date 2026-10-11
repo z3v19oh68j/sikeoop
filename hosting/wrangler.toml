@@ -1,0 +1,17 @@
+name = "sikeoop-hosting-local"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+[vars]
+BASE_DOMAIN = "sikeoop.site"
+LOCAL_DEV = "true"
+[[r2_buckets]]
+binding = "BLOBS"
+bucket_name = "sikeoop-blobs-placeholder"
+[[d1_databases]]
+binding = "DB"
+database_name = "hosting"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+[triggers]
+crons = ["0 3 * * *"]

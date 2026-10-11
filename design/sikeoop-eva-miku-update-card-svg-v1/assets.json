@@ -1,0 +1,728 @@
+{
+  "assets": [
+    {
+      "file": "icons/close.svg",
+      "width": 24,
+      "height": 24,
+      "label": "close",
+      "category": "icons"
+    },
+    {
+      "file": "icons/folder.svg",
+      "width": 24,
+      "height": 24,
+      "label": "folder",
+      "category": "icons"
+    },
+    {
+      "file": "icons/ai-network.svg",
+      "width": 24,
+      "height": 24,
+      "label": "ai-network",
+      "category": "icons"
+    },
+    {
+      "file": "icons/wrench.svg",
+      "width": 24,
+      "height": 24,
+      "label": "wrench",
+      "category": "icons"
+    },
+    {
+      "file": "icons/download.svg",
+      "width": 24,
+      "height": 24,
+      "label": "download",
+      "category": "icons"
+    },
+    {
+      "file": "icons/restart.svg",
+      "width": 24,
+      "height": 24,
+      "label": "restart",
+      "category": "icons"
+    },
+    {
+      "file": "icons/pause.svg",
+      "width": 24,
+      "height": 24,
+      "label": "pause",
+      "category": "icons"
+    },
+    {
+      "file": "icons/chevron-right.svg",
+      "width": 24,
+      "height": 24,
+      "label": "chevron-right",
+      "category": "icons"
+    },
+    {
+      "file": "icons/check.svg",
+      "width": 24,
+      "height": 24,
+      "label": "check",
+      "category": "icons"
+    },
+    {
+      "file": "icons/shield-check.svg",
+      "width": 24,
+      "height": 24,
+      "label": "shield-check",
+      "category": "icons"
+    },
+    {
+      "file": "icons/warning.svg",
+      "width": 24,
+      "height": 24,
+      "label": "warning",
+      "category": "icons"
+    },
+    {
+      "file": "icons/error.svg",
+      "width": 24,
+      "height": 24,
+      "label": "error",
+      "category": "icons"
+    },
+    {
+      "file": "icons/clock.svg",
+      "width": 24,
+      "height": 24,
+      "label": "clock",
+      "category": "icons"
+    },
+    {
+      "file": "icons/check-circle.svg",
+      "width": 24,
+      "height": 24,
+      "label": "check-circle",
+      "category": "icons"
+    },
+    {
+      "file": "icons/spinner.svg",
+      "width": 24,
+      "height": 24,
+      "label": "spinner",
+      "category": "icons"
+    },
+    {
+      "file": "icons/info.svg",
+      "width": 24,
+      "height": 24,
+      "label": "info",
+      "category": "icons"
+    },
+    {
+      "file": "icons/release-notes.svg",
+      "width": 24,
+      "height": 24,
+      "label": "release-notes",
+      "category": "icons"
+    },
+    {
+      "file": "icons/external-link.svg",
+      "width": 24,
+      "height": 24,
+      "label": "external-link",
+      "category": "icons"
+    },
+    {
+      "file": "icons/activity.svg",
+      "width": 24,
+      "height": 24,
+      "label": "activity",
+      "category": "icons"
+    },
+    {
+      "file": "icons/install.svg",
+      "width": 24,
+      "height": 24,
+      "label": "install",
+      "category": "icons"
+    },
+    {
+      "file": "icons/sikeoop-crystal.svg",
+      "width": 40,
+      "height": 40,
+      "label": "sikeoop 同步晶体标",
+      "category": "icons"
+    },
+    {
+      "file": "typography/wordmark.svg",
+      "width": 150,
+      "height": 44,
+      "label": "sikeoop 字标",
+      "category": "typography"
+    },
+    {
+      "file": "illustrations/hero-eva-miku-paths.svg",
+      "width": 796,
+      "height": 314,
+      "label": "初音 × EVA 原图路径矢量化横幅",
+      "category": "illustrations"
+    },
+    {
+      "file": "decorations/at-field-01.svg",
+      "width": 176,
+      "height": 176,
+      "label": "AT 立场 / 01 标牌",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/hazard-notches.svg",
+      "width": 64,
+      "height": 14,
+      "label": "警戒橙短斜纹",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/header-sync-brackets.svg",
+      "width": 330,
+      "height": 30,
+      "label": "标题同步支架",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/engineering-lines.svg",
+      "width": 1280,
+      "height": 252,
+      "label": "工程线与定位点",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/divider.svg",
+      "width": 1240,
+      "height": 2,
+      "label": "内容分隔线",
+      "category": "decorations"
+    },
+    {
+      "file": "decorations/title-stripes.svg",
+      "width": 128,
+      "height": 10,
+      "label": "标题条纹",
+      "category": "decorations"
+    },
+    {
+      "file": "frames/card-background.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "卡片底板",
+      "category": "frames"
+    },
+    {
+      "file": "frames/card-border.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "外框与青色顶边",
+      "category": "frames"
+    },
+    {
+      "file": "frames/header-surface.svg",
+      "width": 1360,
+      "height": 60,
+      "label": "标题栏底板",
+      "category": "frames"
+    },
+    {
+      "file": "frames/content-panel.svg",
+      "width": 1314,
+      "height": 374,
+      "label": "更新内容面板",
+      "category": "frames"
+    },
+    {
+      "file": "frames/footer-panel.svg",
+      "width": 1314,
+      "height": 112,
+      "label": "操作区面板",
+      "category": "frames"
+    },
+    {
+      "file": "frames/feature-list-panel.svg",
+      "width": 1246,
+      "height": 198,
+      "label": "更新列表底板",
+      "category": "frames"
+    },
+    {
+      "file": "components/toggle-on.svg",
+      "width": 72,
+      "height": 36,
+      "label": "toggle-on",
+      "category": "components"
+    },
+    {
+      "file": "components/toggle-off.svg",
+      "width": 72,
+      "height": 36,
+      "label": "toggle-off",
+      "category": "components"
+    },
+    {
+      "file": "components/toggle-disabled.svg",
+      "width": 72,
+      "height": 36,
+      "label": "toggle-disabled",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-normal.svg",
+      "width": 360,
+      "height": 76,
+      "label": "主按钮 / normal",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-hover.svg",
+      "width": 360,
+      "height": 76,
+      "label": "主按钮 / hover",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-pressed.svg",
+      "width": 360,
+      "height": 76,
+      "label": "主按钮 / pressed",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-disabled.svg",
+      "width": 360,
+      "height": 76,
+      "label": "主按钮 / disabled",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-normal.svg",
+      "width": 160,
+      "height": 76,
+      "label": "次按钮 / normal",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-hover.svg",
+      "width": 160,
+      "height": 76,
+      "label": "次按钮 / hover",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-disabled.svg",
+      "width": 160,
+      "height": 76,
+      "label": "次按钮 / disabled",
+      "category": "components"
+    },
+    {
+      "file": "components/button-primary-label-free.svg",
+      "width": 360,
+      "height": 76,
+      "label": "主按钮空白底板",
+      "category": "components"
+    },
+    {
+      "file": "components/button-secondary-label-free.svg",
+      "width": 160,
+      "height": 76,
+      "label": "次按钮空白底板",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-track.svg",
+      "width": 1054,
+      "height": 14,
+      "label": "进度条 / track",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-downloading-64.svg",
+      "width": 1054,
+      "height": 14,
+      "label": "进度条 / downloading-64",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-complete.svg",
+      "width": 1054,
+      "height": 14,
+      "label": "进度条 / complete",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-error-37.svg",
+      "width": 1054,
+      "height": 14,
+      "label": "进度条 / error-37",
+      "category": "components"
+    },
+    {
+      "file": "components/progress-checking.svg",
+      "width": 1054,
+      "height": 14,
+      "label": "进度条 / checking",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-version.svg",
+      "width": 208,
+      "height": 34,
+      "label": "状态徽章 / SYNCHRONIZE_02",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-ready.svg",
+      "width": 124,
+      "height": 34,
+      "label": "状态徽章 / READY",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-downloading.svg",
+      "width": 188,
+      "height": 34,
+      "label": "状态徽章 / DOWNLOADING",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-checking.svg",
+      "width": 146,
+      "height": 34,
+      "label": "状态徽章 / CHECKING",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-installing.svg",
+      "width": 158,
+      "height": 34,
+      "label": "状态徽章 / INSTALLING",
+      "category": "components"
+    },
+    {
+      "file": "components/badge-error.svg",
+      "width": 124,
+      "height": 34,
+      "label": "状态徽章 / ERROR",
+      "category": "components"
+    },
+    {
+      "file": "components/feature-row-1.svg",
+      "width": 1246,
+      "height": 66,
+      "label": "工作区体验优化",
+      "category": "components"
+    },
+    {
+      "file": "components/feature-row-2.svg",
+      "width": 1246,
+      "height": 66,
+      "label": "AI 对话稳定性提升",
+      "category": "components"
+    },
+    {
+      "file": "components/feature-row-3.svg",
+      "width": 1246,
+      "height": 66,
+      "label": "修复已知问题",
+      "category": "components"
+    },
+    {
+      "file": "components/setting-auto-download.svg",
+      "width": 470,
+      "height": 70,
+      "label": "自动更新设置行",
+      "category": "components"
+    },
+    {
+      "file": "typography/title-ready.svg",
+      "width": 560,
+      "height": 98,
+      "label": "更新就绪标题",
+      "category": "typography"
+    },
+    {
+      "file": "typography/subtitle-ready.svg",
+      "width": 560,
+      "height": 46,
+      "label": "更新就绪副标题",
+      "category": "typography"
+    },
+    {
+      "file": "typography/button-restart.svg",
+      "width": 176,
+      "height": 44,
+      "label": "重启按钮文字",
+      "category": "typography"
+    },
+    {
+      "file": "typography/auto-update-label.svg",
+      "width": 146,
+      "height": 28,
+      "label": "自动更新英文标",
+      "category": "typography"
+    },
+    {
+      "file": "auto-update-card.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "整卡母版 / 字体已转轮廓",
+      "category": "master"
+    },
+    {
+      "file": "auto-update-card-editable.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "整卡母版 / 文字可编辑",
+      "category": "master"
+    },
+    {
+      "file": "states/update-ready.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "更新状态 / ready",
+      "category": "states"
+    },
+    {
+      "file": "states/update-downloading.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "更新状态 / downloading",
+      "category": "states"
+    },
+    {
+      "file": "states/update-checking.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "更新状态 / checking",
+      "category": "states"
+    },
+    {
+      "file": "states/update-installing.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "更新状态 / installing",
+      "category": "states"
+    },
+    {
+      "file": "states/update-error.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "更新状态 / error",
+      "category": "states"
+    },
+    {
+      "file": "layers/card-surface.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "01 · 卡片底板",
+      "category": "layers"
+    },
+    {
+      "file": "layers/header-surface.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "02 · 标题栏底板",
+      "category": "layers"
+    },
+    {
+      "file": "layers/hero-artwork.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "03 · 初音 × EVA 路径插画",
+      "category": "layers"
+    },
+    {
+      "file": "layers/engineering-decoration.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "04 · 工程装饰与标题条纹",
+      "category": "layers"
+    },
+    {
+      "file": "layers/header-controls.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "05 · 品牌标题与关闭图标",
+      "category": "layers"
+    },
+    {
+      "file": "layers/title-copy.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "06 · 主标题与副标题",
+      "category": "layers"
+    },
+    {
+      "file": "layers/status-badges.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "07 · 版本与状态徽章",
+      "category": "layers"
+    },
+    {
+      "file": "layers/content-panels.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "08 · 内容面板与列表底板",
+      "category": "layers"
+    },
+    {
+      "file": "layers/feature-rows.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "09 · 更新项文字与图标",
+      "category": "layers"
+    },
+    {
+      "file": "layers/progress-status.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "10 · 进度与完整性状态",
+      "category": "layers"
+    },
+    {
+      "file": "layers/footer-panel.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "11 · 操作区底板",
+      "category": "layers"
+    },
+    {
+      "file": "layers/auto-download-setting.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "12 · 自动更新设置与开关",
+      "category": "layers"
+    },
+    {
+      "file": "layers/action-buttons.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "13 · 操作按钮",
+      "category": "layers"
+    },
+    {
+      "file": "layers/frame-and-footer.svg",
+      "width": 1360,
+      "height": 912,
+      "label": "14 · 外框、警戒标与序列号",
+      "category": "layers"
+    },
+    {
+      "file": "auto-update-card-on-canvas.svg",
+      "width": 1536,
+      "height": 1024,
+      "label": "整卡带展示背景",
+      "category": "master"
+    },
+    {
+      "file": "previews/asset-overview.svg",
+      "width": 1440,
+      "height": 1360,
+      "label": "图标与核心控件 SVG 总览",
+      "category": "overview"
+    }
+  ],
+  "layers": [
+    {
+      "id": "card-surface",
+      "label": "01 · 卡片底板",
+      "file": "layers/card-surface.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "header-surface",
+      "label": "02 · 标题栏底板",
+      "file": "layers/header-surface.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "hero-artwork",
+      "label": "03 · 初音 × EVA 路径插画",
+      "file": "layers/hero-artwork.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "engineering-decoration",
+      "label": "04 · 工程装饰与标题条纹",
+      "file": "layers/engineering-decoration.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "header-controls",
+      "label": "05 · 品牌标题与关闭图标",
+      "file": "layers/header-controls.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "title-copy",
+      "label": "06 · 主标题与副标题",
+      "file": "layers/title-copy.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "status-badges",
+      "label": "07 · 版本与状态徽章",
+      "file": "layers/status-badges.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "content-panels",
+      "label": "08 · 内容面板与列表底板",
+      "file": "layers/content-panels.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "feature-rows",
+      "label": "09 · 更新项文字与图标",
+      "file": "layers/feature-rows.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "progress-status",
+      "label": "10 · 进度与完整性状态",
+      "file": "layers/progress-status.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "footer-panel",
+      "label": "11 · 操作区底板",
+      "file": "layers/footer-panel.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "auto-download-setting",
+      "label": "12 · 自动更新设置与开关",
+      "file": "layers/auto-download-setting.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "action-buttons",
+      "label": "13 · 操作按钮",
+      "file": "layers/action-buttons.svg",
+      "width": 1360,
+      "height": 912
+    },
+    {
+      "id": "frame-and-footer",
+      "label": "14 · 外框、警戒标与序列号",
+      "file": "layers/frame-and-footer.svg",
+      "width": 1360,
+      "height": 912
+    }
+  ],
+  "allSVGsContainNoRaster": true
+}

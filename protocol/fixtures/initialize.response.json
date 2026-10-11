@@ -1,0 +1,23 @@
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "result": {
+    "protocolVersion": 1,
+    "computer": {
+      "id": "desktop-01",
+      "name": "MacBook"
+    },
+    "capabilities": [
+      "snapshot",
+      "chat",
+      "approval",
+      "undo",
+      "diff",
+      "agents"
+    ],
+    "presence": {
+      "online": true,
+      "since": 1791567000000
+    }
+  }
+}

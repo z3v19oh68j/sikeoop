@@ -1,0 +1,198 @@
+{
+  "ui": [
+    {
+      "id": "window-background",
+      "label": "01 · 窗口底板",
+      "file": "svg/layers/ui-skin-layered--window-background.svg"
+    },
+    {
+      "id": "wallpaper-raster",
+      "label": "02 · 主插画（单个位图层）",
+      "file": "svg/layers/ui-skin-layered--wallpaper-raster.svg"
+    },
+    {
+      "id": "functional-panels",
+      "label": "03 · 功能面板",
+      "file": "svg/layers/ui-skin-layered--functional-panels.svg"
+    },
+    {
+      "id": "panel-dividers",
+      "label": "04 · 面板分隔与边角",
+      "file": "svg/layers/ui-skin-layered--panel-dividers.svg"
+    },
+    {
+      "id": "titlebar",
+      "label": "05 · 标题栏与同步岛",
+      "file": "svg/layers/ui-skin-layered--titlebar.svg"
+    },
+    {
+      "id": "navigation-icons",
+      "label": "06 · 导航图标",
+      "file": "svg/layers/ui-skin-layered--navigation-icons.svg"
+    },
+    {
+      "id": "explorer",
+      "label": "07 · 资源管理器",
+      "file": "svg/layers/ui-skin-layered--explorer.svg"
+    },
+    {
+      "id": "welcome-typography",
+      "label": "08 · 欢迎页标题与 HUD",
+      "file": "svg/layers/ui-skin-layered--welcome-typography.svg"
+    },
+    {
+      "id": "launch-cards",
+      "label": "09 · 启动按钮",
+      "file": "svg/layers/ui-skin-layered--launch-cards.svg"
+    },
+    {
+      "id": "chat-content",
+      "label": "10 · 对话内容与结果卡",
+      "file": "svg/layers/ui-skin-layered--chat-content.svg"
+    },
+    {
+      "id": "composer",
+      "label": "11 · 消息输入与动作",
+      "file": "svg/layers/ui-skin-layered--composer.svg"
+    },
+    {
+      "id": "statusbar",
+      "label": "12 · 状态栏",
+      "file": "svg/layers/ui-skin-layered--statusbar.svg"
+    }
+  ],
+  "vectorUI": [
+    {
+      "id": "window-background",
+      "label": "01 · 窗口底板",
+      "file": "svg/layers/ui-skin-vector-only--window-background.svg"
+    },
+    {
+      "id": "wallpaper-vector",
+      "label": "02 · 纯矢量主题插画",
+      "file": "svg/layers/ui-skin-vector-only--wallpaper-vector.svg"
+    },
+    {
+      "id": "functional-panels",
+      "label": "03 · 功能面板",
+      "file": "svg/layers/ui-skin-vector-only--functional-panels.svg"
+    },
+    {
+      "id": "panel-dividers",
+      "label": "04 · 面板分隔与边角",
+      "file": "svg/layers/ui-skin-vector-only--panel-dividers.svg"
+    },
+    {
+      "id": "titlebar",
+      "label": "05 · 标题栏与同步岛",
+      "file": "svg/layers/ui-skin-vector-only--titlebar.svg"
+    },
+    {
+      "id": "navigation-icons",
+      "label": "06 · 导航图标",
+      "file": "svg/layers/ui-skin-vector-only--navigation-icons.svg"
+    },
+    {
+      "id": "explorer",
+      "label": "07 · 资源管理器",
+      "file": "svg/layers/ui-skin-vector-only--explorer.svg"
+    },
+    {
+      "id": "welcome-typography",
+      "label": "08 · 欢迎页标题与 HUD",
+      "file": "svg/layers/ui-skin-vector-only--welcome-typography.svg"
+    },
+    {
+      "id": "launch-cards",
+      "label": "09 · 启动按钮",
+      "file": "svg/layers/ui-skin-vector-only--launch-cards.svg"
+    },
+    {
+      "id": "chat-content",
+      "label": "10 · 对话内容与结果卡",
+      "file": "svg/layers/ui-skin-vector-only--chat-content.svg"
+    },
+    {
+      "id": "composer",
+      "label": "11 · 消息输入与动作",
+      "file": "svg/layers/ui-skin-vector-only--composer.svg"
+    },
+    {
+      "id": "statusbar",
+      "label": "12 · 状态栏",
+      "file": "svg/layers/ui-skin-vector-only--statusbar.svg"
+    }
+  ],
+  "vectorTheme": [
+    {
+      "id": "background",
+      "label": "01 · 深紫黑底",
+      "file": "svg/layers/theme-vector-layered--background.svg"
+    },
+    {
+      "id": "engineering-grid",
+      "label": "02 · 工程网格",
+      "file": "svg/layers/theme-vector-layered--engineering-grid.svg"
+    },
+    {
+      "id": "at-field-rings",
+      "label": "03 · AT 立场环",
+      "file": "svg/layers/theme-vector-layered--at-field-rings.svg"
+    },
+    {
+      "id": "eva-silhouette",
+      "label": "04 · EVA 机体轮廓",
+      "file": "svg/layers/theme-vector-layered--eva-silhouette.svg"
+    },
+    {
+      "id": "eva-armor",
+      "label": "05 · 紫色装甲面",
+      "file": "svg/layers/theme-vector-layered--eva-armor.svg"
+    },
+    {
+      "id": "eva-lights",
+      "label": "06 · 机体荧光与硬件",
+      "file": "svg/layers/theme-vector-layered--eva-lights.svg"
+    },
+    {
+      "id": "miku-hair-back",
+      "label": "07 · 初音后发与双马尾",
+      "file": "svg/layers/theme-vector-layered--miku-hair-back.svg"
+    },
+    {
+      "id": "miku-pilot-suit",
+      "label": "08 · 初音驾驶服与装甲",
+      "file": "svg/layers/theme-vector-layered--miku-pilot-suit.svg"
+    },
+    {
+      "id": "miku-face",
+      "label": "09 · 初音脸部与表情",
+      "file": "svg/layers/theme-vector-layered--miku-face.svg"
+    },
+    {
+      "id": "miku-front-hair",
+      "label": "10 · 初音刘海与侧发",
+      "file": "svg/layers/theme-vector-layered--miku-front-hair.svg"
+    },
+    {
+      "id": "miku-headset",
+      "label": "11 · 初音耳机与麦克风",
+      "file": "svg/layers/theme-vector-layered--miku-headset.svg"
+    },
+    {
+      "id": "rim-lights",
+      "label": "12 · 轮廓光",
+      "file": "svg/layers/theme-vector-layered--rim-lights.svg"
+    },
+    {
+      "id": "hud-decorations",
+      "label": "13 · HUD 波形与警戒标",
+      "file": "svg/layers/theme-vector-layered--hud-decorations.svg"
+    },
+    {
+      "id": "theme-wordmark",
+      "label": "14 · 可编辑主题标题",
+      "file": "svg/layers/theme-vector-layered--theme-wordmark.svg"
+    }
+  ]
+}

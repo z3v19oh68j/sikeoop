@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sikeoop 4.1.58 PV</title>
+<style>
+@font-face { font-family: "Geist"; src: url("fonts/geist.woff2"); font-weight: 100 900; }
+@font-face { font-family: "GeistMono"; src: url("fonts/geist-mono.woff2"); font-weight: 100 900; }
+:root {
+  --bg: #0b0b0e; --panel: #151517; --panel2: #1c1c20; --line: #26262b; --line2: #2f2f35;
+  --ink: #ecebef; --ink2: #c4c3cb; --muted: #8d8b96; --pink: #f0789b; --blue: #7fb0e8;
+  --ok: #5fd38d; --warn: #e5a15b; --bad: #ef6b6b;
+  --ui: "Geist", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --mono: "GeistMono", "SF Mono", Menlo, "PingFang SC", monospace;
+  --big: "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+#bg, #stage, #fx, #glyph { position: absolute; inset: 0; }
+#bg { background:
+  radial-gradient(900px 600px at var(--gx, 70%) var(--gy, 20%), rgba(240,120,155,.14), transparent 70%),
+  radial-gradient(800px 560px at 12% 92%, rgba(127,176,232,.09), transparent 70%), var(--bg); }
+#bg::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; }
+#fx { pointer-events: none; }
+.abs { position: absolute; }
+.chip { position: absolute; left: 96px; top: 64px; display: flex; align-items: center; gap: 18px; font: 500 22px/1 var(--mono); color: var(--muted); letter-spacing: .06em; }
+.chip .act { padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(240,120,155,.5); color: var(--pink); font: 600 20px/1 var(--big); letter-spacing: .1em; }
+.chip .act.soon { border-color: rgba(229,161,91,.5); color: var(--warn); }
+.chip .act.later { border-color: rgba(127,176,232,.5); color: var(--blue); }
+.chip .act.meh { border-color: rgba(141,139,150,.6); color: var(--ink2); }
+.chip b { font: 800 50px/1 var(--big); color: var(--ink); letter-spacing: .02em; }
+.sub { position: absolute; left: 50%; bottom: 54px; transform: translateX(-50%); padding: 12px 28px; border-radius: 14px; background: rgba(11,11,14,.8); border: 1px solid var(--line); font: 600 32px/1.45 var(--big); color: var(--ink); text-align: center; white-space: nowrap; }
+.sub .w { color: var(--pink); }
+.win { position: absolute; border-radius: 18px; border: 1px solid rgba(255,255,255,.09); background: #121214; overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 80px rgba(240,120,155,.07); }
+.bar { height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 18px; background: #0f0f10; border-bottom: 1px solid #222226; font: 500 16px var(--ui); color: var(--muted); }
+.dots { display: flex; gap: 8px; } .dots i { width: 12px; height: 12px; border-radius: 50%; background: #2c2c31; }
+.card { position: absolute; border-radius: 20px; border: 1px solid var(--line2); background: #151517; box-shadow: 0 24px 70px rgba(0,0,0,.45); }
+.pill { display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 999px; background: #1f1f24; border: 1px solid var(--line2); font: 600 22px var(--ui); white-space: nowrap; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.msg { position: absolute; max-width: 760px; padding: 16px 22px; border-radius: 16px; font: 500 22px/1.55 var(--big); white-space: nowrap; }
+.msg.me { background: rgba(240,120,155,.16); border: 1px solid rgba(240,120,155,.35); border-radius: 16px 16px 4px 16px; }
+.msg.ai { background: #1c1c20; border: 1px solid var(--line2); border-radius: 16px 16px 16px 4px; }
+.k { color: var(--pink); } .ok { color: var(--ok); } .mut { color: var(--muted); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 50px; padding: 0 26px; border-radius: 12px; font: 700 20px var(--big); white-space: nowrap; }
+.cursor { position: absolute; width: 36px; height: 36px; z-index: 9; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+.ripple { position: absolute; border-radius: 50%; border: 3px solid var(--pink); }
+.girl { position: absolute; }
+.diffl { display: flex; font: 20px/2 var(--mono); white-space: pre; }
+.diffl .n { width: 60px; text-align: right; padding-right: 16px; color: #4d4d55; }
+.diffl.del { background: rgba(239,107,107,.13); color: #f3a3a3; } .diffl.add { background: rgba(95,211,141,.12); color: #a6e8bf; }
+.prog { height: 10px; border-radius: 999px; background: #232328; overflow: hidden; } .prog i { display: block; height: 100%; border-radius: 999px; }
+.stamp { position: absolute; padding: 6px 16px; border: 3px solid var(--warn); border-radius: 10px; color: var(--warn); font: 800 30px var(--big); letter-spacing: .1em; }
+.word { position: absolute; font: 900 120px/1 var(--big); letter-spacing: .02em; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="glyph" width="1920" height="1080"></canvas>
+<div id="stage"></div>
+<div id="fx"></div>
+<script>
+// ---- timeline -------------------------------------------------------------------------
+// Music: 120 BPM, so 1 beat = 0.5 s and 1 bar = 2 s. Every scene length is a whole number of bars,
+// so every cut lands on a downbeat; the mixer trims the track's lead-in so its beat grid starts at 0.
+const SCENES = [
+  { id: "open", dur: 18, vo: 3.0, act: "", title: "sikeoop 4.1.58" },
+  { id: "switch", dur: 16, vo: 1.0, act: "有用的", cls: "", title: "换模型，不用从头来" },
+  { id: "fallback", dur: 16, vo: 1.0, act: "有用的", cls: "", title: "模型掉链子，自己顶上" },
+  { id: "quota", dur: 16, vo: 1.0, act: "有用的", cls: "", title: "额度用完？它定个闹钟" },
+  { id: "diff", dur: 18, vo: 1.0, act: "有用的", cls: "", title: "改什么先给你看 · 一键撤回" },
+  { id: "dispatch", dur: 16, vo: 1.0, act: "迟早要用的", cls: "later", title: "调度台" },
+  { id: "bookmark", dur: 18, vo: 1.0, act: "没用的", cls: "meh", title: "设置重做 · 侧栏改成书签" },
+  { id: "soon", dur: 12, vo: 1.5, act: "还在做", cls: "soon", title: "预告：还在做" },
+  { id: "end", dur: 20, vo: 4.0, act: "", title: "现在下载" },
+];
+// Narration (same text as script.json) and the measured length of each recorded line.
+const LINES = {
+  open: "杂鱼，醒醒。sikeoop 4.1.58 来了。这次本鲸攒了一大波：有用的，没用的，迟早要用的，全给你塞进去了。",
+  switch: "先说有用的。中途换模型？之前读过的文件、做到哪一步，原样交给新模型，不用再读一遍。别家留下的老对话，也能接着聊。",
+  fallback: "当前模型限流、欠费、断网了？排好的备用模型自动接手，同一步接着做。简单的问题，还能交给便宜模型，替你省钱。",
+  quota: "额度用完了也别慌。本鲸读出几点重置，读不出就等五个小时，到点自动跟它说一句：继续。你睡你的，本鲸盯着。",
+  diff: "改什么，先给你看。红的删、绿的加，再用大白话说为什么。你点同意它才写进去。改坏了？整轮一键撤回，不会 Git 也没关系。",
+  dispatch: "一个 AI 不够用，就叫一群。派给 Claude Code、Codex 的活，全在调度台：看进度，验结果，一键取消。忙的排队，谁也别想打架。",
+  bookmark: "然后是没用的。设置重做了，能搜能筛；侧栏收成一叠书签，鼠标一放就像扇子一样展开。用处嘛……主要是好看。",
+  soon: "深度科研、论文工坊、PV 工坊、一键发布，还在做。做好了再告诉你，别催。",
+  end: "有用的，没用的，迟早要用的，一个安装包全带走。去官网下载 sikeoop 4.1.58 吧。哼，才不是在等你呢。",
+};
+const VO_DUR = { open: 10.88, switch: 11.84, fallback: 11.04, quota: 9.76, diff: 10.72, dispatch: 10.72, bookmark: 12.64, soon: 7.2, end: 9.44 };
+let acc = 0;
+for (const s of SCENES) { s.start = acc; acc += s.dur; }
+const TOTAL = acc;
+// Sound cues in scene-local seconds: [time, file, gain]. Mostly on the beat grid (multiples of 0.5).
+const CUE = {
+  open: [[0.0, "sparkle", 0.5], [2.0, "whoosh", 0.55], [4.0, "pop", 0.5], [5.0, "pop", 0.5], [6.0, "pop", 0.55], [8.0, "correct", 0.4]],
+  switch: [[0.0, "whoosh", 0.5], [3.0, "click", 0.5], [4.0, "pop", 0.45], [5.5, "sparkle", 0.35], [8.0, "correct", 0.45]],
+  fallback: [[0.0, "whoosh", 0.5], [3.0, "back", 0.55], [4.5, "pop", 0.5], [6.0, "correct", 0.45], [10.0, "pop", 0.4]],
+  quota: [[0.0, "whoosh", 0.5], [2.0, "back", 0.45], [8.0, "alarm", 0.32], [9.5, "pop", 0.5]],
+  diff: [[0.0, "whoosh", 0.5], [1.5, "typing", 0.25], [7.0, "click", 0.55], [7.5, "correct", 0.4], [11.0, "click", 0.55], [11.5, "back", 0.5]],
+  dispatch: [[0.0, "whoosh", 0.5], [1.0, "pop", 0.4], [1.5, "pop", 0.4], [2.0, "pop", 0.4], [2.5, "pop", 0.4], [7.0, "correct", 0.4], [9.0, "click", 0.55], [9.5, "back", 0.45]],
+  bookmark: [[0.0, "whoosh", 0.5], [2.0, "typing", 0.22], [8.0, "sparkle", 0.4], [8.5, "pop", 0.35], [9.0, "pop", 0.35], [9.5, "pop", 0.35]],
+  soon: [[0.0, "whoosh", 0.5], [1.5, "pop", 0.45], [2.5, "pop", 0.45], [3.5, "pop", 0.45], [4.5, "pop", 0.45]],
+  end: [[0.0, "sparkle", 0.55], [1.0, "pop", 0.5], [2.0, "pop", 0.5], [3.0, "pop", 0.55], [6.0, "whoosh", 0.4], [14.0, "correct", 0.45]],
+};
+// Typing loop is long; the mixer cuts each cue to this many seconds (default: the whole file).
+const CUE_LEN = { typing: 2.0, alarm: 2.5 };
+const cues = [];
+for (const s of SCENES) for (const [t, file, gain] of CUE[s.id]) cues.push({ t: +(s.start + t).toFixed(3), file, gain, len: CUE_LEN[file] || 0 });
+window.PV = { total: TOTAL, scenes: SCENES.map((s) => ({ id: s.id, start: s.start, dur: s.dur, vo: s.start + s.vo, title: s.title })), cues };
+
+// ---- helpers ----------------------------------------------------------------------------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = (x) => 1 - Math.pow(1 - x, 3);
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const back = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+const hash = (i, s = 0) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const typed = (str, k) => str.slice(0, Math.round(str.length * clamp(k)));
+const pop = (t, a, d = 0.35) => back(seg(t, a, a + d));
+const CURSOR = (x, y) => `<svg class="cursor" viewBox="0 0 24 24" style="left:${x}px;top:${y}px"><path d="M4 2l15 9-6.5 1.5L16 20l-3 1.5-3.5-7.5L4 18Z" fill="#f0789b" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+const ripple = (t, a, x, y) => { const r = seg(t, a, a + 0.5); return r > 0 && r < 1 ? `<div class="ripple" style="left:${x - 20 - r * 30}px;top:${y - 20 - r * 30}px;width:${40 + r * 60}px;height:${40 + r * 60}px;opacity:${1 - r}"></div>` : ""; };
+const girl = (name, x, y, size, k = 1, flip = false) => `<div class="girl" style="left:${x}px;top:${y}px;width:${size}px;height:${size}px;opacity:${clamp(k)};transform:translateY(${(1 - clamp(k)) * 40}px) scale(${flip ? -1 : 1},1)">${(window.SVGS || {})[name] || ""}</div>`;
+const BEAT = 0.5;
+const beatPulse = (gt) => Math.exp(-((gt % BEAT) / BEAT) * 5); // 1 on each beat, decaying
+
+function chrome(sc, t) {
+  const k = eo(seg(t, 0.1, 0.55));
+  const out = 1 - seg(t, sc.dur - 0.35, sc.dur);
+  let h = "";
+  if (sc.act) h += `<div class="chip" style="opacity:${k * out};transform:translateX(${(1 - k) * -40}px)"><span class="act ${sc.cls || ""}">${sc.act}</span><b>${sc.title}</b></div>`;
+  return h + subtitle(sc, t);
+}
+// Subtitles: the line split at sentence ends; each piece shown for a share of the recorded length
+// proportional to its characters.
+function subtitle(sc, t) {
+  const parts = LINES[sc.id].match(/[^。？！：；]+[。？！：；]?/g).map((s) => s.trim()).filter(Boolean);
+  const total = parts.reduce((a, p) => a + p.length, 0);
+  const local = t - sc.vo;
+  if (local < -0.15 || t > sc.dur - 0.2) return "";
+  let acc2 = 0, idx = parts.length - 1;
+  for (let i = 0; i < parts.length; i++) { acc2 += (parts[i].length / total) * VO_DUR[sc.id]; if (local < acc2) { idx = i; break; } }
+  const fadeOut = local > VO_DUR[sc.id] + 0.8 ? 1 - seg(local, VO_DUR[sc.id] + 0.8, VO_DUR[sc.id] + 1.1) : 1;
+  const a = clamp((local + 0.15) / 0.2) * fadeOut;
+  if (a <= 0) return "";
+  const html = parts[idx].replace(/[。；]$/, "").replace(/本鲸|杂鱼/g, (m) => `<span class="w">${m}</span>`);
+  return `<div class="sub" style="opacity:${a}">${html}</div>`;
+}
+function appWin(x, y, w, h, title, inner, k = 1) {
+  return `<div class="win" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;opacity:${k};transform:translateY(${(1 - k) * 50}px) scale(${0.97 + 0.03 * k})">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span style="color:var(--pink)">♥</span><span style="color:var(--ink)">sikeoop</span><span>/</span><span>${title}</span><span style="margin-left:auto;font-family:var(--mono)">v4.1.58</span></div>
+    <div style="position:absolute;top:46px;left:0;right:0;bottom:0">${inner}</div></div>`;
+}
+
+// ---- scenes -----------------------------------------------------------------------------
+function sceneOpen(sc, t) {
+  let h = "";
+  // Wordmark locks in at 2.0 (on the bar), the three words stamp on beats 4/5/6, then slide up.
+  const wk = eo(seg(t, 2.0, 2.6));
+  const lift = eio(seg(t, 7.5, 8.5));
+  const icon = window.SVGS && window.SVGS.icon ? window.SVGS.icon : "";
+  h += `<div class="abs" style="left:50%;top:${lerp(330, 170, lift)}px;transform:translateX(-50%) scale(${lerp(0.9, 1, wk)});opacity:${wk};display:flex;align-items:center;gap:30px">
+    <div style="width:120px;height:120px">${icon}</div>
+    <div style="font:800 128px/1 var(--ui);letter-spacing:-.03em">sikeoop</div>
+    <div style="font:600 54px/1 var(--mono);color:var(--pink);align-self:flex-end;margin-bottom:12px">4.1.58</div></div>`;
+  const words = [["有用的", 4.0, "var(--ink)"], ["没用的", 5.0, "var(--ink2)"], ["迟早要用的", 6.0, "var(--pink)"]];
+  let x = 960 - 820;
+  words.forEach(([w, a, c], i) => {
+    const k = pop(t, a, 0.4);
+    const ww = w.length * 120 + 60;
+    h += `<div class="word" style="left:${x}px;top:${lerp(560, 400, lift)}px;color:${c};opacity:${clamp(k)};transform:scale(${lerp(1.6, 1, clamp(seg(t, a, a + 0.3)))});transform-origin:50% 50%">${w}${i < 2 ? "，" : ""}</div>`;
+    x += ww + (i === 0 ? 40 : 40);
+  });
+  const tag = eo(seg(t, 8.5, 9.2));
+  h += `<div class="abs" style="left:50%;top:600px;transform:translateX(-50%);opacity:${tag};font:500 34px var(--big);color:var(--ink2);white-space:nowrap">给新手的 AI 代码编辑器 · <span class="k">都在这儿了</span></div>`;
+  h += girl("work", 1380, 560, lerp(300, 380, eo(seg(t, 9, 10))), seg(t, 9.0, 9.6));
+  if (t > 9) h += `<div class="msg ai" style="left:1070px;top:640px;opacity:${seg(t, 10, 10.4)};transform:scale(${clamp(pop(t, 10))})">看什么看，往下看啊，<span class="k">杂鱼</span>～</div>`;
+  return h + chrome(sc, t);
+}
+
+function sceneSwitch(sc, t) {
+  const k = eo(seg(t, 0.1, 0.7));
+  const switched = t > 4.0;
+  const model = switched ? "Claude" : "DeepSeek";
+  const mcol = switched ? "#e8a27a" : "#7fb0e8";
+  const files = ["src/App.jsx", "src/api/bill.js", "src/style.css", "package.json", "README.md", "src/utils/date.js"];
+  let inner = `<div style="position:absolute;left:0;top:0;bottom:0;width:300px;background:#0f0f10;border-right:1px solid #222226;padding:22px;font:18px/2.2 var(--mono);color:var(--muted)">
+    <div style="font:600 16px var(--ui);color:var(--ink2);margin-bottom:8px">已读文件</div>
+    ${files.map((f, i) => `<div style="opacity:${seg(t, 0.6 + i * 0.15, 0.9 + i * 0.15)}"><span class="ok">✓</span> ${f}</div>`).join("")}</div>`;
+  inner += `<div class="msg me" style="left:360px;top:40px">帮我把记账本加上按月统计</div>`;
+  inner += `<div class="msg ai" style="left:360px;top:130px;opacity:${seg(t, 0.8, 1.2)}">读完 6 个文件，第 3 步：写统计函数……</div>`;
+  // model switcher
+  const open = t > 2.6 && t < 4.0;
+  inner += `<div class="abs" style="left:360px;bottom:34px;right:34px;height:70px;border-radius:16px;background:#1c1c20;border:1px solid var(--line2);display:flex;align-items:center;padding:0 18px;gap:14px;font:20px var(--big);color:var(--muted)">
+    <span class="pill" style="font-size:19px;border-color:${mcol}"><span class="dot" style="background:${mcol}"></span>${model}</span> 继续做……</div>`;
+  if (open) inner += `<div class="card" style="left:360px;bottom:116px;width:300px;padding:10px;opacity:${seg(t, 2.6, 2.8)}">
+    ${["DeepSeek", "通义千问", "Kimi", "Claude", "小米 MiMo"].map((m) => `<div style="padding:10px 16px;border-radius:10px;font:600 20px var(--ui);${m === "Claude" && t > 3.0 ? "background:rgba(240,120,155,.2);color:var(--ink)" : "color:var(--ink2)"}">${m}</div>`).join("")}</div>`;
+  if (open) inner += CURSOR(500, t > 3.0 ? 480 : lerp(560, 480, seg(t, 2.6, 3.0))) + ripple(t, 3.0, 510, 490);
+  // hand-off packet
+  const fly = eio(seg(t, 4.2, 5.5));
+  if (t > 4.0) inner += `<div class="card" style="left:${lerp(60, 760, fly)}px;top:${lerp(380, 250, fly)}px;width:520px;padding:22px 26px;border-color:rgba(240,120,155,.55);opacity:${seg(t, 4.0, 4.3)}">
+      <div style="font:700 24px var(--big)">📦 交接记录</div>
+      <div style="font:18px/1.9 var(--mono);color:var(--ink2);margin-top:8px">已读文件 × 6 · 做到第 3 步<br>上一位：DeepSeek → 接手：Claude</div></div>`;
+  if (t > 5.5) inner += `<div class="msg ai" style="left:760px;top:440px;opacity:${seg(t, 5.6, 6.0)};border-color:rgba(232,162,122,.5)"><b style="color:#e8a27a">Claude</b>：收到交接，从第 3 步接着写。</div>`;
+  if (t > 7.5) inner += `<div class="abs" style="left:760px;top:540px;opacity:${seg(t, 7.5, 7.9)};transform:scale(${clamp(pop(t, 8.0))});transform-origin:0 50%;font:800 44px var(--big)">重读文件：<span class="ok" style="font-family:var(--mono)">0</span> 个</div>`;
+  if (t > 10.0) inner += `<div class="pill" style="position:absolute;left:760px;top:620px;opacity:${seg(t, 10, 10.4)};font-size:20px">🗂 打开别家留下的老对话 → <span class="k">接着聊</span></div>`;
+  return appWin(160, 180, 1600, 790, "记账本", inner, k) + chrome(sc, t);
+}
+
+function modelCard(x, y, name, sub, state, k = 1) {
+  const col = { run: "var(--ok)", down: "var(--bad)", idle: "var(--muted)", warm: "var(--warn)" }[state];
+  return `<div class="card" style="left:${x}px;top:${y}px;width:440px;height:200px;padding:30px 34px;opacity:${k};border-color:${state === "down" ? "rgba(239,107,107,.6)" : state === "run" ? "rgba(95,211,141,.5)" : "var(--line2)"}">
+    <div style="display:flex;align-items:center;gap:14px"><span class="dot" style="background:${col};box-shadow:0 0 14px ${col}"></span><b style="font:800 40px var(--ui)">${name}</b></div>
+    <div style="font:22px/1.6 var(--big);color:var(--ink2);margin-top:18px">${sub}</div></div>`;
+}
+function sceneFallback(sc, t) {
+  let h = "";
+  const k = eo(seg(t, 0.1, 0.6));
+  const down = t > 3.0;
+  const takeover = t > 4.5;
+  const shake = down && t < 3.4 ? Math.sin(t * 90) * 8 * (1 - seg(t, 3.0, 3.4)) : 0;
+  h += `<div class="abs" style="left:${shake}px;top:0">${modelCard(220, 270, "Claude", down ? '<span class="bad">429 · 限流了</span>' : "主力 · 正在做第 5 步", down ? "down" : "run", k)}</div>`;
+  h += modelCard(1260, 270, "DeepSeek", takeover ? '<span class="ok">已接手 · 第 5 步接着做</span>' : "备用 · 待命", takeover ? "run" : "idle", k);
+  // arrow
+  const ar = eio(seg(t, 3.6, 4.5));
+  h += `<svg class="abs" style="left:680px;top:330px" width="560" height="90"><path d="M10 45 H${10 + 520 * ar}" stroke="#f0789b" stroke-width="6" stroke-linecap="round" stroke-dasharray="14 12"/>${ar > 0.95 ? '<path d="M515 25 L540 45 L515 65" fill="none" stroke="#f0789b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>' : ""}</svg>`;
+  if (t > 3.6) h += `<div class="abs" style="left:800px;top:280px;font:600 22px var(--big);color:var(--pink);opacity:${seg(t, 3.6, 4)}">自动顶上</div>`;
+  // progress bar keeps going
+  const p = t < 3 ? lerp(0.3, 0.5, seg(t, 0.5, 3)) : t < 4.5 ? 0.5 : lerp(0.5, 0.92, seg(t, 4.5, 9));
+  h += `<div class="card" style="left:220px;top:540px;width:1480px;padding:26px 34px;opacity:${k}">
+    <div style="display:flex;justify-content:space-between;font:22px var(--big);color:var(--ink2);margin-bottom:14px"><span>任务：给记账本加按月统计</span><span style="font-family:var(--mono)">${Math.round(p * 100)}%</span></div>
+    <div class="prog"><i style="width:${p * 100}%;background:linear-gradient(90deg,var(--pink),#f7a7bf)"></i></div>
+    <div style="display:flex;gap:16px;margin-top:18px;font:18px var(--big);color:var(--muted)"><span>限流</span>·<span>欠费</span>·<span>断网</span><span style="margin-left:auto">设置 → 模型分工</span></div></div>`;
+  // cheap model
+  const ck = pop(t, 9.8, 0.4);
+  if (t > 9.6) h += `<div class="card" style="left:560px;top:760px;width:800px;padding:22px 30px;display:flex;align-items:center;gap:20px;opacity:${clamp(ck)};transform:scale(${ck})">
+    <span style="font:22px var(--big)">「这个变量名啥意思？」</span><span class="k" style="font:700 24px var(--ui)">→ 轻量模型</span><span class="ok" style="margin-left:auto;font:700 26px var(--big)">省钱 ¥</span></div>`;
+  return h + chrome(sc, t);
+}
+
+function sceneQuota(sc, t) {
+  let h = "";
+  const k = eo(seg(t, 0.1, 0.6));
+  // terminal
+  const lines = [
+    ["$ claude", "mut", 0.4],
+    ["● 正在写 src/stats.js …", "", 0.9],
+    ["✗ 额度已用完 · 03:00 重置", "bad", 2.0],
+    ["sikeoop：已排好 03:00 自动发送「继续」", "k", 3.0],
+  ];
+  h += `<div class="win" style="left:150px;top:200px;width:900px;height:430px;opacity:${k}"><div class="bar"><span class="dots"><i></i><i></i><i></i></span>终端 · Claude Code</div>
+    <div style="padding:26px 30px;font:22px/2.1 var(--mono)">${lines.map(([l, c, a]) => (t > a ? `<div class="${c}">${l}</div>` : "")).join("")}
+    ${t > 10 ? `<div class="ok">› 继续</div><div>● 接着写 src/stats.js …</div>` : ""}</div></div>`;
+  // clock: night passes 23:40 → 03:00 between 4 and 8
+  const prog = eio(seg(t, 4.0, 8.0));
+  const mins = 23 * 60 + 40 + prog * (3 * 60 + 20);
+  const hh = Math.floor(mins / 60) % 24, mm = Math.floor(mins % 60);
+  const ring = t > 8 && t < 9.5;
+  const wob = ring ? Math.sin(t * 60) * 6 : 0;
+  h += `<div class="card" style="left:1160px;top:200px;width:600px;height:430px;opacity:${k};display:grid;place-items:center;transform:rotate(${wob}deg)">
+    <div style="text-align:center"><div style="font:22px var(--big);color:var(--muted)">${ring || t > 9.5 ? "⏰ 到点了" : "🌙 自动继续倒计时"}</div>
+    <div style="font:700 140px/1.1 var(--mono);color:${t > 8 ? "var(--pink)" : "var(--ink)"}">${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}</div>
+    <div style="font:20px var(--big);color:var(--muted)">读不出重置时间？那就等 5 小时</div></div></div>`;
+  if (t > 9.5) h += `<div class="msg me" style="left:1290px;top:560px;transform:scale(${clamp(pop(t, 9.5))});font-size:26px">继续</div>`;
+  h += girl("sleepy", 260, 640, 330, seg(t, 1.0, 1.6));
+  if (t > 10.5) h += `<div class="msg ai" style="left:620px;top:780px;opacity:${seg(t, 10.5, 10.9)}">你睡你的，<span class="k">本鲸</span>盯着。</div>`;
+  return h + chrome(sc, t);
+}
+
+function sceneDiff(sc, t) {
+  const k = eo(seg(t, 0.1, 0.6));
+  const undone = t > 11.2;
+  const approved = t > 7.0 && !undone;
+  const rows = [
+    ["ctx", 12, "export function total(list) {"],
+    ["del", 13, "  return list.reduce((a, b) => a + b);"],
+    ["add", 13, "  return list.reduce((a, b) => a + b.amount, 0);"],
+    ["ctx", 14, "}"],
+    ["add", 15, "export const byMonth = (list) => group(list, 'month');"],
+  ];
+  let inner = `<div style="padding:26px 34px"><div style="display:flex;align-items:center;gap:16px;font:600 22px var(--ui)"><span>src/stats.js</span><span class="ok" style="font-family:var(--mono)">+2</span><span class="bad" style="font-family:var(--mono)">−1</span>
+    <span style="margin-left:auto" class="${undone ? "warn" : approved ? "ok" : "mut"}">${undone ? "↶ 已撤回本轮" : approved ? "✓ 已写入" : "等你点头"}</span></div>
+    <div style="margin-top:18px;border-radius:12px;overflow:hidden;border:1px solid var(--line2)">
+    ${rows.map(([kind, n, code], i) => {
+      const show = seg(t, 1.5 + i * 0.35, 1.8 + i * 0.35);
+      const cls = undone ? (kind === "add" ? "del" : kind === "del" ? "ctx" : "ctx") : kind;
+      if (undone && kind === "add") return `<div class="diffl" style="opacity:${1 - seg(t, 11.2, 11.7)};height:${(1 - seg(t, 11.2, 11.7)) * 40}px;overflow:hidden" ><span class="n">${n}</span>${code}</div>`;
+      return `<div class="diffl ${cls === "ctx" ? "" : cls}" style="opacity:${show}"><span class="n">${n}</span>${kind === "del" && !undone ? "- " : kind === "add" ? "+ " : "  "}${code}</div>`;
+    }).join("")}</div>
+    <div style="margin-top:22px;font:22px/1.7 var(--big);color:var(--ink2);opacity:${seg(t, 3.6, 4.2)}"><span class="k">为什么改：</span>账单是一条条对象，原来直接相加会变成字符串拼接，总额就错了。</div>
+    <div style="display:flex;gap:16px;margin-top:26px;opacity:${seg(t, 4.5, 5)}">
+      <span class="btn" style="background:${approved ? "#2b5b3e" : "var(--pink)"};color:${approved ? "#bff0d2" : "#1a0d12"};transform:scale(${t > 7 && t < 7.2 ? 0.94 : 1})">${approved ? "✓ 已同意" : "同意"}</span>
+      <span class="btn" style="border:1px solid var(--line2);color:var(--ink2)">不要</span>
+      <span class="btn" style="margin-left:auto;border:1px solid ${t > 9 ? "rgba(229,161,91,.7)" : "var(--line2)"};color:${t > 9 ? "var(--warn)" : "var(--muted)"};transform:scale(${t > 11 && t < 11.2 ? 0.94 : 1})">↶ 撤回本轮</span></div></div>`;
+  let h = appWin(260, 190, 1400, 760, "改动卡片", inner, k);
+  // cursor: to 同意 (≈ x 340,y 690 in page) at 7.0, then to 撤回 at 11.0
+  if (t > 5.5) {
+    const toA = eio(seg(t, 5.5, 6.9)), toB = eio(seg(t, 9.2, 10.9));
+    const x = lerp(lerp(1100, 360, toA), 1530, toB), y = lerp(lerp(900, 790, toA), 790, toB);
+    h += CURSOR(x, y) + ripple(t, 7.0, x, y) + ripple(t, 11.0, x, y);
+  }
+  if (t > 12.5) h += `<div class="pill" style="position:absolute;left:50%;transform:translateX(-50%) scale(${clamp(pop(t, 12.5))});top:118px;font-size:22px">不会 Git 也能<span class="k">回到刚才</span></div>`;
+  return h + chrome(sc, t);
+}
+
+function sceneDispatch(sc, t) {
+  const k = eo(seg(t, 0.1, 0.6));
+  const tasks = [
+    ["Claude Code", "#e8a27a", "写按月统计", 1.0, (tt) => Math.min(1, 0.2 + tt * 0.09), "进行中"],
+    ["Codex", "#8fb8ff", "补单元测试", 1.5, (tt) => Math.min(1, 0.1 + tt * 0.16), "待验收"],
+    ["集群", "#c59bff", "三个模型审一遍方案", 2.0, (tt) => 0, "排队中"],
+    ["自动化", "#5fd38d", "每天 9:00 跑测试", 2.5, (tt) => Math.min(0.6, tt * 0.05), "进行中"],
+  ];
+  const cancelled = t > 9.2;
+  let inner = `<div style="position:absolute;left:0;top:0;bottom:0;width:260px;background:#0f0f10;border-right:1px solid #222226;padding:24px;font:20px/2.4 var(--big);color:var(--muted)">
+    <div style="font:600 15px var(--ui);letter-spacing:.1em">AI 协作</div><div style="color:var(--ink);background:rgba(240,120,155,.15);border-radius:10px;padding:0 12px;margin-left:-12px">调度台</div><div>群聊</div><div>集群</div><div>自动化</div></div>
+    <div style="position:absolute;left:300px;right:40px;top:28px"><div style="display:flex;font:600 18px var(--big);color:var(--muted);padding:0 24px 12px"><span style="width:200px">执行者</span><span style="flex:1">任务</span><span style="width:300px">进度</span><span style="width:140px">状态</span><span style="width:120px"></span></div>`;
+  tasks.forEach(([who, col, what, a, pf, st], i) => {
+    const s = seg(t, a, a + 0.35);
+    let p = pf(Math.max(0, t - a));
+    let state = st;
+    if (i === 2 && cancelled) state = "已取消";
+    if (i === 1 && t > 7) { p = 1; state = "✓ 已验收"; }
+    if (i === 2 && t > 4 && !cancelled) state = "排队中 · 对方忙";
+    const stc = state.includes("取消") ? "var(--muted)" : state.includes("验收") ? "var(--ok)" : state.includes("排队") ? "var(--warn)" : "var(--ink2)";
+    inner += `<div style="display:flex;align-items:center;height:96px;padding:0 24px;margin-bottom:14px;border-radius:14px;background:#17171a;border:1px solid var(--line2);opacity:${s * (i === 2 && cancelled ? 0.45 : 1)};transform:translateX(${(1 - s) * 60}px)">
+      <span style="width:200px;font:700 22px var(--ui);color:${col}">${who}</span><span style="flex:1;font:22px var(--big);${i === 2 && cancelled ? "text-decoration:line-through" : ""}">${what}</span>
+      <span style="width:300px;padding-right:40px"><div class="prog"><i style="width:${p * 100}%;background:${col}"></i></div></span>
+      <span style="width:140px;font:600 19px var(--big);color:${stc};white-space:nowrap">${state}</span>
+      <span style="width:120px;text-align:right">${i === 2 && !cancelled ? `<span class="btn" style="height:40px;padding:0 16px;font-size:17px;border:1px solid ${t > 8 ? "var(--bad)" : "var(--line2)"};color:${t > 8 ? "var(--bad)" : "var(--muted)"}">取消</span>` : ""}</span></div>`;
+  });
+  inner += `</div>`;
+  if (t > 10.5) inner += `<div class="pill" style="position:absolute;left:300px;bottom:40px;opacity:${seg(t, 10.5, 10.9)};font-size:20px">✓ Codex 做完了：改了 2 个文件 · <span class="ok">没有越界</span></div>`;
+  let h = appWin(160, 180, 1600, 790, "调度台", inner, k);
+  if (t > 7.6) { const m = eio(seg(t, 7.6, 8.9)); const x = lerp(1200, 1640, m), y = lerp(900, 630, m); h += CURSOR(x, y) + ripple(t, 9.0, x, y); }
+  return h + chrome(sc, t);
+}
+
+function sceneBookmark(sc, t) {
+  const k = eo(seg(t, 0.1, 0.6));
+  const q = typed("备用", seg(t, 2.0, 3.0));
+  const items = [["模型分工", "备用模型 · 自动顶上"], ["服务商", "小米 MiMo（API）"], ["外观", "EVA × MIKU 皮肤"], ["自动更新", "可关掉自动下载"], ["快捷键", ""], ["记忆", ""]];
+  const filtered = t > 3.2;
+  let inner = `<div style="position:absolute;left:150px;right:0;top:0;bottom:0;padding:36px 50px">
+    <div style="display:flex;gap:16px;align-items:center"><div style="flex:1;height:58px;border-radius:14px;background:#1c1c20;border:1px solid ${t > 1.8 && t < 4 ? "var(--pink)" : "var(--line2)"};display:flex;align-items:center;padding:0 22px;font:22px var(--big);color:${q ? "var(--ink)" : "var(--muted)"}">🔍 ${q || "搜索设置…"}${t > 1.8 && t < 4 ? '<span style="display:inline-block;width:2px;height:26px;background:var(--pink);margin-left:3px"></span>' : ""}</div>
+    <span class="pill" style="font-size:18px">筛选：全部</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px">
+    ${items.map(([a, b], i) => {
+      const hit = i === 0;
+      const vis = filtered && !hit ? 1 - seg(t, 3.2, 3.6) : 1;
+      const hi = filtered && hit;
+      return `<div style="padding:24px 28px;border-radius:16px;background:#17171a;border:1px solid ${hi ? "var(--pink)" : "var(--line2)"};opacity:${seg(t, 0.4 + i * 0.1, 0.7 + i * 0.1) * (0.25 + 0.75 * vis)}"><b style="font:700 24px var(--big)">${a}</b><div style="font:19px var(--big);color:var(--muted);margin-top:6px">${hi ? b.replace("备用", '<span class="k">备用</span>') : b || "…"}</div></div>`;
+    }).join("")}</div></div>`;
+  // bookmark stack at left: collapsed until hover at 8.0, then fans out
+  const fan = eio(seg(t, 8.0, 9.2)) * (1 - eio(seg(t, 14.5, 15.3)));
+  const marks = [["对话", "#f0789b"], ["文件", "#7fb0e8"], ["AI 协作", "#c59bff"], ["终端", "#5fd38d"], ["插件", "#e5a15b"], ["设置", "#ecebef"]];
+  marks.forEach(([m, c], i) => {
+    const y = 40 + lerp(i * 14, i * 96, fan);
+    const active = i === 5;
+    const x = active ? lerp(10, 26, fan) + 8 : lerp(10, 18, fan);
+    inner += `<div style="position:absolute;left:${x}px;top:${y}px;width:${lerp(90, 120, fan)}px;height:80px;border-radius:0 14px 14px 0;background:${active ? "#232328" : "#1a1a1e"};border:1px solid var(--line2);border-left:6px solid ${c};box-shadow:0 8px 20px rgba(0,0,0,.4);display:flex;align-items:center;padding-left:14px;font:600 18px var(--big);color:${active ? "var(--ink)" : "var(--ink2)"};z-index:${10 - i};transform:rotate(${lerp(0, (i - 2.5) * 1.6, fan)}deg)">${fan > 0.4 ? m : ""}</div>`;
+  });
+  let h = appWin(160, 180, 1600, 790, "设置", inner, k);
+  if (t > 6.8 && t < 15.5) { const m = eio(seg(t, 6.8, 7.9)); h += CURSOR(lerp(900, 250, m), lerp(800, 400, m)); }
+  if (t > 11) h += `<div class="msg ai" style="right:200px;top:860px;opacity:${seg(t, 11, 11.4)}">用处：其实有一点点。主要是<span class="k">好看</span>。</div>`;
+  return h + chrome(sc, t);
+}
+
+function sceneSoon(sc, t) {
+  let h = "";
+  const items = [["深度科研", "几家模型互相挑刺"], ["论文工坊", "读论文 · 对照翻译"], ["PV 工坊", "自己给自己做宣传片"], ["一键发布", "做好的网页一键分享"]];
+  items.forEach(([a, b], i) => {
+    const s = clamp(pop(t, 1.5 + i, 0.3));
+    const x = 150 + i * 420;
+    const out = 1 - seg(t, 10.8, 11.6);
+    h += `<div class="card" style="left:${x}px;top:330px;width:380px;height:300px;padding:36px;opacity:${clamp(s) * out * 0.95};transform:scale(${s});filter:saturate(.4)">
+      <b style="font:800 40px var(--big)">${a}</b><div style="font:22px var(--big);color:var(--muted);margin-top:14px">${b}</div>
+      <div class="stamp" style="left:36px;bottom:36px;transform:rotate(-8deg) scale(${lerp(1.8, 1, seg(t, 1.8 + i, 2.0 + i))});opacity:${seg(t, 1.8 + i, 1.9 + i)}">还在做</div></div>`;
+  });
+  if (t > 6) h += `<div class="abs" style="left:50%;top:700px;transform:translateX(-50%);opacity:${seg(t, 6, 6.4) * (1 - seg(t, 10.8, 11.6))};font:500 26px var(--big);color:var(--muted);white-space:nowrap">做好了会在更新公告里告诉你。不会突然塞给你。</div>`;
+  h += girl("lazy", 1500, 650, 300, seg(t, 6.5, 7) * (1 - seg(t, 10.8, 11.6)));
+  return h + chrome(sc, t);
+}
+
+function sceneEnd(sc, t) {
+  let h = "";
+  const words = [["有用的", 1.0], ["没用的", 2.0], ["迟早要用的", 3.0]];
+  let x = 960 - 600;
+  words.forEach(([w, a], i) => {
+    const s = clamp(pop(t, a, 0.4));
+    h += `<div class="word" style="font-size:84px;left:${x}px;top:200px;opacity:${s};transform:scale(${lerp(1.5, 1, seg(t, a, a + 0.3))});color:${i === 2 ? "var(--pink)" : "var(--ink)"}">${w}${i < 2 ? "，" : ""}</div>`;
+    x += w.length * 84 + 84;
+  });
+  const lk = eo(seg(t, 4.0, 4.8));
+  h += `<div class="abs" style="left:50%;top:360px;transform:translateX(-50%);opacity:${seg(t, 4, 4.5)};font:600 36px var(--big);color:var(--ink2);white-space:nowrap">一个安装包，全带走。</div>`;
+  const icon = (window.SVGS && window.SVGS.icon) || "";
+  h += `<div class="abs" style="left:50%;top:470px;transform:translateX(-50%) scale(${lerp(0.9, 1, lk)});opacity:${lk};display:flex;align-items:center;gap:26px"><div style="width:100px;height:100px">${icon}</div><div style="font:800 110px/1 var(--ui);letter-spacing:-.03em">sikeoop</div><div style="font:600 46px var(--mono);color:var(--pink);align-self:flex-end;margin-bottom:10px">4.1.58</div></div>`;
+  const dk = eo(seg(t, 6.0, 6.6));
+  h += `<div class="abs" style="left:50%;top:650px;transform:translateX(-50%) translateY(${(1 - dk) * 30}px);opacity:${dk};display:flex;gap:20px;align-items:center">
+    <span class="btn" style="background:var(--pink);color:#1a0d12;font-size:24px;height:62px;transform:scale(${1 + 0.03 * beatPulse(sc.start + t) * (t > 6.6 ? 1 : 0)})">现在下载</span>
+    <span class="pill" style="font-family:var(--mono);font-size:24px;height:62px">sikeoop.modgert.online</span></div>`;
+  h += `<div class="abs" style="left:50%;top:750px;transform:translateX(-50%);opacity:${dk};font:22px var(--big);color:var(--muted)">Windows · macOS</div>`;
+  h += girl("waiting", 1440, 560, 360, seg(t, 7.5, 8.2));
+  if (t > 11.5) h += `<div class="msg ai" style="left:1120px;top:470px;opacity:${seg(t, 11.5, 11.9)}">哼，才不是在等你呢。</div>`;
+  // final fade to black
+  h += `<div class="abs" style="inset:0;background:#000;opacity:${seg(t, 18.6, 20)}"></div>`;
+  return h + chrome(sc, t);
+}
+
+const RENDER = { open: sceneOpen, switch: sceneSwitch, fallback: sceneFallback, quota: sceneQuota, diff: sceneDiff, dispatch: sceneDispatch, bookmark: sceneBookmark, soon: sceneSoon, end: sceneEnd };
+
+// ---- glyph sea (background canvas) -------------------------------------------------------
+const gctx = document.getElementById("glyph").getContext("2d");
+const GLYPHS = "{}[]()<>/\\=+-*;:.,_|~^#$%&@!?01";
+function drawGlyphs(t) {
+  gctx.clearRect(0, 0, 1920, 1080);
+  // In the opening, glyphs rain and converge, dimming once the wordmark lands; elsewhere a faint drift.
+  const open = t < 18;
+  const dens = open ? 1 - 0.75 * seg(t, 1.8, 2.6) : 0.18;
+  gctx.font = "20px GeistMono, monospace";
+  for (let i = 0; i < 260; i++) {
+    const x = hash(i, 1) * 1920;
+    const sp = 60 + hash(i, 2) * 160;
+    const y = ((hash(i, 3) * 1080 + t * sp) % 1180) - 50;
+    const a = (0.08 + 0.3 * hash(i, 4)) * dens;
+    gctx.fillStyle = hash(i, 5) > 0.85 ? `rgba(240,120,155,${a * 1.6})` : `rgba(200,200,215,${a})`;
+    gctx.fillText(GLYPHS[Math.floor(hash(i, Math.floor(t * 6 + i)) * GLYPHS.length)], x, y);
+  }
+}
+function transitionFx(t) {
+  // A short pink wipe on every cut (cuts are on downbeats).
+  for (const s of SCENES) {
+    if (s.start === 0) continue;
+    const d = t - s.start;
+    if (d > -0.25 && d < 0.25) {
+      const k = (d + 0.25) / 0.5;
+      return `<div class="abs" style="inset:0;background:linear-gradient(100deg,transparent ${lerp(-40, 100, k) - 20}%,rgba(240,120,155,.35) ${lerp(-40, 100, k)}%,transparent ${lerp(-40, 100, k) + 20}%)"></div>`;
+    }
+  }
+  return "";
+}
+
+window.renderAt = (t) => {
+  let sc = SCENES[SCENES.length - 1];
+  for (const s of SCENES) if (t >= s.start && t < s.start + s.dur) { sc = s; break; }
+  const lt = t - sc.start;
+  const bg = document.getElementById("bg");
+  bg.style.setProperty("--gx", `${60 + 15 * Math.sin(t * 0.21)}%`);
+  bg.style.setProperty("--gy", `${22 + 10 * Math.cos(t * 0.17)}%`);
+  drawGlyphs(t);
+  const scOut = SCENES.find((s) => s.id === sc.id);
+  document.getElementById("stage").innerHTML = RENDER[sc.id](scOut, lt);
+  document.getElementById("fx").innerHTML = transitionFx(t);
+};
+window.boot = () => {
+  Promise.all([document.fonts.load("22px GeistMono"), document.fonts.load("20px Geist")]).then(() => document.fonts.ready).then(() => { window.PV.ready = true; renderAt(0); });
+};
+</script>
+</body>
+</html>

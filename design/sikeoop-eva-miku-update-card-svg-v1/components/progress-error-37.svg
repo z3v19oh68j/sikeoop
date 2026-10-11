@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1054" height="14" viewBox="0 0 1054 14" font-family="PingFang SC, Heiti SC, STHeiti, Microsoft YaHei, sans-serif"><title>进度条 / error-37</title><desc>Native SVG paths and shapes. No embedded raster, no external images.</desc><defs><linearGradient id="surface" x2="1" y2="1"><stop stop-color="#10101B" /><stop offset=".54" stop-color="#141122" /><stop offset="1" stop-color="#18132A" /></linearGradient>
+<linearGradient id="purpleBorder" x2=".8" y2="1"><stop stop-color="#8B66D5" /><stop offset=".48" stop-color="#493068" /><stop offset="1" stop-color="#9B7BFF" /></linearGradient>
+<linearGradient id="primary" x2="1" y2="1"><stop stop-color="#62E8EA" /><stop offset="1" stop-color="#34DCE5" /></linearGradient>
+<linearGradient id="artFade"><stop stop-color="#11101D" /><stop offset="1" stop-color="#11101D" stop-opacity="0" /></linearGradient>
+<clipPath id="cardClip"><path d="M28 1H1330L1359 29V883L1330 911H28L1 883V29Z" /></clipPath>
+<clipPath id="heroClip"><rect x="552" y="60" width="806" height="314" /></clipPath></defs><rect x="0" y="0" width="1054" height="14" rx="7" fill="#2C263D" /><rect x="0" y="0" width="389.98" height="14" rx="7" fill="#FF7C95" /></svg>

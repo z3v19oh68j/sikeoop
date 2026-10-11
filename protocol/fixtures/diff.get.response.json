@@ -1,0 +1,15 @@
+{
+  "jsonrpc": "2.0",
+  "id": "8",
+  "result": {
+    "turnId": 41,
+    "files": [
+      {
+        "path": "src/auth.ts",
+        "before": "a",
+        "after": "b",
+        "unifiedDiff": "@@ -1 +1 @@\n-a\n+b"
+      }
+    ]
+  }
+}

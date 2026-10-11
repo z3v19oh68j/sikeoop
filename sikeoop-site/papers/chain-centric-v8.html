@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="链心 Chain-Centric V8：面向可审计多模型推理的声明级证据账本。技术论文草稿全文。">
+<title>链心 Chain-Centric V8 · 全文</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=ZCOOL+QingKe+HuangYou&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+:root {
+  --bg: #0f0f10; --panel: #151517; --raised: #1c1c20; --line: #26262b;
+  --ink: #ecebef; --ink-2: #c4c3cb; --muted: #8d8b96; --accent: #f0789b; --accent-soft: rgba(240,120,155,.13);
+  --font-display: "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif;
+  --font-body: "Geist", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", Menlo, Consolas, "Noto Sans SC", monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); color-scheme: light; } }
+:root[data-theme="light"] { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.75 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .in { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none; }
+.brand svg { width: 18px; height: 18px; }
+.top .back { margin-left: auto; color: var(--muted); font-size: 14px; text-decoration: none; }
+.top .back:hover { color: var(--ink); }
+.layout { max-width: 1120px; margin: 0 auto; padding: 48px 24px 96px; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px; }
+header.hero { grid-column: 1 / -1; display: grid; gap: 14px; padding-bottom: 36px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12.5px/1.5 var(--font-mono); letter-spacing: .14em; color: var(--accent); }
+h1 { margin: 0; font: 400 clamp(34px, 5.6vw, 58px)/1.15 var(--font-display); text-wrap: balance; }
+.sub { margin: 0; font-size: clamp(17px, 2.2vw, 21px); color: var(--ink-2); max-width: 34em; text-wrap: pretty; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 6px 0 0; color: var(--muted); font-size: 14.5px; }
+.meta a { color: var(--ink-2); text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.meta a:hover { color: var(--accent); }
+.note { margin: 6px 0 0; padding: 12px 16px; max-width: 46em; border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 10px; color: var(--ink-2); font-size: 14.5px; }
+.toc { position: sticky; top: 92px; align-self: start; max-height: calc(100vh - 116px); overflow-y: auto; padding-right: 6px; }
+.toc summary { list-style: none; font: 500 12.5px/1 var(--font-mono); letter-spacing: .14em; color: var(--muted); padding: 0 10px 10px; cursor: default; }
+.toc summary::-webkit-details-marker { display: none; }
+.toc nav { display: grid; gap: 1px; }
+.toc a { text-decoration: none; color: var(--ink-2); font-size: 14px; line-height: 1.5; padding: 6px 10px; border-radius: 7px; border-left: 2px solid transparent; }
+.toc a:hover { background: var(--panel); color: var(--ink); }
+.toc a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.paper { min-width: 0; max-width: 46em; font-size: 16.5px; line-height: 1.95; }
+.paper > :first-child { margin-top: 0; }
+.paper > h2:first-child { border-top: 0; padding-top: 0; }
+.paper h2 { margin: 72px 0 18px; padding-top: 28px; border-top: 1px solid var(--line); font: 400 clamp(25px, 3.4vw, 32px)/1.35 var(--font-display); text-wrap: balance; scroll-margin-top: 76px; }
+.paper h3 { margin: 40px 0 10px; font: 600 19px/1.5 var(--font-body); scroll-margin-top: 84px; }
+.paper h4 { margin: 28px 0 8px; font: 600 16.5px/1.5 var(--font-body); color: var(--ink-2); scroll-margin-top: 84px; }
+.paper p { margin: 0 0 16px; color: var(--ink-2); text-wrap: pretty; overflow-wrap: break-word; }
+.paper strong { color: var(--ink); font-weight: 600; }
+.paper a { color: var(--accent); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.paper ul, .paper ol { margin: 0 0 18px; padding-left: 1.5em; color: var(--ink-2); }
+.paper li { margin: 6px 0; padding-left: 2px; }
+.paper li::marker { color: var(--muted); }
+.paper code { font: .88em/1.5 var(--font-mono); background: var(--panel); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; overflow-wrap: anywhere; }
+.paper pre { margin: 4px 0 22px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: 13px/1.65 var(--font-mono); color: var(--ink); overflow-x: auto; white-space: pre; tab-size: 4; }
+.paper blockquote { margin: 26px 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--accent); }
+.paper blockquote p { margin: 0; color: var(--ink); font-size: 18.5px; line-height: 1.8; }
+.paper .callout { margin: 6px 0 24px; padding: 14px 18px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; color: var(--ink); }
+.paper .formula { margin: 6px 0 20px; padding: 12px 16px; text-align: center; font: 500 15.5px/1.7 var(--font-mono); color: var(--ink); background: var(--raised); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.paper .formula.lossy { background: transparent; border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--ink-2); }
+.paper pre.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+.tbl { margin: 6px 0 24px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.65; }
+.tbl th { text-align: left; font-weight: 600; background: var(--panel); color: var(--ink); white-space: nowrap; }
+.tbl th, .tbl td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.tbl tr:last-child td { border-bottom: 0; }
+footer.site { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+footer.site .in { max-width: 1120px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+footer.site a { color: var(--ink-2); text-underline-offset: 3px; }
+@media (max-width: 820px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 32px 16px 72px; }
+  .toc { position: static; max-height: none; border: 1px solid var(--line); border-radius: 10px; padding: 0; }
+  .toc summary { padding: 14px 16px; cursor: pointer; color: var(--ink-2); }
+  .toc summary::after { content: " ▾"; }
+  .toc[open] summary { border-bottom: 1px solid var(--line); }
+  .toc nav { padding: 8px; }
+  .paper { font-size: 16px; line-height: 1.9; }
+  .paper h2 { margin-top: 56px; }
+  .top .in { padding: 0 16px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="../"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>sikeoop</a>
+  <a class="back" href="../liwang.html">← 李旺的主页</a>
+</div></header>
+<div class="layout">
+  <header class="hero">
+    <span class="eyebrow">技术论文草稿 · 全文</span>
+    <h1>链心 Chain-Centric V8</h1>
+    <p class="sub">面向可审计多模型推理的声明级证据账本</p>
+    <p class="meta"><span>戴震宇 / 李旺 · 联合研究者</span><span>DOI <a href="https://doi.org/10.5281/zenodo.20439912">10.5281/zenodo.20439912</a></span><span>ORCID（戴震宇）<a href="https://orcid.org/0009-0009-5902-1272">0009-0009-5902-1272</a></span><span>代码 <a href="https://github.com/dzy235/chain-centric-multi-agent">dzy235/chain-centric-multi-agent</a>（V8 分支）</span><span>CC BY 4.0</span></p>
+    <p class="note">这一页由论文的 Word 原稿转成。原稿里第 5 节和附录 A 的公式缺了一部分数学符号（希腊字母、求和号、分式等），这里按原稿原样放出，没有补写：单独成行的公式用虚线框标出，正文和表格里夹着的公式也有同样的缺失。</p>
+  </header>
+  <details class="toc" id="toc" open>
+    <summary>目录</summary>
+    <nav aria-label="目录"><a href="#sec-0">文献来源声明</a><a href="#sec-1">摘要</a><a href="#s-1">1 引言</a><a href="#s-2">2 必要性:为什么 AI 时代需要程序性审计</a><a href="#s-3">3 哲学根据:程序认识论</a><a href="#s-4">4 协议：链心做什么</a><a href="#s-5">5 协调层公式：可观测认知空间如何被计算</a><a href="#s-6">6 工程谱系:链心在已有架构中的位置</a><a href="#s-7">7 实证轨迹</a><a href="#s-8">8 V8 实证轨迹：声明级证据如何改变旧问题</a><a href="#s-9">9 比较优势:链心在多 agent 设计空间中的位置</a><a href="#s-10">10 局限</a><a href="#s-11">11 结论</a><a href="#sec-84">参考文献</a><a href="#s-app-a">附录 A 协调层公式与参数表</a><a href="#s-app-b">附录 B 数据来源与代码来源</a></nav>
+  </details>
+  <main class="paper">
+<h2 id="sec-0">文献来源声明</h2>
+<p>本文基于旧版《链心 Chain-Centric: 面向可审计多模型推理的程序性账本》重写。旧论文的主线——程序认识论、三层架构、四动作协议、协调层无 LLM 裁判、攻击必须指向具体步骤——在 V8 中保持不变。V8 新增的核心工程能力是<strong>声明级证据池</strong>：研究者可以把一篇论文拆成多个可独立引用、可独立攻击的证据声明，而不是把整篇论文当成一个粗粒度证据块。</p>
+<p>本文中的陈述分为三类：</p>
+<ul><li><strong>[CODE]</strong> 来自 V8 分支代码：<code>chain_centric/layers/evidence_layer.py</code>、<code>content_layer.py</code>、<code>coordination_layer.py</code>、<code>session.py</code>。
+</li><li><strong>[DOC]</strong> 来自旧论文、项目 README、固定测试输入与实验报告。
+</li><li><strong>[DATA]</strong> 来自作者本地实验存档：阿尔茨海默 V8、抑郁症 V8、微生物组、费米悖论、自审计等 JSON 与报告。
+</li></ul>
+<p>本文不把 Chain-Centric 描述成“更会回答问题的 AI”。它描述的是一种更窄但更可审计的东西：<strong>把 AI 群体推理过程变成带证据、攻击、修订、版本和状态分区的程序性账本</strong>。</p>
+<h2 id="sec-1">摘要</h2>
+<p>构建在大语言模型之上的多智能体系统通常以自然语言对话组织推理：多个模型轮流发言、相互补充，最后由投票、摘要、人工选择或 LLM 裁判给出答案。这样的系统看起来透明，因为对话记录可以保存；但它并不天然可审计。自然语言日志把命题、证据、社交赞同、修辞让步、协调信号和结论混在一起。审计者事后很难判断：某条主张是否被攻击过，攻击的是哪一步，被攻击后是否修订，修订是否保留旧版本，以及一条未被攻击的主张究竟是经受住了审查，还是只是没有被任何人看见。</p>
+<p>Chain-Centric 提出一种不同的多模型推理协议。它不把 agent 之间的互动组织成自由对话，而是组织成结构化账本。每个 agent 每轮只能执行四种动作：<code>publish_chain</code>（发布推理链）、<code>attack</code>（攻击具体步骤）、<code>revise_chain</code>（修订自己的链）、<code>pass</code>（沉默）。每条推理链由步骤组成，每一步必须引用证据池中的证据；每次攻击必须精确指向某个 agent、某条链、某个版本、某一步。协调层在运行时不调用 LLM，不判断任何主张真假，只根据账本中的可观测事件计算证据独立性、活动信号、行为熵、符号收敛、审查压力和链条存活状态。</p>
+<p>V8 在旧协议基础上加入声明级证据池。系统不再只能把一篇论文作为一个证据项，而可以把论文拆成多个具体声明。例如，阿尔茨海默测试中，<code>Lesné 2006</code> 的 Aβ*56 原始主张、Science 2022 图像疑点调查、Nature 2024 撤稿 notice、APP/PSEN 家族性 AD 遗传证据、lecanemab/donanemab 临床试验，可以分别作为独立证据声明进入池子。这样，系统可以识别“某条 Aβ*56 证据链存在可靠性问题”，同时避免把这个局部问题错误推广成“整个 amyloid 假说崩塌”。抑郁症测试中，系统同样可以攻击“抗抑郁药有效推出低血清素病因”这一推断，而不是粗暴否定 serotonin 的全部生物学作用。</p>
+<p>本文的核心论点是：Chain-Centric V8 不是一个答案机器，而是程序认识论在大语言模型群体推理中的工程实现。一个主张的合法性不来自模型自信，也不来自多数赞同，而来自它经历了怎样的程序：引用了什么证据，被谁攻击，在哪一步被攻击，是否修订，修订后是否仍存活，是否仍处于方法论争议，或者是否根本未被审查。本文给出 V8 协议的数据结构、公式、参数、收敛判据和实验轨迹，并明确修正旧报告中容易误导的术语：<code>TRUE_CONSENSUS</code> 和 <code>consensus zone</code> 不应理解为投票共识，而应理解为“高证据独立低活动状态”和“审查后未击穿区”。</p>
+<p><strong>关键词：</strong> 多智能体推理；大语言模型；AI 审计；声明级证据池；程序认识论；攻击-修订账本；符号收敛；结构化不确定性。</p>
+<h2 id="s-1">1 引言</h2>
+<h3 id="s-1-1">1.1 一段关于作者本人记忆的开场</h3>
+<p>本文的开篇不是关于多智能体系统的技术描述,是关于一个具体记忆事件——它发生在协议设计者本人(本文作者)身上,并在后续核对原始账本时才被纠正。</p>
+<p>在旧版论文草稿写作期间,单个监控AI在监控整个进程时的最终报告里有着关于早期 v2 微生物组实验的一个生动记忆:<strong>“在那次 144 轮的运行里,有一条推理链经过了 161 次攻击,尽管遍体鳞伤,但仍在存活下来。”</strong> 这句话来自当时一个用于读取实验 JSON 的辅助 AI 在跑完后给作者的总结报告。这一表述生动、具体、有英雄叙事色彩——它进入了作者的长期记忆,并在论文早期草稿中作为”对抗审视有效”的非正式证据反复出现。</p>
+<p>后来,作者在准备新版论文时直接读了 <code>exp_microbiome_nolimit.json</code> 的原始内容,真相才浮现:</p>
+<p>那 161 次攻击<strong>确实存在</strong>——但它们不是落在一条链上,而是分散落在 86 条 <code>claim_id</code> 字段为空的链上。这是 v2 schema 的一个填充缺陷:链与命题的关联在某些路径上没有被一致地建立。聚合统计层面,这 161 次攻击被归并到一个”幽灵命题”下——空 claim_id、空描述、α=0.884、状态 TRUE_CONSENSUS。</p>
+<p>也就是说:<strong>单个ai中那条”遍体鳞伤但活了下来”的链根本不存在</strong>。它是 AI 总结对一个 schema artifact 的修辞包装——技术上不算编造(161 这个数字真实存在),但它描述的”它”作为一个命题层的实体并不存在。这一修辞包装,生动到钻进了协议设计者本人的长期记忆,并在一段时间内塑形了作者的写作。</p>
+<p>这件事不是轶事。它是本协议存在意义的最直接证据。</p>
+<p>如果协议设计者本人在没有结构化账本可查的情况下,会被自己的 AI 总结长期塑形——那么任何依赖 AI 总结来理解多智能体推理过程的研究者、审计员、决策者,都面临同样的失效模式。本文描述的工作就是这一类失效模式的工程响应。</p>
+<h3 id="s-1-2">1.2 自然语言日志不等同于可审计性</h3>
+<p>把上述案例提升到一般原则,本文的起点是一个具体观察:<strong>自然语言日志不等同于可审计性</strong>。一份多智能体对话记录可以保留每个模型的每一句发言,却仍然回答不了审计者真正关心的问题:哪条命题被攻击了?哪一个推理步骤被挑战了?被挑战的推理链有没有被修复?某个特定陈述究竟有没有被审视过,还是说所有人只是恰好没看它?</p>
+<p>对话驱动的多智能体系统(AutoGen、CrewAI、LangGraph)依赖自然语言对话作为协调机制——智能体通过消息互发来推进讨论。这种范式继承了人类会议的形态:轮流发言、社交润滑、共识建构。但它把两件本来分离的事情绑在一起——<strong>推理的内容</strong>(每个智能体得出什么结论及为什么)与<strong>协调的信号</strong>(谁该接下来发言、讨论是否结束、哪些是社交礼貌)。事后审计要把这两件事拆开,必须把同一段文字解析两遍,而二者之间没有规范化的边界。</p>
+<p>更深层的问题是:即使审计员愿意做这种解析,关键的程序事实(谁攻击了谁的哪一步、攻击有没有被回应、修订是否真的解决了攻击)在自由文本中<strong>永远是隐含的</strong>——它们没有规范的账本形式,而是必须从修辞中重建。这种重建本身又会被重建者的 AI 助手包装,产生 §1.1 描述的那种修辞性失真。</p>
+<h3 id="s-1-3">1.3 三种结构性问题</h3>
+<p>对话驱动的多智能体系统中反复出现三种结构性问题,链心的设计选择都是对它们的回应。</p>
+<p><strong>问题一:关切混淆。</strong> 一条对话消息同时携带<strong>内容</strong>(被论证的命题)与<strong>协调</strong>(暗示谁该接下来说话、讨论是否继续、之前的论点如何被概括)。事后审计要看清”哪些命题被攻击了”,必须把同一段文字解析两遍——一遍读内容、一遍读协调线索——而二者之间没有规范化的边界。</p>
+<p><strong>问题二:多智能体压力下的迎合(sycophancy)。</strong> 经过人类反馈训练的语言模型在面对多数信号时倾向于向多数对齐(Pérez et al. 2022)。把这扩展到多智能体场景是构造性的:当一个智能体面对若干同伴时,它会倾向于附和。一份自由对话<strong>无法区分</strong>”该智能体同意是因为证据说服了它”与”该智能体同意是因为这是礼貌的做法”。</p>
+<p><strong>问题三:跨模型置信度不是同一种量。</strong> 来自不同模型家族的智能体各自给出的置信度数字基于不同的训练分布与不同的 RLHF 流程。把它们当作可通约的量来投票、加权或计算熵,是一个<strong>类型错误</strong>(Sela 2026)。</p>
+<h3 id="s-1-4">1.4 工程驱动理论的方法论自觉</h3>
+<p>本文描述的协议是<strong>被实验失败逼出来的</strong>,不是从理论框架推导出来的。这是一个值得在论文开头就承认的方法论事实。</p>
+<p>v2 早期版本使用六熵阈值投票作为终止判据。在微生物组因果性问题上,该方案在第 144 轮才收敛——讨论早已稳定,信号仍在阈值附近振荡。这一失效触发了从 v3(符号化收敛)→ v4(观察者架构)→ v5(审查乘数)→ v5.1(汉明加权 + 拓扑否决 + 证据闸 + 命题闸)的连续重写。每一次架构迭代都是对一个具体观测到的失效模式的回应,不是预先规划的演进路线。</p>
+<p>这种”工程驱动理论”(engineering-driven theory)的研究方法在 AI 文献中并不主流——多数论文是 theory-down 的:先有理论框架,再做实验验证。本工作是 engineering-up 的:先观察失效,再倒推理论根据。这意味着:</p>
+<ul><li>论文中引用的理论文献(Popper、Peirce、Habermas、Shannon、Lamport 等)<strong>不是设计灵感</strong>,而是<strong>事后发现的母学科归宿</strong>——代码已经在做某件事,后来才认出”这件事在 XXX 学科里叫 YYY”。
+</li><li>这反而提高了论文主张的可信度。如果协议设计每一步都从某个理论框架推导,读者有理由怀疑选择性论证;但如果协议是被失败逼出来的,然后<strong>独立地</strong>与多个学科的成熟概念吻合,这种吻合本身是非平凡的证据。
+</li></ul>
+<p>本文据此承担两层任务:<strong>第一层是描述 v5.1 实际做的事</strong>(代码层、机制层),<strong>第二层是把这些工程选择归位到它们在学科地图上的位置</strong>——程序认识论(§3)、控制论与信息论(§5)、对抗式制度设计(§3 末尾、§6)、分布式共识(§6)。</p>
+<h3 id="s-1-5">1.5 贡献清单</h3>
+<ol><li><strong>三层分离架构</strong>(证据层、内容层、协调层),通过结构化对象而非自然语言通信。<strong>[CODE]</strong> <em>(</em><em><code>chain_centric/layers/</code></em><em>)</em>
+</li><li><strong>四动作协议语法</strong>,<strong>没有”agree”原语</strong>;希望与他人立场对齐的智能体只能选择(a)发布一条复用相同证据的链(在 α 上低)或(b)<code>pass</code>(被记录为沉默)。解析器拒绝任何”I agree”形式的输入。<strong>[CODE]</strong>
+</li><li><strong>协调层全部从可观测行为计算</strong>——α、U、7 项行为熵、H_sym 观察器——<strong>循环中没有任何环节读取智能体自报的置信度</strong>。<strong>[CODE]</strong>
+</li><li><strong>可观测认知空间扩张的五维结构</strong> + <strong>测量保护层</strong>:输入扩张(证据闸)、产物扩张(命题闸 + H_sym)、检验密度扩张(审查乘数)、检验结构扩张(拓扑否决)+ 汉明加权(测量噪声保护)。仅当所有维度同时停止扩张,协议宣布稳定。<strong>[CODE]</strong>
+</li><li><strong>五级审计状态分类</strong>,把”零次攻击”的命题与”经攻击存活”的命题在结构上区分开——前者标记为 <code>unscrutinised</code>,后者标记为 <code>iron-clad</code> 或 <code>consensus</code>。<strong>[CODE]</strong>
+</li><li><strong>协议作为程序认识论的工程化实例</strong>——把工程选择映射到 Popper、Peirce、Habermas、Rawls 程序正义的具体功能上,使每个机制有学科出处。
+</li><li><strong>14 次实证运行</strong>,包括 12 次 v5.1 科学问题运行 + 1 次 v2 阈值投票基线 + 1 次”系统给自己写论文”的元实验。<strong>[DATA]</strong>
+</li><li><strong>作者本人的协议必要性审计案例</strong>(§1.1 已开篇,§7.6 详述):一份此前未保存于学术记录的、关于协议设计者本人记忆与 AI 总结的对照,作为协议存在意义的最直接证据。
+</li></ol>
+<h2 id="s-2">2 必要性:为什么 AI 时代需要程序性审计</h2>
+<p>本节回答一个 normative 问题:<strong>为什么这件事现在必须做?</strong> 不是为什么链心好,是为什么”程序性审计”作为一类工具在 AI 时代是必需的。</p>
+<h3 id="s-2-1">2.1 信息圈中的可追责性问题</h3>
+<p>Floridi(2014)在《第四次革命》中提出:计算技术正在把人类从”知识匮乏的物种”变成”信息圈中的代理人”。这一转变的一个结果是,知识生产的核心问题从”如何产出更多答案”转移到<strong>“如何验证答案的来历”</strong>。在前 AI 时代,一个论断的来历追溯到具体的人类作者、具体的实验、具体的审议过程;在 AI 时代,论断可能由一个无法被审计的语言模型在数秒内产出,审计链条断在这里。</p>
+<p>链心要解决的就是这一断点:把”答案形成的程序”做成一个<strong>可审计的对象</strong>,而不是把它隐藏在黑盒推理中。</p>
+<h3 id="s-2-2">2.2 知识的程序合法性</h3>
+<p>Goldman(1999)的社会认识论提出了一个直接相关的命题:<strong>知识不是私人产物,是社会程序的产物;一个程序的认知合法性来自它的结构,不来自它的产物对错</strong>。这个命题的逆否表述是:<strong>没有程序的真理主张不构成知识</strong>——一个论断,如果不能被追溯到一个可被外部审视的程序,无论它本身是否为真,都不具备认知合法性。</p>
+<p>Merton(1973)在《科学社会学》中进一步把”科学共同体的程序合法性”具体化为四条规范——CUDOS: - <strong>Communalism</strong>(共有性):知识属于共同体,不是私产 - <strong>Universalism</strong>(普适性):验证标准独立于来源 - <strong>Disinterestedness</strong>(无私利性):不为个人利益歪曲 - <strong>Organized Skepticism</strong>(有组织的怀疑):每个主张必须经过批判性审视</p>
+<p>链心的设计与这四条规范一一对应:共享证据池(共有性)、解析器对所有 agent 一视同仁(普适性)、协调层不由任何 agent 控制(无私利性)、协议要求每条链可被攻击(有组织的怀疑)。这不是工程师巧合,而是当一个项目认真地要解决”多 agent 推理的可信度”问题时,必然会重新发明 Merton 已经描述过的科学社群规范。</p>
+<h3 id="s-2-3">2.3 AI 安全语境中的可监督性</h3>
+<p>当代 AI 安全文献从另一个角度逼近同一个问题。Russell(2019)、Bengio et al.(2024)、Christiano 等人对 AI 部署的一个共同论点是:<strong>当 AI 系统进入高风险决策时,可监督性(scalable oversight)不是奢侈,是部署条件</strong>。这一论点的具体形态有多种——RLHF、Constitutional AI、debate as alignment——但它们共同假设:<strong>人类对 AI 推理过程的事后审计是可能的</strong>。</p>
+<p>如果这个假设要在多 agent 场景下成立,就需要一种结构,让”AI 群体推理过程”以外部可读的形式存在。链心的分歧地图(divergence map)是这一结构的具体实现:它不依赖某个”对齐良好”的 agent 的诚实自报,而是从协议级别的行为事件聚合而成。这件事在 AI safety 的话语里属于一个尚未被命名的子问题——<strong>多智能体认知过程的程序级可监督性</strong>。本文把这一子问题作为链心要解答的对象之一。</p>
+<h3 id="s-2-4">2.4 一个收敛论点</h3>
+<p>上述三条线(信息哲学、社会认识论、AI 安全)汇合到一句话:</p>
+<blockquote><p>当 AI 系统进入知识生产和决策的核心环节时,<strong>审计的对象不应再是答案本身,而应是答案形成的程序</strong>。</p></blockquote>
+<p>链心提出的协议是这一原则的工程化:<strong>它不告诉你哪个命题为真,它告诉你哪些命题在哪些方法论裂缝上经历了哪种程序处理</strong>。这是一个比”找到真理”更窄、但在 AI 时代更可辩护的目标。</p>
+<h2 id="s-3">3 哲学根据:程序认识论</h2>
+<h3 id="s-3-1">3.1 母概念</h3>
+<p>链心协议的设计承诺——四动作语法、无 agree 槽位、协调层运行时不作语义判断、攻击必须指向具体步骤、证据必须从公共池引用——并非工程偏好,它们对应一个学界已有的母概念:<strong>程序认识论</strong>(procedural epistemology)。</p>
+<blockquote><p>一个推理主张的合法性不来自”它是真的”,而来自”它经过了怎样的程序”。</p></blockquote>
+<p>这一立场在三条不同的学术脉络上独立出现,共同构成本协议的哲学根据。</p>
+<h3 id="s-3-2">3.2 Popper:可反驳性</h3>
+<p>Popper(1963)的核心命题是科学进步不来自证实,而来自被证伪压力下的存活。一个理论之所以可信,不是因为它是真的,而是因为它<strong>在被反复反驳的尝试中没有倒下</strong>(corroboration)。Popper 把这种”未被反驳的猜想”称为科学的实际产物——科学不产出真理,产出<strong>被审视过仍然成立的假说</strong>。</p>
+<p>链心的四动作语法是这一命题的工程对应:</p>
+<pre>publish_chain   →   提出猜想(conjecture)
+attack          →   反驳(refutation)
+revise_chain    →   修订(correction in light of refutation)
+pass            →   退出竞争(silence)</pre>
+<p>当一条链经过 N 次攻击仍存活下来,协议产出的不是”该链为真”,而是”该链是 corroborated”。这正是 Popper 立场在 LLM 群体之间的工程化。链心的五级审计标签——<code>iron-clad</code> / <code>consensus</code> / <code>contested</code> / <code>collapsed</code> / <code>unscrutinised</code>——是 corroboration 程度的离散化,而不是真值评估。</p>
+<h3 id="s-3-3">3.3 Peirce:探究共同体</h3>
+<p>Peirce(1878)比 Popper 早 60 年提出过一个更直接对应多 agent 场景的命题:<strong>真理不是个人判断,是探究共同体长期收敛的结果</strong>。一个孤立的探究者(无论多聪明)无法保证自己的认知不被自身盲点扭曲;只有当多个独立探究者在共同的探究规则下持续相互审视,认知才会朝着真理收敛——而这种收敛是<strong>渐近的</strong>,从不在有限步内被宣告完成。</p>
+<p>链心的多 agent 异构配置(至少两个不同模型供应商)+ 共享证据池 + 不允许 agent 自报置信度,是 Peirce 探究共同体的最小工程化实例:</p>
+<ul><li>多 agent 异构 → 单 LLM 训练分布偏差被结构性削弱
+</li><li>共享证据池 → 探究的共同基础(Peirce 所谓的 <em>experience in common</em>)
+</li><li>协议不主张收敛即真 → 与 Peirce 的渐近收敛立场一致
+</li></ul>
+<h3 id="s-3-4">3.4 Habermas:程序正当性</h3>
+<p>Habermas(1981)的交往理性提出了一个关于论辩何时具有合法性的程序条件,即”理想言谈情境”(<em>ideale Sprechsituation</em>):</p>
+<ol><li><strong>平等参与</strong>——每个参与者都有同等的言说机会
+</li><li><strong>无强制</strong>——参与受规则约束而非外部压力
+</li><li><strong>无操纵</strong>——参与者不通过修辞手段误导他者
+</li><li><strong>可被公开检视</strong>——论辩程序对外部审视者开放
+</li></ol>
+<p>链心协议的几个具体设计是这四个程序条件的工程对应:</p>
+<div class="tbl"><table><thead><tr><th>Habermas 条件</th><th>链心设计</th></tr></thead><tbody><tr><td>平等参与</td><td>所有 agent 同时收到 echo,各自决定是否贡献,框架不指定发言顺序</td></tr><tr><td>无强制</td><td>协调层只产出信息信号,不向 agent 发指令</td></tr><tr><td>无操纵</td><td>解析器拒绝 “I agree” / 评价性社交语言;攻击必须指向具体步骤</td></tr><tr><td>可被公开检视</td><td>整个会话以结构化账本形式存档,任何外部审计员可重读</td></tr></tbody></table></div>
+<p>Habermas 在哲学层面提出”程序正当性”这一概念时,是作为人类公共领域审议的规范理想。链心把它具体化为 LLM 协议——这是一个非平凡的转换,但目标是同一件事:<strong>让论辩程序本身成为合法性来源,而不是依赖于某个权威的判定</strong>。</p>
+<h3 id="s-3-5">3.5 Rawls:程序正义</h3>
+<p>Rawls(1971)在《正义论》§14 把程序合法性分为三类:</p>
+<ul><li><strong>完美程序正义</strong>:存在独立标准,且程序保证达到该标准(分蛋糕问题:切的人最后挑)
+</li><li><strong>不完美程序正义</strong>:存在独立标准,但没有程序能保证达到(刑事审判:目标是”无罪者不被定罪”,但程序只能逼近)
+</li><li><strong>纯粹程序正义</strong>:程序本身就是合法性来源(博彩:无独立标准,公平程序的产出即合法)
+</li></ul>
+<p>链心最贴近<strong>不完美程序正义</strong>:认识论上存在”真理”这个独立标准,但任何有限程序都不能保证达到它;然而,<strong>经过设计良好的程序的产出比未经程序的产出更值得相信</strong>。链心的窄主张——“我们不主张找到真理,我们主张产出经审视的程序记录”——正是 Rawls 这一立场的认识论版本。</p>
+<p>这一区分是论文姿态的根据。如果链心声称”完美程序正义”(协议保证产出真理),论文必然过誉;如果它声称”纯粹程序正义”(程序本身就是真理),论文沦为相对主义;说”不完美程序正义”是哲学上唯一站得住的位置。</p>
+<h3 id="s-3-6">3.6 机制设计:为什么诚实是占优策略</h3>
+<p>上面四条主要是哲学根据。还有一条是更工程化的:为什么这套机制能让 agent 的诚实贡献成为合理选择?</p>
+<p>机制设计(mechanism design)给出了形式化答案。Vickrey(1961)、Clarke(1971)、Groves(1973)的 VCG 框架研究”如何设计支付函数让参与者的占优策略是诚实揭示信息”。这个框架的一个深层洞察:<strong>如果一个机制让’迎合’比’独立判断’付出更高代价(或得到更低回报),那么独立判断在结构上是占优的</strong>。</p>
+<p>链心通过两个具体设计实现这一点:</p>
+<ol><li><strong>禁止 agree 动作 + α 计算</strong>:一个想要迎合他人的 agent 只能”发布一条复用相同证据的链”。但复用证据让 α(证据独立性)降低,该 agent 在协议视角下变得边缘——这是迎合的结构性代价。
+</li><li><strong>攻击必须指向具体步骤</strong>:一个想要无根据攻击的 agent 必须给出具体的目标步骤 + 具体的反证证据,否则解析器拒绝。这让”刷攻击”成本上升,降低无意义攻击的回报。
+</li></ol>
+<p>值得明确:这不是完整的机制设计证明——本协议没有形式化 VCG 那样的 “诚实是占优 Bayesian-Nash 均衡” 定理。但它表明协议在结构上<strong>降低了迎合的回报、提高了无根据攻击的成本</strong>——这是工程化机制设计的正确方向,完整的形式化证明留作未来工作。</p>
+<h3 id="s-3-7">3.7 程序认识论的工程化:一个统一表述</h3>
+<p>把 §3.2 - §3.6 收成一句话:</p>
+<blockquote><p>链心协议是 Popper 的可反驳性 + Peirce 的探究共同体 + Habermas 的程序正当性 + Rawls 的不完美程序正义,在 LLM 群体上的最小工程化实现。机制设计原则被用作工程约束,确保该实现的激励兼容性。</p></blockquote>
+<p>这一统一表述的价值不在于哲学装饰。它的价值在于:<strong>当协议的某个具体设计选择(例如”为什么不允许 LLM-as-judge”、“为什么攻击必须指向具体步骤”)需要被辩护时,辩护可以追溯到具体的哲学谱系,而不是工程师的偏好</strong>。这把每一个设计选择从”工程拍脑袋”提升为”程序认识论的具体技术要求”。</p>
+<p>这正是 §1.4 提到的”工程驱动理论”的成熟形态:协议是从失败中长出来的(engineering up),但它最终落到的位置在哲学谱系中是有出处的(theoretical anchoring 完成)。</p>
+<h2 id="s-4">4 协议：链心做什么</h2>
+<p>本节描述 V8 实际实现的协议。它沿用旧论文的三层结构和四动作语法，但将证据层扩展为声明级证据池。V8 的关键变化不是增加一个隐藏裁判，也不是增加一个证据筛选器，而是改变证据的最小可审计单位：从“整篇论文”下降到“论文中的具体声明”。</p>
+<h3 id="s-4-1">4.1 三层分离</h3>
+<p>Chain-Centric 由三个独立层组成。</p>
+<pre>┌────────────────────────────────────────────────────────────┐
+│  证据层 Evidence Layer                                      │
+│  - 维护会话级 EvidencePool                                  │
+│  - 支持动态证据搜索与 researcher-provided repository          │
+│  - V8 支持 paper objects with claims                         │
+│  - 不做隐藏筛选，不预判哪条证据应该被攻击                    │
+├────────────────────────────────────────────────────────────┤
+│  内容层 Content Layer                                       │
+│  - N 个异构 LLM agent                                       │
+│  - 四动作：publish_chain / attack / revise_chain / pass      │
+│  - JSON 解析器与协议验证器                                   │
+│  - 拒绝自由赞同、空链、无效证据引用                          │
+├────────────────────────────────────────────────────────────┤
+│  协调层 Coordination Layer                                  │
+│  - 纯计算，运行时零 LLM 调用                                  │
+│  - 计算 alpha、U、行为熵、H_sym、审查乘数、trust              │
+│  - 生成 focus、review targets、termination signal             │
+│  - 输出审计分区，不输出语义裁决                              │
+└────────────────────────────────────────────────────────────┘</pre>
+<p>证据层把 <code>EvidenceItem</code> 写入池子；内容层把 <code>ReasoningChain</code> 和 <code>AttackFragment</code> 写入账本；协调层只读这些对象并计算状态。协调层不告诉 agent “你应该相信谁”，只告诉系统当前哪些 claim 活跃、哪些 chain 未审查、哪些攻击关系仍在扩张、系统是否稳定。</p>
+<h3 id="s-4-2">4.2 V8 声明级证据池</h3>
+<p>旧版本可以把证据作为平铺条目放入池子：</p>
+<pre class="wrap">{"ref": "study_x", "title": "Study X", "detail": "specific evidence", "source": "clinical_trial"}</pre>
+<p>V8 增加了 paper objects with claims：</p>
+<pre>{
+  "ref": "lesne_2006_nature_ab56",
+  "title": "Lesne et al. 2006 reports Aβ\*56 in Tg2576 mice",
+  "source": "primary_article",
+  "claims": [
+    {"title": "The paper reports a 56-kDa soluble amyloid-beta assembly", "detail": "..."},
+    {"title": "The model organism is a transgenic mouse line", "detail": "..."}
+  ]
+}</pre>
+<p>系统展开为：</p>
+<pre>lesne_2006_nature_ab56/claim_1
+lesne_2006_nature_ab56/claim_2</pre>
+<p>每个 claim 都成为独立 <code>EvidenceItem</code>。这意味着 agent 可以只攻击 <code>claim_1</code> 的数据可靠性，也可以只引用 <code>claim_2</code> 来指出模型范围限制。它不需要把整篇论文作为一个不可分割对象处理。</p>
+<p>这一设计是 V8 相比旧论文最重要的工程进步。学术争议很少是“整篇论文全真或全假”，而往往是某张图、某个样本、某个模型、某个外推、某个治疗解释出了问题。声明级证据池让系统能表达局部可靠性，而不是把局部撤稿误放大成整个理论倒塌。</p>
+<h3 id="s-4-3">4.3 四动作语法</h3>
+<p>内容层 agent 每轮只能输出四种动作。</p>
+<ul><li><code>publish_chain</code>：发布一条推理链。链由多个 step 组成，每步包含断言、证据引用和依赖关系。
+</li><li><code>attack</code>：攻击某个 agent 的某条链的某一步。攻击必须有 target agent、chain_id、step_id。
+</li><li><code>revise_chain</code>：修订自己的链，生成新版本，旧版本保留。
+</li><li><code>pass</code>：本轮没有新的结构化贡献。沉默被记录，但不被解释成同意。
+</li></ul>
+<p>协议没有 <code>agree</code> 动作。一个 agent 如果想支持某个立场，必须发布自己的证据链并接受攻击；如果没有新东西，就 pass。这样，“赞同”不能以零成本社交语言出现，而必须变成有证据脚印的行为。</p>
+<h3 id="s-4-4">4.4 核心数据结构</h3>
+<p><code>EvidenceItem</code>：</p>
+<pre class="wrap">ref, evidence_id, title, detail, digest, source, verification, created_round</pre>
+<p><code>ReasoningChain</code>：</p>
+<pre>chain_id, claim_id, agent, version, supersedes, status,
+steps[{step_id, assertion, evidence[], depends_on[]}],
+reviewed_by[], attacks_received, attacks_survived, created_at, last_modified</pre>
+<p><code>AttackFragment</code>：</p>
+<pre>attack_id, attacker, target_agent, target_chain_id, target_step_id,
+target_chain_version, claim, evidence[], depth, parent_attack, round, status</pre>
+<p><code>Claim</code>：</p>
+<pre>claim_id, description, chains, attacks, evidence_refs,
+alpha, U, state, created_round, last_active_round</pre>
+<p>这些对象共同构成程序账本。审计者不是阅读一段对话，而是读取“证据—链条—攻击—修订—状态”的谱系。</p>
+<h3 id="s-4-5">4.5 审计分区的术语修正</h3>
+<p>旧代码中存在 <code>TRUE_CONSENSUS</code>，旧报告中存在 <code>consensus zone</code>。这两个名字容易误导。它们不表示“所有 agent 投票一致”，也不表示“学界共识”。在本文中：</p>
+<ul><li><code>TRUE_CONSENSUS</code> 解释为“高 alpha、低活动状态”；
+</li><li><code>consensus zone</code> 解释为“审查后未击穿区”；
+</li><li><code>iron-clad</code> 解释为“强未击穿”；
+</li><li><code>unscrutinised</code> 解释为“未审查”。
+</li></ul>
+<p>这不是修辞问题，而是协议忠实性问题。Chain-Centric 的目标不是制造共识，而是区分：未审查、审查后未击穿、争议、崩塌。</p>
+<h2 id="s-5">5 协调层公式：可观测认知空间如何被计算</h2>
+<p>旧论文已经提出母概念：Chain-Centric 不声称穷尽真实认知空间 K(Q)，只观察“协议下可观测的认知空间是否仍在扩张”。V8 沿用这一原则，但本文把公式完整写入正文，而不是把数学放在附录里。原因很简单：如果一个协议声称自己可审计，那么它自己的指标也必须可审计。</p>
+<h3 id="s-5-1">5.1 证据重叠与 alpha</h3>
+<p>对 claim (i)，令 (E_i) 为它引用的证据 ref 集合。两个 claim 的证据重叠用 Jaccard：</p>
+<p class="formula lossy">J(E_i,E_j)=</p>
+<p>V8 代码中的证据独立性为：</p>
+<p class="formula lossy">_i=</p>
+<p>其中 (n) 是当前 claim 总数。(_i) 越高，说明 claim (i) 的证据集合与其他 claim 重叠越少。它不是正确率，也不是置信度。它只回答一个程序性问题：这条主张是否带来了相对独立的证据路径？</p>
+<p>旧论文曾写“验证权重进入 alpha”。但 V8 当前提交的 <code>compute_alpha</code> 实际只按 evidence ref 的 Jaccard 重叠计算；<code>verification</code> 等级存在于证据对象和 agent 提示中，但没有直接乘入 <code>compute_alpha</code>。如果未来要实现旧论文的更强口径，可以写成：</p>
+<p class="formula lossy">_i^{*}=_i(E_i)</p>
+<p>其中 ((E_i)) 是 claim (i) 所引用证据的平均验证权重。本文必须把这个差异说清楚，否则论文会把设计意图误写成当前代码事实。</p>
+<h3 id="s-5-2">5.2 活动信号 U</h3>
+<p>对每条 claim，V8 在最近两轮窗口内计算：</p>
+<p class="formula lossy">U_i=[moved_i]+[filled_i]+[silent_i]</p>
+<p>其中：</p>
+<ul><li>(moved_i=1)：该 claim 相关链在最近窗口内发生修订；
+</li><li>(filled_i=1)：该 claim 相关链引用了最近新增证据；
+</li><li>(silent_i=1)：仍有 agent 尚未参与该 claim。
+</li></ul>
+<p>因此 (U_i{0,1,2,3})。U 不是质量指标，而是活动指标。一个高 U claim 可能是有价值争议，也可能是混乱争议；它只是说明系统仍在围绕该 claim 运动。</p>
+<h3 id="s-5-3">5.3 ChainState 四象限</h3>
+<p>协调层先计算：</p>
+<p class="formula lossy">e_i=_iU_i</p>
+<p>然后用两个阈值分象限：(e_i=1.5) 和 (_i=0.6)。</p>
+<div class="tbl"><table><thead><tr><th>条件</th><th>代码状态名</th><th>本文解释</th></tr></thead><tbody><tr><td>(e_i,_i)</td><td><code>RICH_DISAGREEMENT</code></td><td>高独立、高活动：丰富争议</td></tr><tr><td>(e_i,_i&lt;0.6)</td><td><code>EVIDENCE_STARVED</code></td><td>低独立、高活动：证据饥饿</td></tr><tr><td>(e_i&lt;1.5,_i)</td><td><code>TRUE_CONSENSUS</code></td><td>高独立、低活动：暂稳，不是投票共识</td></tr><tr><td>(e_i&lt;1.5,_i&lt;0.6)</td><td><code>FRAGILE_CONSENSUS</code></td><td>低独立、低活动：脆弱暂稳</td></tr></tbody></table></div>
+<p>这里的术语修正很重要。<code>TRUE_CONSENSUS</code> 只是枚举名，不能作为论文结论里的“真共识”。</p>
+<h3 id="s-5-4">5.4 Focus 排序</h3>
+<p>系统每轮最多挑选若干 claim 作为 focus。基础排序为：</p>
+<p class="formula lossy">rank_i=_iU_i+bonus(state_i)</p>
+<p>其中 <code>RICH_DISAGREEMENT</code> 加 0.3，<code>FRAGILE_CONSENSUS</code> 加 0.2，<code>TRUE_CONSENSUS</code> 减 0.3。只考虑 (U_i&gt;0) 且 (_i&gt;0.3) 的 claim，默认最多取 3 个。这个排序不是告诉 agent “你必须攻击谁”，而是把仍有运动、仍有证据独立性的区域放到 echo 的焦点位置。</p>
+<h3 id="s-5-5">5.5 七项行为熵</h3>
+<p>V8 的行为熵不是七个独立裁判，而是 H_sym 的输入空间。它们把账本状态投影到多个维度。</p>
+<p><strong>证据分布熵：</strong></p>
+<p class="formula lossy">H_{evidence}=-_c p_cp_c,p_c=</p>
+<p>它观察证据引用是否集中在少数 claim。</p>
+<p><strong>攻击分布多样性：</strong></p>
+<p class="formula lossy">S_{attack}=1-_c q_c^2,q_c=</p>
+<p>它观察攻击是否集中在少数 claim，还是分散到多个 claim。</p>
+<p><strong>参与熵：</strong></p>
+<p class="formula lossy">H_{part}=-_a _k</p>
+<p>其中 (n_a) 是 agent (a) 的贡献次数，(N) 是总贡献次数，(k) 是 agent 数。它衡量贡献是否由多个 agent 分担。</p>
+<p><strong>链结构向量：</strong></p>
+<p class="formula lossy">v(chain)=(depth,branch,density,attacks_received)</p>
+<p>其中 depth 是步骤数，branch 是平均依赖数，density 是每步平均证据数。系统先把链结构向量归一化，再用 KMeans 聚类，(K=(|chains|,5))。链结构 Rényi 碰撞熵为：</p>
+<p class="formula lossy">H_{chain}=-_2_g p_g^2</p>
+<p>它衡量推理链结构是否仍然多样。</p>
+<p><strong>最大转移熵：</strong></p>
+<p class="formula lossy">T_{max}=_{ab}|TE(ab)|</p>
+<p>它用 agent 的二值贡献历史近似估计 agent 之间是否有影响流。V8 在前 20 轮历史不足时不正常分箱，使用 <code>Tm-</code> 标记。</p>
+<p><strong>剩余活动熵：</strong></p>
+<p class="formula lossy">H_{remaining}=_{active c}_c</p>
+<p>如果 claim 最近 3 轮仍活跃，则贡献 (_c)，否则贡献 0。它估计当前仍有多少高 alpha 活动空间。</p>
+<p><strong>语义新颖度：</strong></p>
+<p class="formula lossy">S_{novel}=</p>
+<p>系统用新链与旧链断言词集合的 Jaccard 相似度近似语义重复。若最大相似度低于 0.85，则视为有新颖性。(S_{novel}) 编码为 <code>Sn枯</code>，否则为 <code>Sn活</code>。</p>
+<h3 id="s-5-6">5.6 H_sym 符号收敛</h3>
+<p>H_sym 的关键不是某个熵值低于阈值，而是多维状态是否还在产生新符号。系统先在观察窗口内收集每个指标的最小值和最大值，然后锁定分箱边界。</p>
+<p>对三分箱指标：</p>
+<p class="formula lossy">b_1=v_{min}+(v_{max}-v_{min}),b_2=v_{min}+(v_{max}-v_{min})</p>
+<p>对二分箱指标：</p>
+<p class="formula lossy">b=v_{min}+(v_{max}-v_{min})</p>
+<p>每轮状态被编码为：</p>
+<p class="formula lossy">symbol=He|Sa|Hp|Hc|Tm|Hr|Sn</p>
+<p>如果出现新 symbol，说明协议下可观测状态空间仍在扩张。如果连续多轮没有新 symbol，才可能稳定。</p>
+<h3 id="s-5-7">5.7 汉明加权部分重置</h3>
+<p>朴素规则是“出现新 symbol 就把收敛计数归零”。但这会把一维轻微波动当成全状态变化。V5.1/V8 使用汉明距离：</p>
+<p class="formula lossy">d_H(s_{new},s)=#{p:s_{new}[p]s[p]}</p>
+<p>新颖度为：</p>
+<p class="formula lossy">novelty=</p>
+<p>计数器更新为：</p>
+<p class="formula lossy">countercounter(1-novelty)</p>
+<p>如果七个维度只变一个，计数器保留约 (6/7)；如果全部维度改变，计数器归零。这是测量保护层，防止符号观察器被微小噪声拖死。</p>
+<h3 id="s-5-8">5.8 证据闸、命题闸与拓扑否决</h3>
+<p>H_sym 不是唯一条件。V8 还要求：</p>
+<p class="formula lossy">pool_size_t=pool_size_{t-1}</p>
+<p>即证据池没有新增；以及：</p>
+<p class="formula lossy">claim_count_t=claim_count_{t-1}</p>
+<p>即 claim 集合没有新增。如果还有新证据或新命题，系统不能终止。</p>
+<p>攻击拓扑否决检查最近窗口中的不同 ((attacker,target)) 对。如果攻击关系过于单一，例如只剩两个 agent 互打，那么符号稳定可能只是局部循环，不是群体审查完成。旧实现中使用“最近 4 轮不同攻击对至少 3 个，或当前轮数不超过 20”的规则。</p>
+<h3 id="s-5-9">5.9 审查乘数与 trust</h3>
+<p>审查乘数解决一个核心问题：未被攻击不能等于可信。</p>
+<p class="formula lossy">scrutiny_i=1-e^{-attacks_i},</p>
+<p>当 (attacks_i=0)，(scrutiny_i=0)。这意味着零攻击 claim 即使 alpha 很高，也不能进入审查后未击穿区。</p>
+<p>链条存活率为：</p>
+<p class="formula lossy">survival_i=</p>
+<p>最终展示排序用的程序性 trust 为：</p>
+<p class="formula lossy">trust_i=_i(1-e^{-1.5attacks_i})</p>
+<p>trust 仍然不是正确率。它只表示：这条 claim 有相对独立的证据、仍有链条存活，并且经历过一定审查。</p>
+<h3 id="s-5-10">5.10 审计分区</h3>
+<p>最终输出应分为四区：</p>
+<div class="tbl"><table><thead><tr><th>区域</th><th>条件</th><th>含义</th></tr></thead><tbody><tr><td>未审查区</td><td>(attacks=0)</td><td>没有人攻击过，不能视为可靠</td></tr><tr><td>强未击穿</td><td>(&gt;0.7, attacks, survival&gt;0.5)</td><td>多次攻击后仍存活</td></tr><tr><td>弱未击穿</td><td>(&gt;0.7, attacks&lt;5, survival&gt;0.5)</td><td>少量攻击后存活，不等于共识</td></tr><tr><td>争议区</td><td>(&gt;0.3) 且不满足存活区条件</td><td>仍有证据独立性，但链条或方法论未稳定</td></tr><tr><td>崩塌区</td><td>低 alpha 或链条 BROKEN</td><td>被攻击击穿或证据不足</td></tr></tbody></table></div>
+<p>这套分区是 Chain-Centric 的最终产物。系统不是输出“答案”，而是输出“主张经历程序后的状态”。</p>
+<h2 id="s-6">6 工程谱系:链心在已有架构中的位置</h2>
+<p>§3 给出了链心的哲学根据,§5 给出了协调层的机制结构。本节回答一个互补问题:<strong>链心在已有的多 agent / 论辩 / 分布式系统工程谱系里,处于什么位置?</strong></p>
+<p>本节的写法刻意克制——每个谱系只给出一段:这个谱系在做什么 + 链心在做什么 + 二者的功能差异。目的不是把链心包装成多个谱系的并集,而是说明:虽然链心和这些已有谱系有结构相似,但<strong>它们处理的对象不同</strong>。</p>
+<h3 id="s-6-1">6.1 黑板架构(HEARSAY-II 一脉)</h3>
+<p>Erman et al.(1980)的 HEARSAY-II 引入了<strong>黑板架构</strong>:多个独立的”知识源”(knowledge sources)向一块共享的黑板写入假设,黑板调度器决定下一步读哪个假设。链心的共享账本(ReasoningChain + AttackFragment)在结构上是黑板的一个变种。</p>
+<blockquote><p><strong>黑板架构处理任务执行状态的并行计算;链心处理推理声明在攻击压力下的程序性存活</strong>。</p></blockquote>
+<p>差异在动作语法:HEARSAY-II 的知识源向黑板写”假设”;链心的 agent 向账本写四种<strong>协议级动作</strong>(发布/攻击/修订/沉默),每种动作有结构性的认识论功能(§3.2 Popper 对应)。这一收紧让链心的账本不只是数据,是程序事件的规范化记录。</p>
+<h3 id="s-6-2">6.2 对话博弈(Walton 一脉)</h3>
+<p>Walton(1995)把对话分为六类典型形态:persuasion、inquiry、negotiation、deliberation、information-seeking、eristic。每类对话有不同的合法动作语法、目标、退出条件。链心的协议<strong>最贴近 persuasion + inquiry 的混合</strong>——agent 必须为自己的主张提供证据(persuasion),且共享证据池作为公共探究基础(inquiry)。</p>
+<blockquote><p><strong>Walton 对话博弈对人类自然论辩的描述性分类;链心对一种特定对话类型的工程化、限制性实现</strong>。</p></blockquote>
+<p>差异在规范性:Walton 描述人类如何对话,链心规定 LLM 必须如何对话。后者是更强的承诺——它把对话从行为变成协议。</p>
+<h3 id="s-6-3">6.3 结构化论辩(ArgMed / ABA 一脉)</h3>
+<p>Hong et al.(2024)的 ArgMed-Agents、Cakar &amp; Kristensson(2025)的 Bipolar Assumption-Based Argumentation,以及形式论辩理论的整体传承,使用<strong>论辩图</strong>(argument graphs)作为推理结构:节点是论点,边是支持/攻击关系。系统通过求解器计算 admissible / preferred / grounded extensions。</p>
+<blockquote><p><strong>结构化论辩计算论辩语义的形式化扩展;链心仅维护攻击-修订谱系而不计算语义扩展</strong>。</p></blockquote>
+<p>差异在计算承诺:链心刻意<strong>不计算</strong>论辩语义——不解 admissible extensions,不评估 grounded set,不输出”哪些论点合理”。这一回避是设计选择:任何”哪些论点合理”的判定都引入了外部判断者(求解器),违反链心的”协调层不作语义判断”原则。链心的产出是一份原始的攻击-存活记录,留给外部审计员决定如何用。</p>
+<h3 id="s-6-4">6.4 分布式审查后未击穿(Lamport 一脉)</h3>
+<p>Lamport(1982)的 Byzantine Generals Problem 提出了一类核心问题:<strong>当部分节点不可信时,系统如何在剩余节点之间达成一致?</strong> 后续的 Paxos(Lamport 1998)、PBFT(Castro &amp; Liskov 1999)、Raft(Ongaro &amp; Ousterhout 2014)是这一问题的不同工程解。链心面对一个结构上类似的问题:<strong>当 agent 可能有训练数据偏差或 prompt 注入时,系统如何在它们之间产出可信的认知审查后未击穿?</strong></p>
+<blockquote><p><strong>分布式审查后未击穿在不可信节点之间达成数据状态一致;链心在认知盲点节点之间产出认知</strong>结构<strong>记录,</strong>不<strong>追求达成一致</strong>。</p></blockquote>
+<p>差异在目标:Byzantine fault tolerance 要求”诚实节点最终在数据值上达成一致”;链心<strong>不</strong>追求一致——它接受永久分歧作为合法输出,前提是分歧的程序根据被外部可见。攻击深度上限 2 这一约束,在结构上类似 BFT 的”轮数下界”,但目的相反——BFT 用轮数下界保证一致;链心用深度上界保证不无限分叉,但允许结果保持分歧。</p>
+<h3 id="s-6-5">6.5 证明助手(Coq / Lean 一脉)</h3>
+<p>Coq(de Bruijn 1968 起源,现代形态 INRIA 1989)、Lean(de Moura et al. 2015)是基于 LCF 范式的证明助手。它们的核心承诺:<strong>每一个证明步骤被一个微小的可信内核(kernel)检查</strong>,任何一步通不过检查就拒绝。这与链心的 attack must target a specific step 在结构上同构——攻击不能针对结论,只能针对具体步骤。</p>
+<blockquote><p><strong>证明助手对形式数学证明做步级检查;链心对自然语言推理链做步级对抗式审视</strong>。</p></blockquote>
+<p>差异在严格性:Coq 的步级检查是<strong>形式的</strong>(类型检查,无错性接近 100%);链心的步级攻击是<strong>修辞的</strong>(基于 LLM 的论证,无错性远低)。但二者共享一个深层原则:<strong>任何复杂论证的可信度,都来自其步骤级可审视性</strong>。链心可被理解为”步级对抗审视范式在自然语言推理链上的非严格扩展”。</p>
+<h3 id="s-6-6">6.6 Defense in Depth(安全工程谱系)</h3>
+<p>Defense in depth 是安全工程的一个范式——<strong>多层独立防御,任何单层失效不致全面崩塌</strong>。链心的协议层(parser 拒绝非法语法)+ 协议层 2(协调层不读自报置信度)+ 终止层(五维扩张 + 测量保护)构成同样的多层结构。</p>
+<blockquote><p><strong>Defense in depth 防止对手利用单点漏洞渗透系统;链心防止单一观测维度的失效让协议错误宣布稳定</strong>。</p></blockquote>
+<p>差异在威胁模型:Defense in depth 假设有外部对手主动攻击;链心假设的是 agent 的偏差和共同盲点(无主动恶意,但有结构性失误)。但两者共享设计原则:不依赖任何单一机制的正确性。</p>
+<h3 id="s-6-7">6.7 章末总结:链心的独占空间</h3>
+<p>把六个谱系合起来,链心的独占空间可以这样描述:</p>
+<div class="tbl"><table><thead><tr><th>谱系</th><th>处理对象</th><th>链心的差异</th></tr></thead><tbody><tr><td>黑板架构</td><td>任务执行</td><td>处理推理声明的程序性存活</td></tr><tr><td>对话博弈</td><td>描述性分类</td><td>工程化为强制协议</td></tr><tr><td>结构化论辩</td><td>论辩语义计算</td><td>不计算语义,只维护谱系</td></tr><tr><td>分布式审查后未击穿</td><td>数据值一致</td><td>接受永久分歧为合法输出</td></tr><tr><td>证明助手</td><td>形式证明步级</td><td>自然语言推理步级对抗</td></tr><tr><td>Defense in depth</td><td>抗外部对手</td><td>抗内部盲点</td></tr></tbody></table></div>
+<p>链心<strong>不属于</strong>上述任何单一谱系——它处理的对象是这些谱系都没处理过的东西:<strong>LLM 多 agent 之间在程序约束下的认知声明存活记录</strong>。这不是说链心比这些谱系都好,而是说它的位置是空的。</p>
+<h2 id="s-7">7 实证轨迹</h2>
+<p>本节报告作者实验存档中 14 次运行的结果。所有 v5.1 运行均使用相同的五 agent 异构组合(本文实验为 DeepSeek-Chat、GLM-4-Plus、MiMo-V2-Flash、Doubao Seed-2.0-Pro、Qwen-Plus;部分早期运行使用 Claude Sonnet 4 替代 DeepSeek)。<strong>[DATA]</strong></p>
+<p>这些轨迹<strong>不是</strong>”在标准化复现实验中对比外部基线”意义上的 benchmark。它们是操作性证据:协议通过可观测的状态稳定化而终止,并非依靠强制轮次预算耗尽;而且分歧地图的输出形态对问题本身的认知状况是<strong>敏感</strong>的。</p>
+<h3 id="s-7-1">7.1 跨问题汇总(v5.1)</h3>
+<p>下表汇总 12 次 v5.1 科学问题运行 + 3 次自审计运行的关键参数。所有运行均通过 <code>SYSTEM_STATE_STABILIZED</code> 终止。<strong>[DATA]</strong></p>
+<div class="tbl"><table><thead><tr><th>问题</th><th>轮数</th><th>链数</th><th>命题数</th><th>攻击数</th><th>证据池</th></tr></thead><tbody><tr><td>微生物组(初次)</td><td>42</td><td>63</td><td>27</td><td>105</td><td>25</td></tr><tr><td>微生物组(命题级证据)</td><td>41</td><td>73</td><td>34</td><td>79</td><td>45</td></tr><tr><td>微生物组(最终运行)</td><td>32</td><td>41</td><td>16</td><td>65</td><td>51</td></tr><tr><td>阿尔茨海默病</td><td>38</td><td>56</td><td>17</td><td>70</td><td>53</td></tr><tr><td>阿尔茨海默病(GUI App 跑)</td><td>29</td><td>46</td><td>16</td><td>64</td><td>57</td></tr><tr><td>睡眠功能</td><td>31</td><td>43</td><td>19</td><td>85</td><td>36</td></tr><tr><td>抑郁症(5-羟色胺假说)</td><td>50</td><td>53</td><td>20</td><td>125</td><td>80</td></tr><tr><td>间歇性断食(整合模式)</td><td>72</td><td>131</td><td>47</td><td>145</td><td>25</td></tr><tr><td>恐龙灭绝</td><td>59</td><td>110</td><td>45</td><td>143</td><td>18</td></tr><tr><td>费米悖论</td><td>42</td><td>70</td><td>30</td><td>91</td><td>46</td></tr><tr><td>肥胖(开放生成)</td><td>44</td><td>59</td><td>22</td><td>114</td><td>61</td></tr><tr><td>自审计 v1</td><td>21</td><td>24</td><td>14</td><td>46</td><td>29</td></tr><tr><td>自审计 v2</td><td>44</td><td>36</td><td>23</td><td>64</td><td>23</td></tr><tr><td>自比较(natural)</td><td>33</td><td>43</td><td>23</td><td>99</td><td>22</td></tr></tbody></table></div>
+<p><strong>从表格中可观察到</strong>:所有运行通过 H_sym 稳定化而终止,没有任何一次撞上固定轮次预算。轮数集中在 21 到 72 之间,与问题复杂度合理相关。攻击密度(攻击/轮)从 1.4(费米早期)到 3.0(肥胖开放、间歇性断食)不等,反映不同问题的对抗性强度差异。证据池规模从 18(恐龙灭绝,问题领域文献集中)到 80(抑郁症,争议丰富)不等。</p>
+<h3 id="s-7-2">7.2 v2 阈值投票基线对比</h3>
+<p>微生物组问题也在 v2 阈值投票原型上运行过,作为受控基线。这一运行是触发 v5.1 重写的起点。<strong>[DATA — </strong><strong><code>exp_microbiome_nolimit.json</code></strong><strong>]</strong></p>
+<div class="tbl"><table><thead><tr><th></th><th>v2(微生物组)</th><th>v5.1(微生物组最终运行)</th></tr></thead><tbody><tr><td>轮数</td><td>144</td><td>32</td></tr><tr><td>链数</td><td>100</td><td>41</td></tr><tr><td>攻击数</td><td>203</td><td>65</td></tr><tr><td>命题数</td><td>21</td><td>16</td></tr><tr><td>证据池</td><td>84</td><td>51</td></tr><tr><td>Token(输入)</td><td>1,508,951</td><td>708,677</td></tr><tr><td>Token(输出)</td><td>228,810</td><td>77,433</td></tr><tr><td>Agent 调用</td><td>608</td><td>199</td></tr><tr><td>终止原因</td><td>ENTROPY_CONVERGED</td><td>SYSTEM_STATE_STABILIZED</td></tr></tbody></table></div>
+<p>v2 用了 <strong>4.5 倍</strong>的轮数、<strong>3 倍</strong>的 agent 调用、<strong>两倍</strong>的输入 token 才收敛。这一成本差异不是渐进优化,是判据类型转换(阈值投票 → 符号空间观察,§5.7)带来的整体改写。</p>
+<p>终止状态分布也有质的差别:v2 把全部 21 条命题贴上同一个 <code>TRUE_CONSENSUS</code> 标签——包括从未被攻击的;v5.1 通过审查乘数(§5.9)把”有攻击”的命题与”无攻击”的命题在结构上分开,后者标记为 <code>unscrutinised</code> 而非 <code>consensus</code>。这是程序正义层面的修复(§3.5)。</p>
+<h3 id="s-7-3">7.3 阿尔茨海默病:方法论裂缝的显式识别</h3>
+<p><code>exp_v5.1_alzheimers_5ag.json</code>:38 轮,70 攻击,17 命题。<strong>[DATA]</strong></p>
+<p>这一运行的最终分歧地图有一个值得专门描述的形态:<strong>14 条不同的排名变体全部以”存活率 0%“崩塌,且崩塌都集中在同一个方法论裂缝</strong>——<code>germ-free mouse limitations</code> / <code>genetic evidence limitations</code>。</p>
+<p>具体内容可压缩为下表。这里不把原始 <code>divergence_map</code> 的符号化文本整段嵌入正文,因为 Word 排版会把审计符号、缩进和竖线挤压在一起;论文正文只保留其审计含义。</p>
+<div class="tbl"><table><thead><tr><th>项目</th><th>审计含义</th></tr></thead><tbody><tr><td>所属区域</td><td>争议区:排名取决于方法论前提</td></tr><tr><td>核心分歧</td><td><code>Genetic evidence limitations</code>,被攻击 4 次</td></tr><tr><td>分歧性质</td><td>不能只靠证据数量解决,来自方法论立场差异</td></tr><tr><td>代表链 1</td><td>trust=0.48, alpha=0.95,存活率=0%,被攻击 5 次</td></tr><tr><td>代表链 2</td><td>trust=0.45, alpha=0.90,存活率=0%,被攻击 12 次</td></tr><tr><td>总体形态</td><td>共 14 条排名变体,全部 0% 存活</td></tr></tbody></table></div>
+<p>这一形态比”协议给出排名”更有审计价值:<strong>协议尝试了 14 种不同的排名方式,每一种都在同一个方法论裂缝(动物实验能否外推到人类)上失败</strong>。这不是协议不够聪明,这是协议<strong>正确识别了”这个问题在这个证据池下结构上不可解决”</strong>——而它能给出的最有用输出就是把这一不可解决性显式记录下来。</p>
+<p>这是 §3.5 Rawls 不完美程序正义的具体表现:协议不主张找到正确排名,但它通过反复尝试把”为什么找不到”的方法论根据暴露出来。</p>
+<h3 id="s-7-4">7.4 费米悖论:诚实关于证据稀薄</h3>
+<p><code>exp_v5.1_fermi_5ag.json</code>:42 轮,91 攻击,30 命题。<strong>[DATA]</strong></p>
+<p>这是协议在另一种问题状态下的形态。费米悖论是一个<strong>证据本身极度稀薄</strong>的领域——直接观测数据稀少,大部分论证基于哲学前提与概率论。</p>
+<p>协议在 91 次攻击之后,<strong>几乎所有命题都崩塌了</strong>——只有 1 条命题进入存活区。最终输出明确报告”insufficient evidence to rank”。</p>
+<p>这是协议对”问题的认知状态”的诚实响应。在证据丰富的问题(睡眠功能 §7.5)上,协议会保护既有审查后未击穿不被人为分歧干扰;在证据稀薄的问题(费米悖论)上,协议拒绝制造不存在的审查后未击穿。<strong>这两种行为都不是协议被设计来”产生答案”——它是被设计来观测程序饱和度,饱和度的形态由问题本身决定</strong>。</p>
+<h3 id="s-7-5">7.5 睡眠功能:审查后未击穿保持</h3>
+<p><code>exp_v5.1_sleep_5ag.json</code>:31 轮,85 攻击,19 命题。<strong>[DATA]</strong></p>
+<p>睡眠功能(脑代谢清除假说)在领域内有相对稳固的审查后未击穿。协议在 85 次攻击之后<strong>没有产生分歧</strong>——单 LLM 排名 C&gt;B&gt;A 与 5-agent 一致,审查后未击穿区维持。</p>
+<p>这是反向证据:<strong>协议不会为了产出分歧而制造分歧</strong>。当真实领域审查后未击穿稳固时,协议在 85 次攻击中找不到漏洞——协议产出的形态忠实于问题本身的认知状态。</p>
+<h3 id="s-7-6">7.6 一次以本文作者本人为对象的审计</h3>
+<p>§1.1 已经简短描述过 v2 微生物组运行的”161 攻击幽灵命题”案例。本节给出完整审计。</p>
+<p><strong>作者先前的记忆。</strong> 在旧版写作过程中,单个AI保留着关于 v2 微生物组实验的一个生动记忆:“有一条推理链经过了 161 次攻击,尽管遍体鳞伤,但仍在存活下来。” 这一表述来自当时一个用于读 JSON 的辅助 AI 在跑完后给作者的总结。该表述被作者在 v5.1 论文草稿中作为对抗审视有效的非正式证据反复引用。</p>
+<p><strong>后续的结构化核对。</strong> 在准备新版论文期间,作者直接读取 <code>exp_microbiome_nolimit.json</code> 的原始内容,按 <code>chain_id</code> 聚合所有攻击目标,再把聚合结果与 <code>chain_details</code> 中的 <code>claim_id</code> 字段逐项对照。这个查询没有依赖 AI 总结,而是直接读取原始 JSON 的结构字段。</p>
+<p><strong>查询结果</strong>(关键事实): - 命题级最高攻击数 = 161 - 该命题的 <code>claim_id</code> 字段 = <code>""</code>(空字符串) - 该命题的 <code>description</code> 字段 = <code>""</code>(空字符串) - chain_details 中 86 / 100 条链的 <code>claim_id</code> 为空 - 161 = 攻击命中”空 claim_id 链”的精确总数(算法核对一致)</p>
+<p><strong>真相</strong>:那 161 次攻击<strong>确实存在</strong>——但它们不是落在一条链上,而是分散落在 86 条 <code>claim_id</code> 字段为空的链上。这是 v2 schema 的一个填充缺陷:链与命题的关联在某些路径上没有被一致地建立。聚合统计层面,这 161 次攻击被归并到一个”幽灵命题”下——空 claim_id、空描述、α=0.884、状态 TRUE_CONSENSUS。</p>
+<p><strong>三层意义</strong>:</p>
+<ol><li><strong>数字真</strong>:161 这个数字在 JSON 中确实存在。当时的 AI 总结看到这个数字 + TRUE_CONSENSUS 状态标签,不算”凭空编造”。
+</li><li><strong>结构假</strong>:被这个数字描述的”它”——一条具体的链——不存在。“它”是 schema bug 制造出来的聚合占位符。
+</li><li><strong>修辞包装</strong>:AI 总结看到”被打了 161 次还是 TRUE_CONSENSUS 的东西”,自然写出英雄叙事。这一叙事生动到钻进了协议设计者本人的长期记忆,在一段时间内塑形了写作。
+</li></ol>
+<p><strong>两层意义引申</strong>:</p>
+<ul><li><strong>直接</strong>:§7.2 v2 基线对比表的脚注得到精确归因——v2 schema 缺陷引起的 161 攻击聚合,不是单链 161 攻击。
+</li><li><strong>间接</strong>:协议设计者本人在写论文期间被自己先前的 AI 总结塑形——这是协议存在意义的最直接证据。
+</li></ul>
+<p><strong>边界</strong>:</p>
+<p>这不是协议的胜利,是<strong>协议在写作中的一次自救</strong>。正是因为账本被结构化保存,真相一秒钟可被还原。任何认为”我跟踪我的实验,不需要结构化审计”的研究者,把本节作为反例。如果协议设计者本人都被自己的 AI 总结塑形,那么任何依赖 AI 总结来理解多智能体推理过程的研究者、审计员、决策者,都面临同样的失效模式。</p>
+<h3 id="s-7-7">7.7 自论文写作元实验</h3>
+<p>在后续实验中,作者执行了一次特殊实验:<strong>让链心给自己写论文</strong>。具体做法:用本文 §3-§5 的草稿内容,组成一个证据池(55 条结构化证据,涵盖代码引用、实验数据、历史论文、外部学术文献),然后让 5 agent 在该证据池上对”链心是什么、为什么对、有什么局限”展开链心协议下的对抗讨论。<strong>[DATA — </strong><strong><code>exp_v5.1_app_self_paper_writing_20260523_182836.json</code></strong><strong>]</strong></p>
+<p><strong>实验参数</strong>:Round 37,134 攻击,92 证据池,SYSTEM_STATE_STABILIZED 自然终止。</p>
+<p><strong>输出形态</strong>:整张分歧地图<strong>没有一条主张进入 iron-clad 或 consensus 区</strong>。10 条命题全部进入争议区,11 条链在攻击下崩塌,2 条链 active 但 0 steps(详见 §10.6 schema 序列化局限)。</p>
+<p><strong>这件事不是协议失败,是协议未合法化自身的最强证据</strong>。在 question.txt 里,作者明确要求 agent 们攻击关于链心的所有强主张,并指出”如果分歧地图被夸赞链心的 iron-clad 主张主导,这是可疑的——协议本应暴露自身边界,而非自我合法化”。实验结果完美对应这一反向预期。</p>
+<p><strong>具体观察</strong>:</p>
+<ul><li>“对抗审视产出更接近真理的答案”主张——按 question.txt 要求被禁止,实验中没有 agent 提出。
+</li><li>“无 LLM 裁判”主张——5 个变体全部 collapsed,核心争议是”设计时判断 = 隐式裁判”。
+</li><li>“五维扩张分解完备”主张——77 次攻击集中在”修订维度是否独立第六维”上,未解决。
+</li><li>“五厂商异构充分”主张——12 次攻击,多个 agent 指出训练数据共享盲点风险,主张滑入争议区。
+</li><li>“协议无法检测自身方法论框架锁定”主张——16 次攻击,被结构化挑战(具体内容详见 §10)。
+</li></ul>
+<p><strong>这一实验的元价值</strong>:</p>
+<p>普通论文用 12 次实验作为协议有效性的证据。本论文额外用一次”系统在自审视任务下不夸赞自己”的元实验,作为协议<strong>没有制造迎合</strong>的最强证据。任何 LLM-as-judge 系统在结构上做不到这件事——裁判可能被(它自己)说服;链心的协调层无 LLM 调用,在结构上不能被任何 agent 的修辞说服。</p>
+<h3 id="s-7-8">7.8 这些轨迹没有展示什么</h3>
+<p>上述轨迹展示了:协议能终止;终止时的轮数与问题复杂度合理相关;token 成本有界(每次会话约 0.4M 到 1.2M 输入 token);分歧地图的形态在不同问题上呈现出与该问题的初步认知状况相关的差异——证据稀薄的问题”未审查 + 争议”区域所占比例显著大于审查后未击穿稳固的问题。</p>
+<p>但它们<strong>没有</strong>展示:</p>
+<ol><li><strong>链心的答案比单 LLM 更准确</strong>。存档中没有回溯式真值基准实验。“单 LLM 看到分歧地图后修订自己答案”的案例只是关于<strong>可被说服性</strong>的证据,<strong>不是</strong>关于<strong>正确性</strong>的证据。
+</li><li><strong>H_sym 离散化在重复运行间是稳定的</strong>。每个会话的分箱边界由观测窗内的取值范围导出,不同会话之间可能不同;敏感性分析尚欠。
+</li><li><strong>五个异构 LLM 是必要而非充分</strong>。把同一模型 5 个实例与异构 5 模型的对比受控消融实验未在存档中。这一项被有意列入”待补”。
+</li></ol>
+<p>本文所主张的贡献<strong>并非</strong>协议在强意义上的正确性。本文主张的是协议的输出在”自由对话流不具备的方式”下<strong>可被检视</strong>——并且这一可被检视性在 §7.7 的元实验中得到了反向验证(协议未夸赞自己)。</p>
+<h2 id="s-8">8 V8 实证轨迹：声明级证据如何改变旧问题</h2>
+<p>旧论文报告了 v5.1 的多组实验：微生物组、阿尔茨海默、睡眠、抑郁症、间歇性断食、恐龙灭绝、费米悖论、自审计与自论文写作。V8 并不推翻这些实验，而是在证据粒度上修复了一个关键问题：许多科学争议不是“某篇论文支持某派”这么粗，而是“某篇论文中的某个声明支撑某条推理链，而这个声明可能有范围限制、复现问题或撤稿问题”。</p>
+<h3 id="s-8-1">8.1 阿尔茨海默 V8：局部证据问题不等于整派崩塌</h3>
+<p>V8 阿尔茨海默测试比较三类假说：Aβ cascade、tau propagation、neuroinflammation/immune dysfunction。证据池按声明级存入 APP/PSEN 家族性 AD 遗传证据、Lesné 2006 Aβ*56 原始声明、Science 2022 图像疑点调查、Nature 2024 撤稿 notice、lecanemab/donanemab 临床试验、失败的 anti-Aβ 试验、Braak/tau staging、tau PET、TREM2/CD33 免疫遗传证据和 AT(N) 框架。</p>
+<p>两次 V8 运行的稳定结论相近：</p>
+<ol><li>Lesné 2006 / Aβ*56 证据链存在可靠性问题；
+</li><li>Aβ*56 不能作为稳固支撑；
+</li><li>Lesné 局部问题不推翻整个 amyloid 假说；
+</li><li>APP/PSEN 对家族性 AD 的因果证据仍强，但不能直接推广到全部散发性 AD；
+</li><li>tau 更接近临床进展和认知衰退；
+</li><li>neuroinflammation 更像风险、调节和放大层；
+</li><li>A/B/C 更像分层机制，而不是简单互斥排名。
+</li></ol>
+<p>这个结果体现了 V8 的真正价值：系统不是识别“某派错误”，而是定位“哪条证据链、在哪个范围内、因为什么理由被削弱”。</p>
+<h3 id="s-8-2">8.2 抑郁症 V8：简单血清素模型被削弱，但 serotonin 没被粗暴否定</h3>
+<p>抑郁症 V8 测试比较三类假说：A 简单血清素缺乏，B 神经炎症/免疫失调，C 神经可塑性/BDNF/应激回路。证据池包含 Moncrieff 2022 serotonin umbrella review、Jauhar 2023 response、Cipriani 2018 antidepressant network meta-analysis、interferon-alpha induced depression、Raison 2013 infliximab trial、anti-inflammatory meta-analysis、Duman/Aghajanian synaptic dysfunction、ketamine rapid antidepressant evidence、BDNF/stress evidence 和 depression heterogeneity。</p>
+<p>运行后的审计判断是：</p>
+<ul><li>“抑郁症主要由低血清素导致”这一简单模型最弱；
+</li><li>“抗抑郁药有效”不能反推“病因是血清素缺乏”；
+</li><li>Moncrieff 2022 不能被过度解释为 serotonin 完全无关；
+</li><li>炎症有较强情境性因果证据，尤其是 immune challenge 和高炎症亚型；
+</li><li>神经可塑性/应激回路是强机制汇合层，但不等于唯一第一病因；
+</li><li>最合理输出是分层模型，而不是简单 A/B/C 排名。
+</li></ul>
+<p>这里可以看到公式如何服务结论：强排名链条在攻击后 survival 下降；“A 最弱但 serotonin 不等于无关”的范围限定链更容易存活；炎症和可塑性主张因证据类型不同进入不同争议层。</p>
+<h3 id="s-8-3">8.3 费米悖论：薄数据问题中拒绝强行排名</h3>
+<p>费米悖论 v5.1 运行 42 轮，产生 70 条链、91 次攻击、46 条证据。最终没有稳健的 A/B/C 排名。系统保留的是观测事实：SETI/Breakthrough Listen 多年零结果，Kepler/TESS 系外行星统计，以及 Drake 方程关键项 (f_{life}, f_{intel}, f_{tech}) 仍未被约束。</p>
+<p>所有强排名基本被打崩：</p>
+<ul><li>“C 最强，因为我们没看到”；
+</li><li>“B 最强，因为文明会自毁”；
+</li><li>“A 被系外行星数据否定”。
+</li></ul>
+<p>这说明 Chain-Centric 不会为了好看而给答案。薄数据问题的诚实输出就是：现有数据不足以区分三类解释，但问题仍然科学有效，因为未来观测能继续收窄可能性。</p>
+<h3 id="s-8-4">8.4 微生物组肥胖：互斥排名转向分层因果模型</h3>
+<p>微生物组肥胖测试比较菌群驱动、饮食驱动、宿主遗传驱动。旧 v5.1 显示，简单 A&gt;B&gt;C 或 B&gt;A&gt;C 排名很难稳定，因为争议卡在方法论前提上：germ-free mouse FMT 实验能否外推到人类？饮食干预的群体证据是否压过动物因果实验？宿主遗传是混淆因素还是上游约束？</p>
+<p>更合理的输出不是排名，而是分层模型：饮食是上游环境驱动，遗传决定易感性基线，菌群是把饮食和遗传影响翻译成代谢结果的中介或放大层。这个结果说明 Chain-Centric 的目标不是让三派选出赢家，而是暴露“为什么赢家不存在”。</p>
+<h3 id="s-8-5">8.5 自审计：系统没有自动合法化自己</h3>
+<p>自审计和自论文写作实验是旧论文中最重要的部分之一。系统被要求审查 Chain-Centric 自身。结果中，大量关于系统自身的积极主张被攻击为证据不足、参数未形式化、共享盲点不可检测、跨领域泛化仍需证明。</p>
+<p>这不是系统失败，而是系统没有把自己天然放进审查后未击穿区。一个审计协议如果一审自己就全部通过，反而更可疑。</p>
+<h2 id="s-9">9 比较优势:链心在多 agent 设计空间中的位置</h2>
+<p>§5 给出了链心做什么,§6 给出了它的工程谱系。本节回答最后一个问题:<strong>和已有的多 agent / 多 LLM 推理方案相比,链心在哪些维度上独占,在哪些维度上更弱?</strong></p>
+<p>本节的写法:十个比较维度,每个维度给出一个矩阵格,诚实标注链心在该维度上的位置(强/中/弱)。不夸大优势,不掩饰不足。</p>
+<h3 id="s-9-1">9.1 比较对象</h3>
+<p>本节比较的方案:</p>
+<ul><li><strong>单 LLM 调用</strong> —— 单次 prompt → 答案
+</li><li><strong>多数投票 / Self-Consistency</strong>(Wang et al. 2022)—— 同模型多次采样取众数
+</li><li><strong>对话驱动多 agent</strong>(AutoGen / CrewAI / LangGraph)—— 自由对话
+</li><li><strong>LLM-as-Judge / MAVEN</strong>(Yao et al. 2026)—— Skeptic-Researcher-Judge 循环
+</li><li><strong>AgentAuditor</strong>(Yang et al. 2026)—— 事后审计推理树
+</li><li><strong>形式论辩</strong>(ArgMed-Agents、Bipolar ABA)—— 论辩语义计算
+</li><li><strong>单 agent 自我批评</strong>(Constitutional AI、Self-Refine)—— N=1 退化
+</li><li><strong>Bayesian 多 agent 聚合</strong>(ARGUS 等)—— 置信度加权
+</li></ul>
+<h3 id="s-9-2">9.2 十个比较维度的矩阵</h3>
+<div class="tbl"><table><thead><tr><th>维度</th><th>单 LLM</th><th>多数投票</th><th>对话驱动</th><th>LLM-as-Judge</th><th>AgentAuditor</th><th>形式论辩</th><th>Constitutional AI</th><th><strong>链心</strong></th></tr></thead><tbody><tr><td>1. 可审计性(结构)</td><td>✗</td><td>✗</td><td>✗</td><td>部分</td><td>部分(事后)</td><td>✓</td><td>✗</td><td><strong>✓</strong></td></tr><tr><td>2. 区分未审视/审查后未击穿</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td><strong>✓ 独占</strong></td></tr><tr><td>3. 协议级反 sycophancy</td><td>n/a</td><td>部分</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✓</td><td><strong>✓</strong></td></tr><tr><td>4. 多视角</td><td>✗</td><td>部分</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✗</td><td>✓</td></tr><tr><td>5. 无 LLM 裁判</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td><strong>✓</strong></td></tr><tr><td>6. 运行时审计(非事后)</td><td>✗</td><td>✗</td><td>部分</td><td>部分</td><td>✗(事后)</td><td>✓</td><td>✗</td><td><strong>✓</strong></td></tr><tr><td>7. 输出分歧地图</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>部分</td><td>✓</td><td>✗</td><td><strong>✓</strong></td></tr><tr><td>8. 方法论裂缝识别</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td><strong>✓ 独占</strong></td></tr><tr><td>9. token 成本低</td><td>✓</td><td>中</td><td>中-高</td><td>高</td><td>中</td><td>低</td><td>✓(一次性)</td><td><strong>✗</strong></td></tr><tr><td>10. 给出明确”答案”</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>部分</td><td>✓</td><td><strong>✗</strong></td></tr></tbody></table></div>
+<p>链心在 7 个维度上”✓“,其中 <strong>2 个维度独占</strong>(区分未审视/审查后未击穿、方法论裂缝识别)。代价是 <strong>2 个维度负面</strong>(token 成本高、不给明确答案)。</p>
+<h3 id="s-9-3">9.3 两个独占维度的具体证据</h3>
+<h4 id="s-9-3-1">9.3.1 区分”未审视”与”审查后未击穿”</h4>
+<p>链心是已知唯一<strong>在结构上区分零次攻击的命题与经攻击存活的命题</strong>的协议。审查乘数(§5.9)是这一区分的具体实现:<code>scrutiny = 1 - exp(-1.5 × attacks)</code>,attacks=0 → scrutiny=0 → trust=0 → <code>unscrutinised</code>。</p>
+<p>其他方案为什么做不到: - 单 LLM:没有”被攻击”概念,不可能区分。 - 多数投票:每个 agent 只投票一次,没有迭代审视。 - 对话驱动:可以记录”哪条命题被讨论得多”,但没有”被攻击”的规范化记录。 - LLM-as-Judge:裁判输出”哪条对”,不输出”哪条经审视”。 - 形式论辩:论辩语义计算 admissible extensions,不计算 scrutiny depth。 - Constitutional AI:单 agent 自我批评,无外部审视维度。</p>
+<h4 id="s-9-3-2">9.3.2 方法论裂缝识别</h4>
+<p>链心可以在分歧地图中显式输出”这个分歧不能被证据本身解决——它来自方法论立场差异”。这一输出形态在 §7.3 阿尔茨海默实验中得到具体演示:14 条排名变体全部在 <code>germ-free mouse limitations</code> 这一方法论裂缝上崩塌。</p>
+<p>其他方案为什么做不到: - 所有给出明确答案的方案(单 LLM、多数投票、LLM-as-Judge)在结构上不能输出”我不知道,但我知道为什么不知道”。 - 形式论辩可以输出 cycle 表示无法解决的对抗,但 cycle 是论辩语义概念,与”方法论裂缝”是不同抽象层级。</p>
+<h3 id="s-9-4">9.4 两个负面维度的诚实承认</h3>
+<h4 id="s-9-4-1">9.4.1 token 成本</h4>
+<p>链心一次会话约 700K-1.2M 输入 token,远高于单 LLM 调用(2K-10K)。这是协议固有代价,不是优化问题——5 个 agent × 几十轮 × 几百次攻击的 token 总和必然如此。</p>
+<p>链心适用的场景必须满足”问题的高风险性 / 复杂性使得这一代价合理”:科学问题的方法论审查、高风险决策的可追责性记录、争议丰富的工程选型。它<strong>不适用于</strong>简单事实查询、需要快速答案的应用、单一确定答案场景。</p>
+<h4 id="s-9-4-2">9.4.2 不给明确”答案”</h4>
+<p>链心的输出是<strong>分歧地图</strong>,不是<strong>winning answer</strong>。一个具体后果:用链心解决”应该选 MySQL 还是 PostgreSQL”的工程问题,得到的不是”MySQL”或”PostgreSQL”,是一份”在哪些条件下哪个更合理、在哪些维度上仍有争议、哪些命题从未被审视”的结构化记录。</p>
+<p>这对需要单一决策的应用是缺陷。但对需要可追责性的高风险场景,这反而是优势——它把决策的根据外化,让决策者可以在更完整的认知地图下作选择,而不是接受一个看似确定但实际有隐性假设的答案。</p>
+<h3 id="s-9-5">9.5 与 v2 论文 §9 的对比</h3>
+<p>本文采取更窄的姿态:<strong>主张协议在 9.2 矩阵中的 7+2 个维度上独占或领先,但不主张具体的量化倍数</strong>。这是 §3.5 不完美程序正义在论文姿态层面的延续——主张可以经得住具体审视的,放弃任何不能被现有数据支撑的。</p>
+<h2 id="s-10">10 局限</h2>
+<p>下列各项尚开放,本文不作他论。每条局限都来自具体观察或具体反思,不是泛泛承认。</p>
+<h3 id="s-10-1">10.1 真理 vs 可审计性</h3>
+<p>本协议的贡献是让多智能体推理变得可检视。它<strong>不是</strong>关于”被检视的输出是否比单 LLM 答案更接近真理”的贡献。</p>
+<p>“单 LLM 在看到分歧地图后修订了答案”这类案例同时与两种假设兼容:(a) 多智能体过程正确地识别了更好的答案;(b) 多智能体过程产出了更长、结构上更具说服力的论证,单 LLM 对它产生了迎合。本存档<strong>不能</strong>区分这两种情形。</p>
+<h3 id="s-10-2">10.2 回溯式真值基准缺失</h3>
+<p>实验存档由当代科学问题构成,这些问题本身的真答案在学术界仍有争议。一个有用的未来实验是把协议运行于”回溯式真答案已知”的历史争议——幽门螺杆菌 vs. 应激(消化性溃疡的成因)、Alvarez 1980 撞击假说提出之初、1960 年代之前的大陆漂移说——只投喂当时已有的文献。这将检验链心是否能<strong>在历史时点</strong>产出一份分歧地图,其结构与该领域后来达成的结论吻合。</p>
+<h3 id="s-10-3">10.3 同模型异构性消融缺失</h3>
+<p>存档中全部 14 次运行都使用五供应商异构组合。一个受控消融——把同一个模型的 5 个实例与异构 5 模型对照——将能区分到底是协议的结构机制(命题可寻址、攻击谱系、H_sym 观察)在起作用,还是供应商异构性在起作用。无论哪种结果都有信息量。</p>
+<h3 id="s-10-4">10.4 五厂商共同盲点结构上不可检测</h3>
+<p>§7.7 的自论文写作元实验中,agent 们自己识别出这一局限——五个中文厂商可能共享中文互联网训练数据的某些偏差,这一共同盲点在协议结构上不可检测。</p>
+<p>链心要求至少两个不同模型供应商,但这是<strong>输入端假设</strong>,不是协议保证。一个潜在的检测信号是 §7.7 中 agent 们自己想到的:测量 5 个 agent 引用证据集的 Jaccard 重叠 + 攻击关系结构——如果同一组 agent 总是在同一组命题上达成一致(高引用重叠 + 低攻击密度),这是同源盲点的间接信号。但本协议未实现该检测,留作未来工作。</p>
+<h3 id="s-10-5">10.5 离散化敏感性</h3>
+<p>H_sym 观察器的每会话分箱边界是从观测窗的取值范围导出的。同一问题的两次重新运行可能产生不同边界,因此其符号串<strong>不能直接比较</strong>。收敛保证因此是<strong>会话局部</strong>的;跨会话再现需要全局离散化方案,当前实现并不具备。</p>
+<h3 id="s-10-6">10.6 v5.1 schema 序列化失真(已修复)</h3>
+<p>§7.7 自论文写作元实验暴露了一个 bug:<code>revise_chain</code> 输出空 steps 的 v2 链时,验证器接受这一输入,产生 v2 active 但 steps=[] 的”空内容链”。后续攻击落在空内容上,产生伪争议。</p>
+<p>这是 v2 schema “161 攻击空 claim_id” 在 v5.1 上的同类问题在新一代上的延续形式。<strong>后续提交 </strong><strong><code>d1903aa</code></strong><strong> 修复了这一 bug</strong>:验证器现在拒绝空 steps 或全空断言的链,转为 PASS 动作。<strong>[CODE]</strong></p>
+<h3 id="s-10-7">10.7 命题 canonicalization 失效</h3>
+<p>在 §7.7 自论文写作元实验中,10 条命题里有 4 条是同一主张的两个表述(命题 4/10 同义但用词差异、命题 5/6 字面几乎相同)。系统的 claim canonicalization 没有把它们合并,导致同一主张的攻击数被错误分散。</p>
+<p>这是协议的真实结构性弱点。当前的 SHA-256 + 引用键去重对<strong>证据</strong>有效,但对<strong>命题描述文本</strong>没有等价机制。一个潜在解决方案是事后分析层做 LLM 辅助语义聚类——但这违反”协调层不调 LLM”原则。这一权衡留作未来设计取舍。</p>
+<h3 id="s-10-8">10.8 修订维度未被独立观测</h3>
+<p>§7.7 元实验中 agent 们自己提出的命题之一是:“v5.1 五维扩张分解未包含修订有效性维度”。所有 14 次 v5.1 运行中,链的修订率(version &gt; 1)在 75%-96% 之间,但<strong>无一条链达到 version=3</strong>——修订总是 v1 → v2,从不到 v3。</p>
+<p>这件事可以两种解读:(a) 修订维度活跃度低,不需要独立观测;(b) 修订维度被结构性压制,但当前协议看不见。哪种正确,需要在协议外做对照实验:同问题跑两次,一次允许深度修订,一次禁止——比较分歧地图差异。本文未做。</p>
+<h3 id="s-10-9">10.9 攻击质量类型化缺失</h3>
+<p>当前所有 <code>AttackFragment</code> 条目被协调层等同对待。10 次”措辞挑剔”和 1 次”方法论根本质疑”在审查乘数眼里没差。未来一版应将攻击类型化(证据缺失、过度主张、相关-因果错误、动物-人类外推、样本量异议、方法论边界等)以便攻击质量显式进入审计状态向量,而不是隐含在存活率统计中。</p>
+<h3 id="s-10-10">10.10 N = 5 之外的扩展性</h3>
+<p>全部运行使用 5 个 agent。结构机制能否扩展到 N = 20 或 N = 100 未被涉及。拓扑否决阈值”3 对”尤其需要变为 N 的函数而非固定常数。</p>
+<h3 id="s-10-11">10.11 形式化收敛证明缺失</h3>
+<p>v2 论文 §6.9 给出了一个针对<strong>阈值投票机制</strong>的有限时间终止证明。该证明不直接适用于 v5.1 的 H_sym 观察器机制——后者的状态空间结构(符号离散化 + 自适应遗忘 + 拓扑否决)使 v2 证明的若干引理(尤其是 Lemma 5”通过普遍 pass 终止”)需要重新论证。</p>
+<p>本文不提供 H_sym 机制的形式化终止证明。它的工程证据只是 14 次实验全部通过 SYSTEM_STATE_STABILIZED 而非轮次预算耗尽自然终止。这一证据不构成数学证明,但构成”协议在 14 次实验范围内都能终止”的经验事实。</p>
+<h2 id="s-11">11 结论</h2>
+<p>链心把多智能体 LLM 推理的隐喻从”对话”换成”协议”。四动作语法(<code>publish_chain</code> / <code>attack</code> / <code>revise_chain</code> / <code>pass</code>)让命题、攻击、修订、沉默成为账本上的一等条目而非对话流的特征。协调层永不在运行时判断什么是真的——它观察”协议下可观测的认知空间是否仍在五个独立维度上扩张”。当所有维度同时停止扩张,系统终止;当攻击图收缩为局部回路时,拓扑否决阻止终止;当一条命题从未被攻击时,审查乘数把它与那些经受过攻击的命题分开。</p>
+<p>把这些机制从”工程补丁”重新组织为”程序认识论的具体技术要求”,是本文相对此前论文版本的核心贡献。Popper 的可反驳性、Peirce 的探究共同体、Habermas 的程序正当性、Rawls 的不完美程序正义——这四个哲学根据加上 VCG 机制设计的工程约束,共同决定了链心的协议必须是它现在的样子。链心<strong>不是</strong>又一个多智能体框架,是程序认识论在 LLM 时代的工程化实例。</p>
+<p><strong>输出是分歧地图,不是答案</strong>。它告诉审计者:哪些命题在审视下站住了、哪些在审视下倒下、哪些从未被审视、各项争议围绕的方法论前提是什么。这是审计者所需的信息粒度,是自由对话流不会自动产生的。</p>
+<p>存档支撑一个<strong>窄的结论</strong>:在 9 个不同复杂度的科学问题、3 种自审计配置、1 次”系统给自己写论文”的元实验上,协议通过可观测状态稳定化而终止,轮数有界、token 成本有界。元实验中协议<strong>没有合法化自身</strong>——这是任何 LLM-as-judge 系统在结构上做不到的事。</p>
+<p>协议的<strong>更强主张</strong>——对抗性结构化审视产出比单 LLM 调用更接近真理的输出——本文<strong>不予辩护</strong>,留给 §10.2 中勾勒的回溯式基准实验。</p>
+<p>本文为之辩护的贡献更小。<strong>它是</strong>:对于”被检视了什么、什么存活下来、什么仍在争议、什么未曾被审视、哪些争议在结构上不可解决”这类问题与最终答案同等重要——而对许多真实科学与工程问题来说,前者比后者更重要——的场景,链心提供了一个让这些问题<strong>有答案</strong>的载体。</p>
+<h2 id="sec-84">参考文献</h2>
+<h3 id="sec-85">哲学根据</h3>
+<ul><li>Floridi, L. (2014). <em>The Fourth Revolution: How the Infosphere is Reshaping Human Reality</em>. Oxford University Press.
+</li><li>Goldman, A. (1999). <em>Knowledge in a Social World</em>. Oxford University Press.
+</li><li>Habermas, J. (1981). <em>Theorie des kommunikativen Handelns</em>. Suhrkamp Verlag.
+</li><li>Merton, R. K. (1973). <em>The Sociology of Science: Theoretical and Empirical Investigations</em>. University of Chicago Press.
+</li><li>Peirce, C. S. (1878). How to Make Our Ideas Clear. <em>Popular Science Monthly</em> 12, 286–302.
+</li><li>Popper, K. R. (1963). <em>Conjectures and Refutations: The Growth of Scientific Knowledge</em>. Routledge.
+</li><li>Rawls, J. (1971). <em>A Theory of Justice</em>. Harvard University Press. (§14 on procedural justice.)
+</li></ul>
+<h3 id="sec-86">机制设计与控制论</h3>
+<ul><li>Clarke, E. H. (1971). Multipart Pricing of Public Goods. <em>Public Choice</em> 11, 17–33.
+</li><li>Groves, T. (1973). Incentives in Teams. <em>Econometrica</em> 41, 617–631.
+</li><li>Hamming, R. W. (1950). Error detecting and error correcting codes. <em>Bell System Technical Journal</em> 29, 147–160.
+</li><li>Lai, T. L. (1995). Sequential change-point detection in quality control and dynamical systems. <em>IEEE Transactions on Information Theory</em> 41, 1550–1561.
+</li><li>Luenberger, D. G. (1971). An introduction to observers. <em>IEEE Transactions on Automatic Control</em> 16, 596–602.
+</li><li>Page, E. S. (1954). Continuous inspection schemes. <em>Biometrika</em> 41, 100–115.
+</li><li>Vickrey, W. (1961). Counterspeculation, auctions, and competitive sealed tenders. <em>Journal of Finance</em> 16, 8–37.
+</li></ul>
+<h3 id="sec-87">信息论与统计</h3>
+<ul><li>Cover, T. M. &amp; Thomas, J. A. (2006). <em>Elements of Information Theory</em> (2nd ed.). Wiley.
+</li><li>Jaccard, P. (1901). Étude comparative de la distribution florale dans une portion des Alpes et des Jura. <em>Bulletin de la Société Vaudoise des Sciences Naturelles</em> 37, 547–579.
+</li><li>MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. <em>Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability</em>, 281–297.
+</li><li>Pincus, S. M. (1991). Approximate entropy as a measure of system complexity. <em>Proceedings of the National Academy of Sciences</em> 88, 2297–2301.
+</li><li>Rényi, A. (1961). On measures of entropy and information. <em>Proceedings of the Fourth Berkeley Symposium on Mathematical Statistics and Probability</em>, 547–561.
+</li><li>Schreiber, T. (2000). Measuring information transfer. <em>Physical Review Letters</em> 85, 461–464.
+</li><li>Shannon, C. E. (1948). A mathematical theory of communication. <em>Bell System Technical Journal</em> 27, 379–423 and 623–656.
+</li><li>Tsallis, C. (1988). Possible generalization of Boltzmann-Gibbs statistics. <em>Journal of Statistical Physics</em> 52, 479–487.
+</li></ul>
+<h3 id="sec-88">多 agent / 论辩 / 分布式系统</h3>
+<ul><li>Carriero, N. &amp; Gelernter, D. (1989). Linda in context. <em>Communications of the ACM</em> 32, 444–458.
+</li><li>Castro, M. &amp; Liskov, B. (1999). Practical Byzantine Fault Tolerance. <em>OSDI 1999</em>.
+</li><li>Coquand, T. &amp; Huet, G. (1988). The calculus of constructions. <em>Information and Computation</em> 76, 95–120.
+</li><li>de Bruijn, N. G. (1968). The mathematical language AUTOMATH, its usage, and some of its extensions. In <em>Symposium on Automatic Demonstration</em>.
+</li><li>de Moura, L., Kong, S., Avigad, J., van Doorn, F. &amp; von Raumer, J. (2015). The Lean theorem prover. <em>CADE 2015</em>, 378–388.
+</li><li>Dung, P. M. (1995). On the acceptability of arguments and its fundamental role in nonmonotonic reasoning, logic programming and n-person games. <em>Artificial Intelligence</em> 77, 321–357.
+</li><li>Erman, L. D., Hayes-Roth, F., Lesser, V. R. &amp; Reddy, D. R. (1980). The Hearsay-II speech-understanding system: Integrating knowledge to resolve uncertainty. <em>ACM Computing Surveys</em> 12.
+</li><li>Lamport, L. (1978). Time, clocks, and the ordering of events in a distributed system. <em>Communications of the ACM</em> 21, 558–565.
+</li><li>Lamport, L. (1998). The part-time parliament. <em>ACM Transactions on Computer Systems</em> 16, 133–169.
+</li><li>Lamport, L., Shostak, R. &amp; Pease, M. (1982). The Byzantine Generals Problem. <em>ACM TOPLAS</em> 4, 382–401.
+</li><li>Ongaro, D. &amp; Ousterhout, J. (2014). In search of an understandable consensus algorithm. <em>USENIX Annual Technical Conference</em>, 305–319.
+</li><li>Toulmin, S. E. (1958). <em>The Uses of Argument</em>. Cambridge University Press.
+</li><li>Walton, D. N. (1995). <em>A Pragmatic Theory of Fallacy</em>. University of Alabama Press.
+</li></ul>
+<h3 id="sec-89">LLM 多 agent 与对齐</h3>
+<ul><li>Bai, Y. et al. (2022). Constitutional AI: Harmlessness from AI Feedback. arXiv:2212.08073.
+</li><li>Bengio, Y. et al. (2024). Managing extreme AI risks amid rapid progress. <em>Science</em>.
+</li><li>Christiano, P. F. et al. (2017). Deep reinforcement learning from human preferences. <em>NeurIPS 2017</em>.
+</li><li>Cakar, E. &amp; Kristensson, P. O. (2025). The Argument is the Explanation: Structured Argumentation for Trust in Agents. arXiv:2510.03442.
+</li><li>CrewAI. (2024). CrewAI: A framework for orchestrating role-playing autonomous AI agents. GitHub repository.
+</li><li>Du, Y. et al. (2023). Improving factuality and reasoning in language models through multiagent debate. arXiv:2305.14325.
+</li><li>Hong, S., Xiao, L., Zhang, X. &amp; Chen, J. (2024). ArgMed-Agents. arXiv:2403.06294.
+</li><li>LangChain. (2024). LangGraph: A library for building stateful, multi-agent applications with LLMs. GitHub repository.
+</li><li>Pérez, E. et al. (2022). Discovering Language Model Behaviors with Model-Written Evaluations. arXiv:2212.09251.
+</li><li>Russell, S. (2019). <em>Human Compatible: Artificial Intelligence and the Problem of Control</em>. Viking.
+</li><li>Sela, A. (2026). Preserving Disagreement: Architectural Heterogeneity and Coherence Validation in Multi-Agent Policy Simulation. arXiv:2604.26561.
+</li><li>Shin, K. S. (2026). The Reasoning Trap: An Information-Theoretic Bound on Closed-System Multi-Step LLM Reasoning. arXiv:2605.01704.
+</li><li>Wang, X. et al. (2022). Self-Consistency Improves Chain of Thought Reasoning in Language Models. arXiv:2203.11171.
+</li><li>Wu, Q. et al. (2023). AutoGen. arXiv:2308.08155.
+</li><li>Yang, W. et al. (2026). Auditing Multi-Agent LLM Reasoning Trees Outperforms Majority Vote and LLM-as-Judge. arXiv:2602.09341.
+</li><li>Yao, Y., Tang, J., Yang, Z. &amp; Cheng, D. (2026). MAVEN. arXiv:2605.07646.
+</li></ul>
+<h3 id="sec-90">实验证据池来源说明</h3>
+<p>阿尔茨海默、抑郁症、微生物组、费米悖论等测试中的领域文献,在本文中主要作为 agent 被要求处理的输入证据池,不是本文关于 Chain-Centric 系统工程主张的理论依据。为避免把本文误读为医学、微生物学或天文学综述,主参考文献只列出系统设计与理论谱系所需的文献。各测试问题的具体证据条目以相应的 <code>repository.json</code>、固定问题输入和实验报告为准。</p>
+<h2 id="s-app-a">附录 A 协调层公式与参数表</h2>
+<div class="tbl"><table><thead><tr><th>符号/参数</th><th>公式或默认值</th><th>解释</th></tr></thead><tbody><tr><td>(J(E_i,E_j))</td><td>(</td><td>E_iE_j</td></tr><tr><td>(_i)</td><td>(1/(1+mean_Jaccard))</td><td>证据独立性，不是真值概率</td></tr><tr><td>(U_i)</td><td>moved + filled + silent</td><td>最近两轮活动信号</td></tr><tr><td>(e_i)</td><td>(_i U_i)</td><td>ChainState 判别量</td></tr><tr><td>alpha 阈值</td><td>0.6</td><td>高/低证据独立性分界</td></tr><tr><td>e 阈值</td><td>1.5</td><td>高/低活动状态分界</td></tr><tr><td>focus rank</td><td>(_iU_i+bonus)</td><td>聚焦排序</td></tr><tr><td>(H_{evidence})</td><td>(-p_cp_c)</td><td>证据引用分布熵</td></tr><tr><td>(S_{attack})</td><td>(1-q_c^2)</td><td>攻击分布多样性</td></tr><tr><td>(H_{part})</td><td>(-(n_a/N)_k(n_a/N))</td><td>agent 参与熵</td></tr><tr><td>(H_{chain})</td><td>(-_2p_g^2)</td><td>链结构 Rényi 碰撞熵</td></tr><tr><td>(T_{max})</td><td>(</td><td>TE(ab)</td></tr><tr><td>(H_{remaining})</td><td>(_{active c}_c)</td><td>仍活跃 claim 的剩余空间代理</td></tr><tr><td>(S_{novel})</td><td>novel / total</td><td>新链语义新颖度</td></tr><tr><td>observation_window</td><td>10</td><td>H_sym 分箱观察窗口</td></tr><tr><td>T_MAX_MIN_HISTORY</td><td>20</td><td>T_max 启用前所需历史轮数</td></tr><tr><td>S_novel 阈值</td><td>0.1</td><td>≤0.1 为 Sn枯，否则 Sn活</td></tr><tr><td>word overlap 阈值</td><td>0.85</td><td>判断新链是否语义重复</td></tr><tr><td>(scrutiny)</td><td>(1-e^{-1.5 attacks})</td><td>审查乘数</td></tr><tr><td>(survival)</td><td>active_chains / total_chains</td><td>链条存活率</td></tr><tr><td>(trust)</td><td>((1+survival)/2scrutiny)</td><td>程序性排序分，不是真值概率</td></tr></tbody></table></div>
+<h3 id="s-a-1">A.1 H_sym 伪代码</h3>
+<pre>def update(entropies, round_num):
+    observe(entropies)
+    if round_num &gt;= observation_window:
+        lock_boundaries_if_needed()
+    if boundaries is None:
+        return "observing"
+
+    symbol = discretize(entropies, boundaries)
+    novelty = min_hamming_distance(symbol, history) / len(symbol)
+
+    if novelty &gt; 0:
+        counter = floor(counter * (1 - novelty))
+    else:
+        counter += 1
+
+    if evidence_pool_grew:
+        counter = 0
+    if claim_count_grew:
+        counter = 0
+    if topology_veto_fails:
+        return "continue"
+    if counter &gt;= N:
+        return "SYSTEM_STATE_STABILIZED"</pre>
+<h3 id="s-a-2">A.2 审计分区伪代码</h3>
+<pre>if attacks == 0:
+    tier = "unscrutinized"
+elif alpha &gt; 0.7 and attacks &gt;= 5 and survival_rate &gt; 0.5:
+    tier = "strong_survivor"        # 旧报告称 ironclad
+elif alpha &gt; 0.7 and attacks &lt; 5 and survival_rate &gt; 0.5:
+    tier = "weak_survivor"          # 旧报告称 consensus
+elif alpha &gt; 0.3:
+    tier = "contested"
+else:
+    tier = "weak_or_collapsed"</pre>
+<h2 id="s-app-b">附录 B 数据来源与代码来源</h2>
+<p>本文的所有实验数字均来自作者本地存档 <code>/Users/dzy23335/Desktop/链心实验数据/</code> 下的 JSON 产物。具体使用的文件:</p>
+<pre>exp_microbiome_nolimit.json                            v2 基线微生物组运行
+exp_v5.1_microbiome_5ag.json                          v5.1 微生物组运行(初次)
+exp_v5.1_microbiome_final_5ag.json                    v5.1 微生物组运行(最终)
+exp_v5.1_microbiome_claim_evidence_loaded_*.json      v5.1 微生物组运行(命题级证据)
+exp_v5.1_alzheimers_5ag.json                          v5.1 阿尔茨海默病运行
+exp_v5.1_app_alzheimers_*.json                        v5.1 App 跑阿尔茨海默
+exp_v5.1_sleep_5ag.json                               v5.1 睡眠功能运行
+exp_v5.1_depression_5ag.json                          v5.1 抑郁症运行
+exp_v5.1_fasting_integration_5ag.json                 v5.1 间歇性断食整合模式
+exp_v5.1_dino_5ag.json                                v5.1 恐龙灭绝运行
+exp_v5.1_fermi_5ag.json                               v5.1 费米悖论运行
+exp_v5.1_obesity_open_5ag.json                        v5.1 肥胖开放生成
+exp_v5.1_selfaudit_5ag.json                           三次自审计运行之一
+exp_v5.1_selfaudit_v2_5ag.json                        三次自审计运行之二
+exp_v5.1_self_comparison_5ag_natural_*.json           三次自审计运行之三
+exp_v5.1_app_self_paper_writing_20260523_182836.json  自论文写作元实验(§7.7)</pre>
+<p>本文引用的源代码来自公开仓库 <a href="https://github.com/dzy235/chain-centric-multi-agent">https://github.com/dzy235/chain-centric-multi-agent</a>。带 <strong>[CODE]</strong> 标记的小节对应 <code>v5.1</code> 分支(commit <code>d1903aa</code> 之后,本文的 schema bug 修复纳入)的 <code>chain_centric/</code> 包。带 <strong>[DOC]</strong> 标记的小节对应项目 README 与配套预印本文档。</p>
+<p><em>草稿完。</em></p>
+  </main>
+</div>
+<footer class="site"><div class="in">
+  <span>链心 Chain-Centric V8 · 技术论文草稿 · 以 CC BY 4.0 发布</span>
+  <a href="../liwang.html">李旺的主页</a>
+  <a href="../">sikeoop 首页</a>
+</div></footer>
+<script>
+(function () {
+  var toc = document.getElementById("toc");
+  var small = window.matchMedia("(max-width: 820px)");
+  // On a phone the contents start folded; on a wide screen they are the side column.
+  function fit() { toc.open = !small.matches; }
+  fit();
+  small.addEventListener("change", fit);
+  var links = [].slice.call(toc.querySelectorAll("a"));
+  links.forEach(function (a) { a.addEventListener("click", function () { if (small.matches) toc.open = false; }); });
+  if (!("IntersectionObserver" in window)) return;
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+  var seen = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      links.forEach(function (a) { a.classList.remove("on"); });
+      var a = byId[e.target.id];
+      if (a) { a.classList.add("on"); if (!small.matches) a.scrollIntoView({ block: "nearest" }); }
+    });
+  }, { rootMargin: "-70px 0px -75% 0px" });
+  document.querySelectorAll(".paper h2").forEach(function (h) { seen.observe(h); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mobile.event",
+  "params": {
+    "cursor": 18,
+    "event": {
+      "type": "remote_message",
+      "text": "修复登录接口",
+      "from": "mobile",
+      "deviceName": "Pixel 9"
+    }
+  }
+}

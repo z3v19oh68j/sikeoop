@@ -1,0 +1,1059 @@
+{
+  "theme": "SYNCHRONIZE_01 / EVA × MIKU",
+  "state": "design-assets-not-applied",
+  "generator": "built-in image_gen for two raster concepts; native code for SVG assets",
+  "icons": {
+    "ui": 72,
+    "brand": 6,
+    "spriteSymbols": 77,
+    "icoSizes": [
+      [
+        16,
+        16
+      ],
+      [
+        24,
+        24
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        48,
+        48
+      ],
+      [
+        64,
+        64
+      ],
+      [
+        128,
+        128
+      ],
+      [
+        256,
+        256
+      ]
+    ],
+    "icnsMaxSize": [
+      1024,
+      1024
+    ]
+  },
+  "layers": {
+    "ui": 12,
+    "vectorUI": 12,
+    "vectorTheme": 14,
+    "independentExports": 38
+  },
+  "pngs": [
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_128x128.png",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_128x128@2x.png",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_16x16.png",
+      "width": 16,
+      "height": 16,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        1,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_16x16@2x.png",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_256x256.png",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_256x256@2x.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_32x32.png",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_32x32@2x.png",
+      "width": 64,
+      "height": 64,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_512x512.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "icons/app/sikeoop-eva-miku.iconset/icon_512x512@2x.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "images/app-effect.png",
+      "width": 1626,
+      "height": 967,
+      "mode": "RGB"
+    },
+    {
+      "file": "images/app-icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "images/icon-contact-sheet.png",
+      "width": 1600,
+      "height": 1310,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "images/reference-original.png",
+      "width": 2908,
+      "height": 1730,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "images/theme-vector-preview.png",
+      "width": 1920,
+      "height": 1080,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "images/theme-wallpaper.png",
+      "width": 1672,
+      "height": 941,
+      "mode": "RGB"
+    },
+    {
+      "file": "images/ui-layered-preview.png",
+      "width": 1920,
+      "height": 1140,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "images/ui-vector-preview.png",
+      "width": 1920,
+      "height": 1140,
+      "mode": "RGBA",
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    }
+  ],
+  "contrastChecks": [
+    {
+      "foreground": "ink",
+      "background": "panel",
+      "ratio": 16.14
+    },
+    {
+      "foreground": "ink2",
+      "background": "panel",
+      "ratio": 11.49
+    },
+    {
+      "foreground": "muted",
+      "background": "panel",
+      "ratio": 7.36
+    },
+    {
+      "foreground": "faint",
+      "background": "panel",
+      "ratio": 4.62
+    },
+    {
+      "foreground": "cyan",
+      "background": "panel",
+      "ratio": 11.8
+    },
+    {
+      "foreground": "violet",
+      "background": "panel",
+      "ratio": 5.89
+    },
+    {
+      "foreground": "lime",
+      "background": "panel",
+      "ratio": 14.82
+    },
+    {
+      "foreground": "pink",
+      "background": "panel",
+      "ratio": 7.33
+    },
+    {
+      "foreground": "orange",
+      "background": "panel",
+      "ratio": 10.25
+    },
+    {
+      "foreground": "cyan",
+      "background": "raised",
+      "ratio": 10.83
+    },
+    {
+      "foreground": "ink2",
+      "background": "selected",
+      "ratio": 9.38
+    }
+  ],
+  "svgXMLValidated": 122,
+  "files": [
+    {
+      "path": "QA.md",
+      "bytes": 2423,
+      "sha256": "f7b14d61acb975e67daecfb702d477391c6c5b894eba15e6d2779a8b98ae7067"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5720,
+      "sha256": "d930d338032f4533977ee7b231d6991c8549b4aca680b0fa4d4dccb607f54fcd"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.icns",
+      "bytes": 151625,
+      "sha256": "95da5197c91cb26d815a4a12cb88ad89e41329cc776fef258417860089a90c1f"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.ico",
+      "bytes": 32191,
+      "sha256": "31d5241081a168b86d2a5b86fde50d64ca3794670ef8589704450cbbf291eee6"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_128x128.png",
+      "bytes": 3788,
+      "sha256": "f1383deba8d18dec30a510e22c7395dd7f356212e80dfea17fbe547eddcc8d4f"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_128x128@2x.png",
+      "bytes": 7303,
+      "sha256": "5d8d831aa5489428e2556ecb69842da94c01dd2c48da5dcb47e01360eec985a7"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_16x16.png",
+      "bytes": 479,
+      "sha256": "676432d0b10d6c6f38aff01981b8dc761bbb560b065291fb29d2cb514337ec18"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_16x16@2x.png",
+      "bytes": 938,
+      "sha256": "325e757cfc3457eb1a1d7ca4592fc63b4939c5a064fd440996a125e484b29456"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_256x256.png",
+      "bytes": 7303,
+      "sha256": "5d8d831aa5489428e2556ecb69842da94c01dd2c48da5dcb47e01360eec985a7"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_256x256@2x.png",
+      "bytes": 18294,
+      "sha256": "f6232394c1392c5d672338d3c848caf0502cc2f8611617b3c7a786bd0277bf24"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_32x32.png",
+      "bytes": 938,
+      "sha256": "325e757cfc3457eb1a1d7ca4592fc63b4939c5a064fd440996a125e484b29456"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_32x32@2x.png",
+      "bytes": 1883,
+      "sha256": "3b19ef6ca44e05b6781e37be290ed36aea1f6259fffac4a26960179fa9108b86"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_512x512.png",
+      "bytes": 18294,
+      "sha256": "f6232394c1392c5d672338d3c848caf0502cc2f8611617b3c7a786bd0277bf24"
+    },
+    {
+      "path": "icons/app/sikeoop-eva-miku.iconset/icon_512x512@2x.png",
+      "bytes": 53692,
+      "sha256": "4566564db4db2dd16339ea55b2a4e1a124427e49111dc86b43330edf6f6756c2"
+    },
+    {
+      "path": "icons/brand/app-icon.svg",
+      "bytes": 873,
+      "sha256": "ce7f2c6f3b7d12d72b9dd14ff836174db87069b6158c3b1c593eb9e1d1ddf547"
+    },
+    {
+      "path": "icons/brand/at-field.svg",
+      "bytes": 352,
+      "sha256": "8a68a1c045b4df985b5f84c6a2eed8eeda35fcb970dbc9621135ff719e233ceb"
+    },
+    {
+      "path": "icons/brand/eva-unit01.svg",
+      "bytes": 429,
+      "sha256": "b864e8872696dbdebfae76f97fb2907dbf781f7a0358ba9170bb96cb62645d6d"
+    },
+    {
+      "path": "icons/brand/miku-signal.svg",
+      "bytes": 460,
+      "sha256": "caa8e03ed674f504cb3685a50394dab4532ed5010670791f34b414fce6e32467"
+    },
+    {
+      "path": "icons/brand/sikeoop-sync.svg",
+      "bytes": 441,
+      "sha256": "d3cc57eb553ec13d95ca60f05fcfb1082fed18151bd3e4511907732c744a1a71"
+    },
+    {
+      "path": "icons/brand/sync-wave.svg",
+      "bytes": 254,
+      "sha256": "346c41ca24171495f8f5eab358e0dd6d8b51cbd51781f64330a338aebbb3213a"
+    },
+    {
+      "path": "icons/sprite.svg",
+      "bytes": 31692,
+      "sha256": "e897d1d8aff9fc504b44d14d2babb30d5574d22b908cb01829708f36f4355085"
+    },
+    {
+      "path": "icons/ui/android.svg",
+      "bytes": 474,
+      "sha256": "08996e9f5a047f2c1dd16687d11b62f76f762ec5a6e7f4136f5834d90de292f9"
+    },
+    {
+      "path": "icons/ui/archive.svg",
+      "bytes": 433,
+      "sha256": "db4c2b5513282786996ec098bce87a051e91ea5786b556e38c0a3badfcb803c3"
+    },
+    {
+      "path": "icons/ui/arrow-up.svg",
+      "bytes": 312,
+      "sha256": "69be50a48004ebcd738d43518726e4162e16f2103910ec355a8c400a5b92f52f"
+    },
+    {
+      "path": "icons/ui/attach.svg",
+      "bytes": 440,
+      "sha256": "9dc892ff8386e501c592625dfb87924ae3464a0d6aedfbab42574f02dee49974"
+    },
+    {
+      "path": "icons/ui/book.svg",
+      "bytes": 425,
+      "sha256": "01153b720fdf2a60738200823a1918455379f18fe7b4a9a9eedf6cb3affd551e"
+    },
+    {
+      "path": "icons/ui/brain.svg",
+      "bytes": 499,
+      "sha256": "c3eeea1f24986283bcb7cccb0aca4f0e2e7508436970c718029457ac5de494ea"
+    },
+    {
+      "path": "icons/ui/broom.svg",
+      "bytes": 438,
+      "sha256": "89a466652db3235cf26a9ff2ad61786dc2675bf58c3681d95a44bacc81921bdc"
+    },
+    {
+      "path": "icons/ui/bug.svg",
+      "bytes": 484,
+      "sha256": "3615a7ecbb47cd7d03be39c62659a249d2a2485eb56350332a903c1095590762"
+    },
+    {
+      "path": "icons/ui/chart.svg",
+      "bytes": 417,
+      "sha256": "0022351829b7591fd045c3cc3221eb68deec7f26078ca10d37e72dc126ac9c7e"
+    },
+    {
+      "path": "icons/ui/chat-plus.svg",
+      "bytes": 419,
+      "sha256": "88fc1d18280f126bde16f3eaffcc2cb6aa50ec9831f51210ca5d01b1d57cc94e"
+    },
+    {
+      "path": "icons/ui/check-circle.svg",
+      "bytes": 429,
+      "sha256": "37bedb8bd2e975140711e160d4f9e290f735fcb6eb98c7b9782905b5b94cb434"
+    },
+    {
+      "path": "icons/ui/check.svg",
+      "bytes": 305,
+      "sha256": "7fb1875f26378f2651bce882fea8f70a332b5558d1518d286cd25ef03853e3cc"
+    },
+    {
+      "path": "icons/ui/chevron-down.svg",
+      "bytes": 303,
+      "sha256": "fcc195b65e06d99f368f4911486496d17c2e0114da2f6ff5b1bc993b0fb12bb3"
+    },
+    {
+      "path": "icons/ui/chevron-left.svg",
+      "bytes": 304,
+      "sha256": "b7cdd3b9af98c8298696bda6b6aa4f72691f9c824de55532244196939a41a533"
+    },
+    {
+      "path": "icons/ui/chevron-right.svg",
+      "bytes": 303,
+      "sha256": "c8f98f3b834df775bc7b7cbc35b24a2624ad4f7f92fc6c0c5a477b4fcc5ca201"
+    },
+    {
+      "path": "icons/ui/clock.svg",
+      "bytes": 430,
+      "sha256": "977c679966ed77a303c767464ef1714443afb272d8ea27b25b91b2eb81d54af7"
+    },
+    {
+      "path": "icons/ui/close.svg",
+      "bytes": 311,
+      "sha256": "e15f9c0b0fd3a07a152abdec0941bd37ad090868806c7020a8678b09dbc2c150"
+    },
+    {
+      "path": "icons/ui/copy.svg",
+      "bytes": 410,
+      "sha256": "18c26bbba2a82a969b5e6d9d5ce242e56be21d81bf0f4f11861f5ccff59543a1"
+    },
+    {
+      "path": "icons/ui/eye-search.svg",
+      "bytes": 472,
+      "sha256": "c2b4a46a8550f104d35fcec14b54757dc5bcea6616a957a359e59f572eba30ad"
+    },
+    {
+      "path": "icons/ui/file.svg",
+      "bytes": 444,
+      "sha256": "6d2883dc5f2c3fbb77e7479aadbdf06e54d9e0c9d26ebfe72a924d2315a346b0"
+    },
+    {
+      "path": "icons/ui/files.svg",
+      "bytes": 431,
+      "sha256": "f6e76b8dab48ecf9daf33e1a7a88cffed288597291223d33cd452c49ad292d9f"
+    },
+    {
+      "path": "icons/ui/folder-open.svg",
+      "bytes": 415,
+      "sha256": "8c4ec916a3c2731b5b1febb5f3c662d3865c1c14e8a36d07f8a74ec1145cee22"
+    },
+    {
+      "path": "icons/ui/folder-plus.svg",
+      "bytes": 416,
+      "sha256": "9c710404befc71aafc45318db98ef4640e98e2475d82f144db7ed670d7168f21"
+    },
+    {
+      "path": "icons/ui/frame.svg",
+      "bytes": 454,
+      "sha256": "03fdba6c233e6dc38a9005bf905d11b2eb0b11efce88e7dac2461ae8977da714"
+    },
+    {
+      "path": "icons/ui/ft-config.svg",
+      "bytes": 430,
+      "sha256": "83c44dc7c05fea8bc849efc4daefb18f8bcfa2df88ccc5b741cfbc438f9eb1f9"
+    },
+    {
+      "path": "icons/ui/ft-css.svg",
+      "bytes": 425,
+      "sha256": "73a816d95e9449a300911c83ef431c05918a6fda42d4263e8eaf5e8e9d160a5b"
+    },
+    {
+      "path": "icons/ui/ft-file.svg",
+      "bytes": 417,
+      "sha256": "0b1dbc88d8a984950bfdbfeab14a17fb2e4836d0e452654609044c80257ca4ab"
+    },
+    {
+      "path": "icons/ui/ft-folder-open.svg",
+      "bytes": 415,
+      "sha256": "8c4ec916a3c2731b5b1febb5f3c662d3865c1c14e8a36d07f8a74ec1145cee22"
+    },
+    {
+      "path": "icons/ui/ft-folder.svg",
+      "bytes": 386,
+      "sha256": "4978c428848ce387939bac93bf576de62c6ecfb352e1c1057d9a46355fdc742d"
+    },
+    {
+      "path": "icons/ui/ft-html.svg",
+      "bytes": 429,
+      "sha256": "88a55e6cfdbeee1552fa4793852a18bd0b7a9f305e9481e13b40c4a2eb52339b"
+    },
+    {
+      "path": "icons/ui/ft-image.svg",
+      "bytes": 435,
+      "sha256": "66f7fa72a307abdd0c3a60d62ba466ed4607970859d114268209f7551cd0cab5"
+    },
+    {
+      "path": "icons/ui/ft-js.svg",
+      "bytes": 431,
+      "sha256": "d99b5665800ef30a17fb46ee0cc212cc576b7289b448bea0bfc98dd80ffe6db6"
+    },
+    {
+      "path": "icons/ui/ft-json.svg",
+      "bytes": 449,
+      "sha256": "dbb325cef5ad1aca10e373fb29b4af2ba5e987ef8d13ec6dc4b3f645fe00dfcd"
+    },
+    {
+      "path": "icons/ui/ft-md.svg",
+      "bytes": 442,
+      "sha256": "7db486996a09d575d6129029a17d029f5215c6cee6a642faae188942dbd97957"
+    },
+    {
+      "path": "icons/ui/ft-py.svg",
+      "bytes": 444,
+      "sha256": "aa08540a41103df491bbcd7fc05bc59833b80059940ec7e85ac8866508e24386"
+    },
+    {
+      "path": "icons/ui/ft-ts.svg",
+      "bytes": 436,
+      "sha256": "db92cce1cee793f295cc10668c464cf5a42e8871cd4b364393881f1f79a1d686"
+    },
+    {
+      "path": "icons/ui/gift.svg",
+      "bytes": 442,
+      "sha256": "57fa4eac5e46a49214322ff2d20b11cffaf7e1e0627e8b1e45969ef8149f37f4"
+    },
+    {
+      "path": "icons/ui/globe.svg",
+      "bytes": 460,
+      "sha256": "fba6a3795c6d8d7b747efcea5036176a6a5668cf639b4d5bbfa1721a76b1f86e"
+    },
+    {
+      "path": "icons/ui/graph.svg",
+      "bytes": 442,
+      "sha256": "c291d2170cee4efe9ec75cfbb66281ce3e907a4d12c9bacf38d3f6c704600222"
+    },
+    {
+      "path": "icons/ui/group.svg",
+      "bytes": 470,
+      "sha256": "fba0301ef68c04cc9d443a9d2762753b0eb7ee14f427f366ad929241bf56ffad"
+    },
+    {
+      "path": "icons/ui/heart.svg",
+      "bytes": 410,
+      "sha256": "abd51731adbc4ebdc01b55c3135ed1c0c79819563e2fe9fcd915a80edc922b85"
+    },
+    {
+      "path": "icons/ui/help.svg",
+      "bytes": 454,
+      "sha256": "e9c434af5c01b6a19448fcd8eab78141af15167f9bad3d974766599864a6749a"
+    },
+    {
+      "path": "icons/ui/history.svg",
+      "bytes": 421,
+      "sha256": "64e7879b0baddd8b1b4d4b1a7ecaa3750f550d3dd61db3ba8b47566e5a6f17be"
+    },
+    {
+      "path": "icons/ui/home.svg",
+      "bytes": 419,
+      "sha256": "ac88f1492adcf3015d441ffeb958fd2ee4fba7ada0f1ce82ac1a1081c7564f2b"
+    },
+    {
+      "path": "icons/ui/hook.svg",
+      "bytes": 423,
+      "sha256": "05c48bcf14ab53046b740ba7a8724da6ff6031e8406ce0e8db058dc996b02d78"
+    },
+    {
+      "path": "icons/ui/index.svg",
+      "bytes": 416,
+      "sha256": "0208685f57e9d86c5ca5427451997e345f5f28d8deead4a5a3f91a60d7708b42"
+    },
+    {
+      "path": "icons/ui/key.svg",
+      "bytes": 448,
+      "sha256": "1d0db91a9e0b12520037ea44a43e64bcd55b25ab9d13aff15ef4e3ca25577b0a"
+    },
+    {
+      "path": "icons/ui/list-check.svg",
+      "bytes": 429,
+      "sha256": "68ccb36ba3cd15a27748c25c5e7209789796070852b32c730108383917e1d726"
+    },
+    {
+      "path": "icons/ui/lock.svg",
+      "bytes": 429,
+      "sha256": "8cb20ec47755bfa6f7ae96f10d30574922270a54a064c14ca97b6e19d1b0a0d7"
+    },
+    {
+      "path": "icons/ui/maximize.svg",
+      "bytes": 408,
+      "sha256": "8d5f61ddf78c8390c27a8a4f9245368b52d18a83d81310b7b72b68994e8b988f"
+    },
+    {
+      "path": "icons/ui/minimize.svg",
+      "bytes": 407,
+      "sha256": "b24645c2b237e651ff7ccb2e498e521df9364d8d8f0d306f7038ba86f98c6c83"
+    },
+    {
+      "path": "icons/ui/more.svg",
+      "bytes": 314,
+      "sha256": "7b76824aa384b2c4cc59201d4f3b519095258f84348f73a29004f40d91ef531d"
+    },
+    {
+      "path": "icons/ui/panel-right.svg",
+      "bytes": 411,
+      "sha256": "c3cd6c4c9351f3a906a3241b200ed6444f7e57c24f5986702d84f216a98e2d5a"
+    },
+    {
+      "path": "icons/ui/partners.svg",
+      "bytes": 488,
+      "sha256": "61f465cb0480bafb7f52e9827d68a5542b40cc61ccbf660b70a3ec1a84ccffa1"
+    },
+    {
+      "path": "icons/ui/phone.svg",
+      "bytes": 432,
+      "sha256": "c02fac7f789593d659f18b8ee1fc16baf4ca7a84997120f8383f18b3c07152a2"
+    },
+    {
+      "path": "icons/ui/play.svg",
+      "bytes": 390,
+      "sha256": "b9479e4676b1cb544e89892eee4fec5a37c8d63c03870ebc7428484d0baa78ae"
+    },
+    {
+      "path": "icons/ui/plugin.svg",
+      "bytes": 408,
+      "sha256": "abfd6651b513bc07392602e470ecbc16bbc77fe6ef5cc0d7ab7df2cab436c265"
+    },
+    {
+      "path": "icons/ui/plus.svg",
+      "bytes": 307,
+      "sha256": "00e7ae91e93ab72c9a577c3459253d2507dcc3f2ed2650926f17f662b7aa53ca"
+    },
+    {
+      "path": "icons/ui/point-up.svg",
+      "bytes": 348,
+      "sha256": "eb1e4cfeee00f1e01bd74cd37dcc150f3b92789cf4de080f12227eee879a752e"
+    },
+    {
+      "path": "icons/ui/refresh.svg",
+      "bytes": 451,
+      "sha256": "ebdcd6efe05dc0f717699cf43206c3ea1f55beecadb186bd593c1b12ab019636"
+    },
+    {
+      "path": "icons/ui/rocket.svg",
+      "bytes": 462,
+      "sha256": "67d08b5251f47ee1d1f423d54cbf4bab0eb6fd04fcbadb1f143c6684c458b57b"
+    },
+    {
+      "path": "icons/ui/send.svg",
+      "bytes": 411,
+      "sha256": "5ff7205727179b30114ca34e6509790e5bb645365bc85dd9c85039c662a4dd74"
+    },
+    {
+      "path": "icons/ui/settings.svg",
+      "bytes": 471,
+      "sha256": "4916df453cac517b2132b6df1ae21e40da87899fab379b5bcf70c5aac73a2f64"
+    },
+    {
+      "path": "icons/ui/shield-check.svg",
+      "bytes": 428,
+      "sha256": "43ca382c772da62a0c6bae2740286361974dd4cc44f35059f9426f3d0da3fc40"
+    },
+    {
+      "path": "icons/ui/sparkle.svg",
+      "bytes": 405,
+      "sha256": "5d2faa77dd8a1e1de9889b36fcffddc8c9c1c1750a8c8d3c6326e998bcb821e4"
+    },
+    {
+      "path": "icons/ui/stethoscope.svg",
+      "bytes": 479,
+      "sha256": "2a05c7796b9513021ff1483c4f9ed076f87cd313441377e7d802ab26d38434cf"
+    },
+    {
+      "path": "icons/ui/stop.svg",
+      "bytes": 383,
+      "sha256": "bcc39a11ea7c6bdfecee225a389ef3764c36ca1267959cb86b8ab73cd0334f35"
+    },
+    {
+      "path": "icons/ui/terminal.svg",
+      "bytes": 416,
+      "sha256": "4d990f34490b4774f8fc54498fbf6edb44d48b1fbe6cb221ae42c6f2cf48d43a"
+    },
+    {
+      "path": "icons/ui/thought.svg",
+      "bytes": 427,
+      "sha256": "18846c2abcb96e1ee46bda57d31c672031a303c12c7bdd4e216e1c1af0d9b7c3"
+    },
+    {
+      "path": "icons/ui/trash.svg",
+      "bytes": 433,
+      "sha256": "072b8bd199f6471722c04ab140f96ee864bc9c413e1684b16d9ea8db29b2cadc"
+    },
+    {
+      "path": "icons/ui/undo.svg",
+      "bytes": 418,
+      "sha256": "638581acae12242ab887b5af3ceddd8cb1bc9a0bf6350912a25b764e616baa58"
+    },
+    {
+      "path": "icons/ui/warning.svg",
+      "bytes": 414,
+      "sha256": "5e5a9c37d5560fc324cbfb5645e88185b09e9925d47d3aabc560a2e5b624b5fc"
+    },
+    {
+      "path": "images/app-effect.png",
+      "bytes": 1909581,
+      "sha256": "c5a1ea2942680c22e8caa55c2203babf27fe02d460903238872aef3339fdb517"
+    },
+    {
+      "path": "images/app-icon-1024.png",
+      "bytes": 53692,
+      "sha256": "4566564db4db2dd16339ea55b2a4e1a124427e49111dc86b43330edf6f6756c2"
+    },
+    {
+      "path": "images/icon-contact-sheet.png",
+      "bytes": 175215,
+      "sha256": "a997162a5e9e571929968e89aeb7bf98a7e0ffb54456b8a4369cf04d2c8def15"
+    },
+    {
+      "path": "images/preview-browser.jpg",
+      "bytes": 43857,
+      "sha256": "c9640fc093272d1b8d1a00be51fd68f12db23af982fa9b13579b7b1fc92500f8"
+    },
+    {
+      "path": "images/reference-original.png",
+      "bytes": 601076,
+      "sha256": "c4077762ea8a2858ba96e512f29c511dedd77f5ac536da97e2182cdf79a17b25"
+    },
+    {
+      "path": "images/theme-vector-preview.png",
+      "bytes": 486495,
+      "sha256": "87204ffdfae81e65ffb61ee47608ec9327f9b9f746f233c8704dae7c39d9796e"
+    },
+    {
+      "path": "images/theme-wallpaper.png",
+      "bytes": 2194899,
+      "sha256": "142792ab7a6e9cff6372936ca115054d84de097636680ad5ebbe5b6ac47c715d"
+    },
+    {
+      "path": "images/ui-layered-preview.png",
+      "bytes": 1522103,
+      "sha256": "4d90505128676babe14122e8730d6490d79e8232b8519c4be0193f085d144406"
+    },
+    {
+      "path": "images/ui-vector-preview.png",
+      "bytes": 514924,
+      "sha256": "13c40a8ec08a71552933eab73915c5514627210e95f0406af821cd93f5bf83ae"
+    },
+    {
+      "path": "index.html",
+      "bytes": 3007334,
+      "sha256": "8e9407fc42347d489b8c607f338127580c01732bef47872f997f1964d1b9c883"
+    },
+    {
+      "path": "layers.json",
+      "bytes": 5733,
+      "sha256": "ec3c31e3db6165cc0073e406a8ae419fbd4df8a5a2c5b780024e8f7d84577ea3"
+    },
+    {
+      "path": "prompts.md",
+      "bytes": 6797,
+      "sha256": "23b5f04016969c87f96413793b55733ad398866d14766b3b3e61fd4af0b4e210"
+    },
+    {
+      "path": "svg/icon-contact-sheet.svg",
+      "bytes": 50281,
+      "sha256": "537b108e3129c39642294fc5b1323cde959d730efc714c0766e909a742b2384a"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--at-field-rings.svg",
+      "bytes": 2824,
+      "sha256": "37f6226b85a444e98fe748ecd824c2ee970dfce91b29713601340022714ef0d1"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--background.svg",
+      "bytes": 1897,
+      "sha256": "51f05adf6b91e9802b2ca50a31a9ce85c1221f9e752802cde0944d0f8b01f897"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--engineering-grid.svg",
+      "bytes": 2042,
+      "sha256": "5a61e2344c591f34fef1fe271f6f42d99d704b3787866e0d2190d3a6702cc15f"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--eva-armor.svg",
+      "bytes": 2357,
+      "sha256": "4b926ce253a42413dc2ba208c7d90d4e013a37bcd196fc2661bd3f86455976ee"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--eva-lights.svg",
+      "bytes": 2431,
+      "sha256": "ffa82f6f11a2c2df8661172540af6b9d8c12c1cc0a2ba459788b92f094fc7782"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--eva-silhouette.svg",
+      "bytes": 2165,
+      "sha256": "eb7afdd818e369a42d47ea6eede7425cc0d6388cfebcd8c41c19170dfeba3706"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--hud-decorations.svg",
+      "bytes": 4827,
+      "sha256": "1c33a045e508668b90f7f4b51205d214ba942e6a821667dd69f4de91515b09fa"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--miku-face.svg",
+      "bytes": 2979,
+      "sha256": "11cce8e8f3baeb615ccb5daec4b81e2ac89bc0f524371c049313f5ef129fbc37"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--miku-front-hair.svg",
+      "bytes": 2354,
+      "sha256": "96d2e74d4f0a1dc2401166ac8fb124db5deea93233aafcfb2325f3f903b16241"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--miku-hair-back.svg",
+      "bytes": 2508,
+      "sha256": "48eab6dd90a966aadb56018d25700d231fc45d4a67c63b43f39e7cb968d2d19a"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--miku-headset.svg",
+      "bytes": 2519,
+      "sha256": "bf9915dc3db4cb6c70499f2070e437b5855803537cf24d6917f1cd654d63690d"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--miku-pilot-suit.svg",
+      "bytes": 2951,
+      "sha256": "86172333a9eed3eb063840cdbb27c63a3d9c73e9b5d7e32c42c126dba09869b9"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--rim-lights.svg",
+      "bytes": 1970,
+      "sha256": "78de3048ff56c0ad97871e7f81c62e4653d73cb1024f75736833115107c6640f"
+    },
+    {
+      "path": "svg/layers/theme-vector-layered--theme-wordmark.svg",
+      "bytes": 2286,
+      "sha256": "539ab184f8123ce2ea5508b858a5441d5b7e315c7f5ab7a02436236e6a6ba30f"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--chat-content.svg",
+      "bytes": 5566,
+      "sha256": "20b39b94842e1735b1822f2ca44bbb15a36d1a61c653d37d21b054179850daa6"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--composer.svg",
+      "bytes": 2989,
+      "sha256": "b4c1125c4a8441f7eb98a5aa9badfd462ba4a9ba5455ff0df0b6e5880cbdcdfb"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--explorer.svg",
+      "bytes": 11222,
+      "sha256": "4e853d8a50f0b7ce2f4482908b09aa8c6ebd9550b80dc7416a2d30ed7370adcc"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--functional-panels.svg",
+      "bytes": 2179,
+      "sha256": "404dc25bfc31409c0a78fe9a0501697531fe9577365dc8640abdca0d60323fa4"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--launch-cards.svg",
+      "bytes": 3546,
+      "sha256": "1dda2a868e7c48fb96f7f0b5a34592e8daee736d97a99ec788179b25949d3c3b"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--navigation-icons.svg",
+      "bytes": 6222,
+      "sha256": "ade2f2b89b90bb2adab6027ef094ed2eb409c37eeb6a371ae3e0b96b0cc725a2"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--panel-dividers.svg",
+      "bytes": 2529,
+      "sha256": "4a8d85976eaea566143d90e767e492c074960b9a33a408f2639b1c28ff5f16dc"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--statusbar.svg",
+      "bytes": 2512,
+      "sha256": "7508d95555db18e262285c95799547e6b6167793ff9d9dba1ebcd8cd49630c43"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--titlebar.svg",
+      "bytes": 6288,
+      "sha256": "e08630f2af3382db7232eaa6fb7b998d8a21229397577d04d28d024716449f0b"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--wallpaper-raster.svg",
+      "bytes": 2928605,
+      "sha256": "5e001389a5a03e61f1917e15ec91aec1a1993f5f125df45f38110df7262dbe6f"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--welcome-typography.svg",
+      "bytes": 5572,
+      "sha256": "0e5bed0257da8a9cc4246f440fb8fe0d3e11cc0b236d4defeabf0e1dbb321b8d"
+    },
+    {
+      "path": "svg/layers/ui-skin-layered--window-background.svg",
+      "bytes": 1902,
+      "sha256": "7cd566fbe480e8025d1e637ebcce4b927aecf15152eae9950adcf030df7679c9"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--chat-content.svg",
+      "bytes": 5566,
+      "sha256": "20b39b94842e1735b1822f2ca44bbb15a36d1a61c653d37d21b054179850daa6"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--composer.svg",
+      "bytes": 2989,
+      "sha256": "b4c1125c4a8441f7eb98a5aa9badfd462ba4a9ba5455ff0df0b6e5880cbdcdfb"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--explorer.svg",
+      "bytes": 11222,
+      "sha256": "4e853d8a50f0b7ce2f4482908b09aa8c6ebd9550b80dc7416a2d30ed7370adcc"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--functional-panels.svg",
+      "bytes": 2179,
+      "sha256": "404dc25bfc31409c0a78fe9a0501697531fe9577365dc8640abdca0d60323fa4"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--launch-cards.svg",
+      "bytes": 3546,
+      "sha256": "1dda2a868e7c48fb96f7f0b5a34592e8daee736d97a99ec788179b25949d3c3b"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--navigation-icons.svg",
+      "bytes": 6222,
+      "sha256": "ade2f2b89b90bb2adab6027ef094ed2eb409c37eeb6a371ae3e0b96b0cc725a2"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--panel-dividers.svg",
+      "bytes": 2529,
+      "sha256": "4a8d85976eaea566143d90e767e492c074960b9a33a408f2639b1c28ff5f16dc"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--statusbar.svg",
+      "bytes": 2512,
+      "sha256": "7508d95555db18e262285c95799547e6b6167793ff9d9dba1ebcd8cd49630c43"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--titlebar.svg",
+      "bytes": 6288,
+      "sha256": "e08630f2af3382db7232eaa6fb7b998d8a21229397577d04d28d024716449f0b"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--wallpaper-vector.svg",
+      "bytes": 13054,
+      "sha256": "c3eb1f26680257a530c7908b9b23f2350a4d1f5fcecbb8cf9ce765ca6764a1db"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--welcome-typography.svg",
+      "bytes": 5572,
+      "sha256": "0e5bed0257da8a9cc4246f440fb8fe0d3e11cc0b236d4defeabf0e1dbb321b8d"
+    },
+    {
+      "path": "svg/layers/ui-skin-vector-only--window-background.svg",
+      "bytes": 1902,
+      "sha256": "7cd566fbe480e8025d1e637ebcce4b927aecf15152eae9950adcf030df7679c9"
+    },
+    {
+      "path": "svg/theme-vector-layered.svg",
+      "bytes": 13621,
+      "sha256": "e810591cbace6388571301261e342e84dfa58e5f4e895507827189ad87a1d58f"
+    },
+    {
+      "path": "svg/ui-skin-layered.svg",
+      "bytes": 2960146,
+      "sha256": "4b07507523be8a8ccfb9ab9a83e309b2ce64a03feed318e8b1b5251a8a274f65"
+    },
+    {
+      "path": "svg/ui-skin-vector-only.svg",
+      "bytes": 44488,
+      "sha256": "60b56fb56d8f7476e95591d25b4466335d014a9797f1de0123090d7db29c6840"
+    },
+    {
+      "path": "svg/wordmark.svg",
+      "bytes": 739,
+      "sha256": "2664afe06acee37888264fc0123a7f0ab7510a7cc68f207e2b0e7bbc1dac97a0"
+    },
+    {
+      "path": "theme/monaco-theme.json",
+      "bytes": 1178,
+      "sha256": "ab59096a827d5099ef2e10ed313443b98ffbb5791f0f7cd62936e429474ab438"
+    },
+    {
+      "path": "theme/sikeoop-eva-miku.css",
+      "bytes": 2400,
+      "sha256": "415ff6f53510b601c2cd4720daa35a061c6bdd57019b57bd114585f86c0f43a0"
+    },
+    {
+      "path": "theme/terminal-theme.json",
+      "bytes": 543,
+      "sha256": "89af1b9ca0c547c104ddb6b2ebd08dfb28b642d9e5c1bad120fa0fb2cb9b8d90"
+    },
+    {
+      "path": "theme/tokens.json",
+      "bytes": 3101,
+      "sha256": "d5caf7b1e605311c59fdcbf97274f3ca2c2071214be76f43c6d055fc1c2cfdca"
+    },
+    {
+      "path": "tools/build_assets.py",
+      "bytes": 44878,
+      "sha256": "384425b5e755c405c277ff101b9817b5861b713a53d18e25aed875c8bf155f9d"
+    },
+    {
+      "path": "tools/render_assets.mjs",
+      "bytes": 1496,
+      "sha256": "e40d7b4dae0cd5ecb805eb615486c4e74d61dbb24a1f7686e03df1b94f78ab85"
+    },
+    {
+      "path": "tools/verify_assets.py",
+      "bytes": 4665,
+      "sha256": "010dfd14ac7ff9869fafd8df5846e626c3791d6aa52599cf9e3216929b4d5e20"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="364" height="660" viewBox="0 0 364 660" font-family="Segoe UI, Microsoft YaHei UI, PingFang SC, sans-serif"><title>品牌侧栏底板</title><desc>Windows installer interface design. Native editable vectors, no embedded raster. Design only, no executable installer.</desc><defs><linearGradient id="shell-gradient" x2="1" y2="1"><stop stop-color="#131421" /><stop offset="1" stop-color="#0D1018" /></linearGradient>
+<linearGradient id="sidebar-gradient" x2=".7" y2="1"><stop stop-color="#211930" /><stop offset="1" stop-color="#131222" /></linearGradient>
+<linearGradient id="sidebar-fade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#131222" stop-opacity="0" /><stop offset=".52" stop-color="#131222" stop-opacity=".38" /><stop offset="1" stop-color="#131222" /></linearGradient>
+<linearGradient id="button-gradient" x2="1" y2="1"><stop stop-color="#6CEAE9" /><stop offset="1" stop-color="#4CD4E1" /></linearGradient>
+<linearGradient id="progress-gradient"><stop stop-color="#A58BFA" /><stop offset="1" stop-color="#5CE1E6" /></linearGradient>
+<radialGradient id="sidebar-aura"><stop stop-color="#5B398A" stop-opacity=".54" /><stop offset="1" stop-color="#161324" stop-opacity="0" /></radialGradient>
+<clipPath id="shell-clip"><rect x="1" y="1" width="1038" height="658" rx="14" /></clipPath>
+<clipPath id="sidebar-clip"><rect x="1" y="1" width="363" height="658" rx="14" /></clipPath><linearGradient id="hero-plum" x2="1" y2="1"><stop stop-color="#0B0C14" /><stop offset=".65" stop-color="#141122" /><stop offset="1" stop-color="#21162F" /></linearGradient>
+<linearGradient id="hero-armor" x2=".8" y2="1"><stop stop-color="#5B4384" /><stop offset="1" stop-color="#272239" /></linearGradient>
+<linearGradient id="hero-hair" x2="1" y2=".7"><stop stop-color="#53D3DC" /><stop offset=".5" stop-color="#278B9D" /><stop offset="1" stop-color="#124B65" /></linearGradient>
+<linearGradient id="hero-skin" x2=".7" y2="1"><stop stop-color="#F4E4DC" /><stop offset="1" stop-color="#C9ACA8" /></linearGradient>
+<linearGradient id="hero-leftFade"><stop stop-color="#0B0C14" stop-opacity=".96" /><stop offset=".44" stop-color="#0B0C14" stop-opacity=".68" /><stop offset="1" stop-color="#0B0C14" stop-opacity="0" /></linearGradient>
+<radialGradient id="hero-aura"><stop stop-color="#544076" stop-opacity=".6" /><stop offset="1" stop-color="#141122" stop-opacity="0" /></radialGradient>
+<pattern id="hero-grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0v80" fill="none" stroke="#423753" stroke-width=".6" /></pattern>
+<pattern id="hero-hazard" width="32" height="20" patternUnits="userSpaceOnUse" patternTransform="skewX(-35)"><rect width="16" height="20" fill="#FFB05C" /><rect x="16" width="16" height="20" fill="#141122" /></pattern>
+<clipPath id="hero-editorClip"><rect x="368" y="54" width="904" height="1054" /></clipPath>
+<clipPath id="hero-windowClip"><rect width="1920" height="1140" rx="18" /></clipPath></defs><rect x="0" y="0" width="364" height="660" rx="14" fill="url(#sidebar-gradient)" /></svg>

@@ -1,0 +1,9 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mobile.log",
+  "params": {
+    "level": "warn",
+    "message": "连接断开",
+    "at": 1791567000000
+  }
+}

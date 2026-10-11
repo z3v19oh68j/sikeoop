@@ -1,0 +1,16 @@
+Analyze competing hypotheses about the Fermi paradox:
+
+Hypothesis A (Rare Emergence / Great Filter Before Us):
+Life, complex life, intelligence, or technological civilization is intrinsically rare because one or more evolutionary or planetary steps are difficult.
+
+Hypothesis B (Short-Lived or Self-Limiting Technological Civilizations):
+Technological civilizations may arise, but their detectable or expansion-capable phase is short, unstable, self-limiting, or interrupted before galaxy-scale visibility.
+
+Hypothesis C (Non-Detection / Non-Expansion / Observational Selection):
+Technological civilizations may exist, but current searches are incomplete, expansion is not inevitable, civilizations may be quiet, sustainable, spatially patchy, or deliberately non-contacting.
+
+Questions:
+1. Which hypothesis has the strongest causal or evidential support? Rank by evidence type, not rhetorical plausibility.
+2. Are the three hypotheses mutually exclusive, or do they occupy different causal layers?
+3. Which specific evidence items become unreliable, scope-limited, or overgeneralized after cross-examination?
+4. Design an experiment, survey program, or observational test that would distinguish causal primacy among A, B, and C.

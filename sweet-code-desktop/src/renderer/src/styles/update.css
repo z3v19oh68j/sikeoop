@@ -1,0 +1,12 @@
+/* The update card (UpdateBanner.tsx). */
+.update-card { position: fixed; right: 18px; bottom: 40px; z-index: 60; width: min(340px, calc(100vw - 36px)); display: flex; gap: 12px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); }
+.update-icon { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.update-icon .icon { width: 18px; height: 18px; }
+.update-body { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.update-body b { font-size: 13.5px; color: var(--ink); }
+.update-body span { font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.update-notes { margin: 0; max-height: 96px; overflow-y: auto; font-size: 12px; line-height: 1.6; color: var(--ink-2); white-space: pre-wrap; }
+.update-bar { height: 4px; border-radius: 2px; background: var(--panel-3); overflow: hidden; }
+.update-bar div { height: 100%; background: var(--accent); transition: width 0.3s; }
+.update-actions { display: flex; gap: 8px; margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) { .update-bar div { transition: none; } }

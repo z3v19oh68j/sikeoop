@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="李旺的个人主页：sikeoop 的作者。公开两份技术文稿的全文：链心 Chain-Centric V8 与 MHPA 识海—心光持续主体认知架构。">
+<title>李旺 · 技术与开源</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=ZCOOL+QingKe+HuangYou&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* A personal page inside the sikeoop site: the same shell and palette, and two papers as the
+   content. Each paper gets one wide card: what it says on the left, a small figure built from
+   the paper's own vocabulary on the right. */
+:root {
+  --bg: #0f0f10; --panel: #151517; --raised: #1c1c20; --line: #26262b;
+  --ink: #ecebef; --ink-2: #c4c3cb; --muted: #8d8b96; --accent: #f0789b; --accent-soft: rgba(240,120,155,.13); --accent-ink: #1a0d12;
+  --ok: #5fd38d; --warn: #e5a15b; --del: #f59a9d;
+  --font-display: "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif;
+  --font-body: "Geist", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SF Mono", Menlo, Consolas, "Noto Sans SC", monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); --accent-ink:#fff; --ok:#23935a; --warn:#b56b1f; --del:#b23a40; color-scheme: light; } }
+:root[data-theme="light"] { --bg:#fbf8f9; --panel:#f3eef1; --raised:#fff; --line:#e6dde2; --ink:#1e1a1d; --ink-2:#3d363b; --muted:#776e75; --accent:#d14c76; --accent-soft:rgba(209,76,118,.1); --accent-ink:#fff; --ok:#23935a; --warn:#b56b1f; --del:#b23a40; color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.75 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .in { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none; }
+.brand svg { width: 18px; height: 18px; }
+.top .back { margin-left: auto; color: var(--muted); font-size: 14px; text-decoration: none; }
+.top .back:hover { color: var(--ink); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+.hero { padding: 88px 0 72px; display: grid; gap: 18px; }
+.eyebrow { font: 500 12.5px/1.5 var(--font-mono); letter-spacing: .14em; color: var(--accent); }
+h1 { margin: 0; font: 400 clamp(64px, 13vw, 132px)/1 var(--font-display); letter-spacing: .02em; }
+.lede { margin: 0; max-width: 30em; font-size: clamp(17px, 2.1vw, 20px); line-height: 1.85; color: var(--ink-2); text-wrap: pretty; }
+.lede a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.lede a:hover { color: var(--accent); }
+
+.sec-head { display: flex; align-items: baseline; gap: 14px; padding: 20px 0; border-top: 1px solid var(--line); }
+h2 { margin: 0; font: 400 clamp(24px, 3.2vw, 30px)/1.3 var(--font-display); }
+.sec-head span { color: var(--muted); font-size: 14.5px; }
+
+.work { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--raised); overflow: hidden; margin-bottom: 24px; }
+.work .say { padding: 34px 36px 32px; display: grid; gap: 14px; align-content: start; }
+.kind { font: 500 12px/1.5 var(--font-mono); letter-spacing: .1em; color: var(--muted); }
+h3 { margin: 0; font: 400 clamp(28px, 3.6vw, 38px)/1.25 var(--font-display); text-wrap: balance; }
+.what { margin: -6px 0 0; color: var(--ink); font-size: 17px; }
+.work p { margin: 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.9; text-wrap: pretty; }
+.work .edge { color: var(--muted); font-size: 14px; line-height: 1.8; padding-top: 12px; border-top: 1px dashed var(--line); }
+.work .edge b { color: var(--ink-2); font-weight: 500; }
+.go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 6px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 15px; text-decoration: none; transition: transform .15s ease, filter .15s ease; }
+.btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.more { color: var(--ink-2); font-size: 14px; text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.more:hover { color: var(--accent); }
+
+.fig { background: var(--panel); border-left: 1px solid var(--line); padding: 30px 28px; display: grid; gap: 16px; align-content: center; }
+.fig .cap { font: 500 12px/1.5 var(--font-mono); letter-spacing: .1em; color: var(--muted); }
+
+/* Chain-Centric: a ledger. One row per action, never a free-form chat line. */
+.ledger { display: grid; gap: 6px; font: 13px/1.5 var(--font-mono); }
+.ledger .row { display: grid; grid-template-columns: 30px 22px minmax(0, 118px) minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); }
+.ledger .r { color: var(--muted); }
+.ledger .who { color: var(--ink-2); }
+.ledger .act { font-weight: 500; }
+.ledger .t { color: var(--ink-2); font-family: var(--font-body); font-size: 13.5px; overflow-wrap: anywhere; }
+.act.pub { color: var(--ok); } .act.atk { color: var(--del); } .act.rev { color: var(--warn); } .act.pas { color: var(--muted); }
+.tiers { display: flex; flex-wrap: wrap; gap: 6px; }
+.tiers code { font: 12px/1.5 var(--font-mono); padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-2); background: var(--raised); }
+.tiers code.dim { border-style: dashed; color: var(--muted); }
+
+/* MHPA: one loop. The model is a step in it, not the whole of it. */
+.loop { display: grid; gap: 0; justify-items: stretch; }
+.loop .node { padding: 9px 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--raised); display: flex; justify-content: space-between; gap: 12px; align-items: baseline; font-size: 14.5px; }
+.loop .node small { font: 12px/1.5 var(--font-mono); color: var(--muted); text-align: right; }
+.loop .node.core { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: var(--accent-soft); }
+.loop .node.llm { border-style: dashed; color: var(--ink-2); }
+.loop .arrow { justify-self: center; height: 14px; width: 1px; background: var(--line); position: relative; }
+.loop .arrow::after { content: ""; position: absolute; left: -3px; bottom: 0; width: 7px; height: 7px; border-right: 1px solid var(--muted); border-bottom: 1px solid var(--muted); transform: rotate(45deg); }
+.loop .back { margin-top: 10px; text-align: center; font: 12px/1.6 var(--font-mono); color: var(--muted); }
+
+blockquote { margin: 0; padding: 2px 0 2px 16px; border-left: 3px solid var(--accent); color: var(--ink); font-size: 16px; line-height: 1.85; }
+
+.terms { padding: 28px 0 8px; color: var(--muted); font-size: 14.5px; max-width: 46em; }
+.terms p { margin: 0 0 8px; }
+.terms a { color: var(--ink-2); text-underline-offset: 3px; }
+
+footer.site { margin-top: 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+footer.site .wrap { padding-top: 28px; padding-bottom: 40px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; }
+footer.site a { color: var(--ink-2); text-underline-offset: 3px; }
+
+@media (max-width: 860px) {
+  .work { grid-template-columns: minmax(0, 1fr); }
+  .fig { border-left: 0; border-top: 1px solid var(--line); padding: 24px 20px; }
+  .work .say { padding: 26px 20px 24px; }
+  .hero { padding: 56px 0 48px; }
+  .wrap, .top .in { padding-inline: 16px; }
+}
+@media (max-width: 420px) { .ledger .row { grid-template-columns: 26px 18px minmax(0, 1fr); } .ledger .t { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f0789b" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.9 4.5 6.6 4.5c2.2 0 3.6 1.2 4.4 2.5.8-1.3 2.3-2.5 4.4-2.5 3.7 0 5.7 3.9 4.2 7.3C19.5 16.4 12 21 12 21Z"/></svg>sikeoop</a>
+  <a class="back" href="./">← 回到首页</a>
+</div></header>
+
+<main class="wrap">
+  <section class="hero" aria-labelledby="name">
+    <span class="eyebrow">技术 · 开源 · 个人主页</span>
+    <h1 id="name">李旺</h1>
+    <p class="lede"><a href="./">sikeoop</a> 的作者。写编辑器之外，我一直在想两件事：几个模型一起推理的时候，过程怎样才查得了账；一个 Agent 要怎样，才算一直是同一个它。两份文稿都放在这里，全文公开。</p>
+  </section>
+
+  <div class="sec-head">
+    <h2>公开文稿</h2>
+    <span>两份，都可以在线读全文</span>
+  </div>
+
+  <article class="work" aria-labelledby="w-chain">
+    <div class="say">
+      <span class="kind">技术论文草稿 · 与戴震宇联合研究</span>
+      <h3 id="w-chain">链心 Chain-Centric V8</h3>
+      <p class="what">面向可审计多模型推理的声明级证据账本</p>
+      <p>几个大模型一起讨论，留下的对话记录看着透明，其实很难查：哪条主张被攻击过，攻击的是哪一步，之后改没改。链心把这种互动从自由对话换成一本结构化的账本。每个 agent 每轮只能做四种动作，每次攻击都要指到具体的链、版本和步骤；协调层运行时不调用 LLM，也不判断谁对。</p>
+      <p>V8 新加了声明级证据池：一篇论文可以拆成几条能单独引用、单独攻击的证据声明。它给出的是一张分歧地图，不是答案。</p>
+      <p class="edge"><b>论文自己写明的边界：</b>不主张结果比单个模型更接近真理；一次会话大约要 70 万到 120 万输入 token。</p>
+      <div class="go">
+        <a class="btn" href="papers/chain-centric-v8.html">在线阅读全文 <span aria-hidden="true">→</span></a>
+        <a class="more" href="https://doi.org/10.5281/zenodo.20439912">DOI 10.5281/zenodo.20439912</a>
+      </div>
+    </div>
+    <div class="fig" aria-label="示意：账本上的四种动作和五级审计状态">
+      <span class="cap">示意 · 账本上只有四种动作</span>
+      <div class="ledger">
+        <div class="row"><span class="r">R1</span><span class="who">A</span><span class="act pub">publish_chain</span><span class="t">发布一条推理链，每一步都引用证据</span></div>
+        <div class="row"><span class="r">R2</span><span class="who">B</span><span class="act atk">attack</span><span class="t">攻击 A 的链 v1 的第 2 步</span></div>
+        <div class="row"><span class="r">R3</span><span class="who">A</span><span class="act rev">revise_chain</span><span class="t">修订成 v2，旧版本留在账上</span></div>
+        <div class="row"><span class="r">R4</span><span class="who">C</span><span class="act pas">pass</span><span class="t">沉默。记下来，但不算同意</span></div>
+      </div>
+      <span class="cap">五级审计状态</span>
+      <div class="tiers"><code>iron-clad</code><code>consensus</code><code>contested</code><code>collapsed</code><code class="dim">unscrutinised</code></div>
+    </div>
+  </article>
+
+  <article class="work" aria-labelledby="w-mhpa">
+    <div class="say">
+      <span class="kind">概念参考稿 · VERSION 0.1 · 2026-09</span>
+      <h3 id="w-mhpa">识海—心光持续主体认知架构</h3>
+      <p class="what">MindSea–Heartlight Persistent Agent Architecture（MHPA）</p>
+      <p>现在的 LLM Agent 大多还是“输入—推理—输出”：人格和情绪是当前上下文里临时生成的。MHPA 走另一条路，让大模型只当语言和推理的组件，在它外面搭一个持续运行的主体状态系统：先验参数（Agent DNA）、动态认知场（识海）、有限的意识访问（心光）、会衰减也会重构的记忆、复合情绪和意图竞争。</p>
+      <blockquote>人格不一定需要由大模型直接生成；人格可以作为长期认知动力系统运行过程中涌现出的稳定行为模式。</blockquote>
+      <p class="edge"><b>文稿自己写明的边界：</b>讨论的是“意识式的信息流与主体连续性”怎样工程化，不对机器是否真的拥有意识、疼痛或自由意志下结论。</p>
+      <div class="go">
+        <a class="btn" href="papers/mhpa.html">在线阅读全文 <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="fig" aria-label="示意：MHPA 的持续循环">
+      <span class="cap">示意 · 一个不停下来的循环</span>
+      <div class="loop">
+        <div class="node"><span>外感知 + 内知</span><small>Perception</small></div>
+        <span class="arrow" aria-hidden="true"></span>
+        <div class="node core"><span>识海</span><small>动态认知场</small></div>
+        <span class="arrow" aria-hidden="true"></span>
+        <div class="node core"><span>心光</span><small>有限意识访问</small></div>
+        <span class="arrow" aria-hidden="true"></span>
+        <div class="node"><span>意图竞争 → 调度</span><small>Scheduler</small></div>
+        <span class="arrow" aria-hidden="true"></span>
+        <div class="node llm"><span>LLM / 工具 / 行动</span><small>只负责怎么说、怎么做</small></div>
+        <div class="back">行为 → 新事件 → 再进入系统</div>
+      </div>
+    </div>
+  </article>
+
+  <div class="terms">
+    <p>链心论文以 CC BY 4.0 发布，原稿存在 <a href="https://doi.org/10.5281/zenodo.20439912">Zenodo</a>，引用请用 DOI。</p>
+    <p>网页版由 Word 原稿转成，内容没有改写。</p>
+  </div>
+</main>
+
+<footer class="site"><div class="wrap">
+  <span>李旺</span>
+  <a href="./">sikeoop 首页</a>
+  <a href="manual.html">新手手册</a>
+</div></footer>
+</body>
+</html>

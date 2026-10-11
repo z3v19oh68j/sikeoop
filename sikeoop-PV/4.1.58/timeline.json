@@ -1,0 +1,377 @@
+{
+ "total": 150,
+ "scenes": [
+  {
+   "id": "open",
+   "start": 0,
+   "dur": 18,
+   "vo": 3,
+   "title": "sikeoop 4.1.58"
+  },
+  {
+   "id": "switch",
+   "start": 18,
+   "dur": 16,
+   "vo": 19,
+   "title": "换模型，不用从头来"
+  },
+  {
+   "id": "fallback",
+   "start": 34,
+   "dur": 16,
+   "vo": 35,
+   "title": "模型掉链子，自己顶上"
+  },
+  {
+   "id": "quota",
+   "start": 50,
+   "dur": 16,
+   "vo": 51,
+   "title": "额度用完？它定个闹钟"
+  },
+  {
+   "id": "diff",
+   "start": 66,
+   "dur": 18,
+   "vo": 67,
+   "title": "改什么先给你看 · 一键撤回"
+  },
+  {
+   "id": "dispatch",
+   "start": 84,
+   "dur": 16,
+   "vo": 85,
+   "title": "调度台"
+  },
+  {
+   "id": "bookmark",
+   "start": 100,
+   "dur": 18,
+   "vo": 101,
+   "title": "设置重做 · 侧栏改成书签"
+  },
+  {
+   "id": "soon",
+   "start": 118,
+   "dur": 12,
+   "vo": 119.5,
+   "title": "预告：还在做"
+  },
+  {
+   "id": "end",
+   "start": 130,
+   "dur": 20,
+   "vo": 134,
+   "title": "现在下载"
+  }
+ ],
+ "cues": [
+  {
+   "t": 0,
+   "file": "sparkle",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 2,
+   "file": "whoosh",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 4,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 5,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 6,
+   "file": "pop",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 8,
+   "file": "correct",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 18,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 21,
+   "file": "click",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 22,
+   "file": "pop",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 23.5,
+   "file": "sparkle",
+   "gain": 0.35,
+   "len": 0
+  },
+  {
+   "t": 26,
+   "file": "correct",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 34,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 37,
+   "file": "back",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 38.5,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 40,
+   "file": "correct",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 44,
+   "file": "pop",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 50,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 52,
+   "file": "back",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 58,
+   "file": "alarm",
+   "gain": 0.32,
+   "len": 2.5
+  },
+  {
+   "t": 59.5,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 66,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 67.5,
+   "file": "typing",
+   "gain": 0.25,
+   "len": 2
+  },
+  {
+   "t": 73,
+   "file": "click",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 73.5,
+   "file": "correct",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 77,
+   "file": "click",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 77.5,
+   "file": "back",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 84,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 85,
+   "file": "pop",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 85.5,
+   "file": "pop",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 86,
+   "file": "pop",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 86.5,
+   "file": "pop",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 91,
+   "file": "correct",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 93,
+   "file": "click",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 93.5,
+   "file": "back",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 100,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 102,
+   "file": "typing",
+   "gain": 0.22,
+   "len": 2
+  },
+  {
+   "t": 108,
+   "file": "sparkle",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 108.5,
+   "file": "pop",
+   "gain": 0.35,
+   "len": 0
+  },
+  {
+   "t": 109,
+   "file": "pop",
+   "gain": 0.35,
+   "len": 0
+  },
+  {
+   "t": 109.5,
+   "file": "pop",
+   "gain": 0.35,
+   "len": 0
+  },
+  {
+   "t": 118,
+   "file": "whoosh",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 119.5,
+   "file": "pop",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 120.5,
+   "file": "pop",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 121.5,
+   "file": "pop",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 122.5,
+   "file": "pop",
+   "gain": 0.45,
+   "len": 0
+  },
+  {
+   "t": 130,
+   "file": "sparkle",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 131,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 132,
+   "file": "pop",
+   "gain": 0.5,
+   "len": 0
+  },
+  {
+   "t": 133,
+   "file": "pop",
+   "gain": 0.55,
+   "len": 0
+  },
+  {
+   "t": 136,
+   "file": "whoosh",
+   "gain": 0.4,
+   "len": 0
+  },
+  {
+   "t": 144,
+   "file": "correct",
+   "gain": 0.45,
+   "len": 0
+  }
+ ],
+ "ready": true
+}

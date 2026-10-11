@@ -1,0 +1,2 @@
+:root { --color-bg:#fbf7f2; --color-surface:#fff; --color-ink:#2a2420; --color-muted:#7a6f66; --color-line:#efe7de; --color-primary:#e8553f; --radius-md:10px; --radius-lg:14px; }
+* { box-sizing: border-box } html, body { margin: 0 } body { font-family: -apple-system, "PingFang SC", sans-serif; background: var(--color-bg); color: var(--color-ink); }

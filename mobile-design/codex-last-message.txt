@@ -1,0 +1,7 @@
+已按任务书开始执行，进度报告写入 `mobile-design/codex-report.md`。
+
+- **P0 已完成**：JSON-RPC v1 契约、26 个协议样例、P-256/HKDF/AES-GCM 规格与跨端测试向量；Android Compose/Gradle 骨架、Link 接口和加密测试。APK 已构建，但目前仍是占位界面。
+- **P1 已落地部分底座**：本地 Node 中继及测试；桌面事件多监听广播、会话只读快照、RPC allowlist；手机任务强制 lazy，human-only 操作逐条确认并在 10 分钟后拒绝。手机来源不能由 renderer 伪造。
+- **验证**：Node 测试 **16/16 通过**；Android `assembleDebug` 和 `test` 通过；桌面 `npm run build` 通过。`npm run typecheck` 仍只有开工前已存在的两个 `SweetApi.session` 错误；Mobile 代码未新增错误。协议样例独立 TypeScript 检查通过。
+
+**P1 尚未端到端可用**：桌面 MobileGateway、配对与握手、设备密钥管理、桌面手机页、Android 扫码/联网/通知和真实业务界面尚未接通。下一步和剩余验证项已写入报告。未部署、未推送；后续线上部署、发布和真机验收需由用户完成或明确确认。

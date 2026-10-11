@@ -1,0 +1,16 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mobile.ask",
+  "params": {
+    "approval": {
+      "id": "approval-55",
+      "source": "agent",
+      "title": "需要确认撤不回的操作",
+      "detail": "准备推送代码",
+      "createdAt": 1791567000000,
+      "deadlineAt": 1791567600000,
+      "humanOnly": true,
+      "status": "pending"
+    }
+  }
+}

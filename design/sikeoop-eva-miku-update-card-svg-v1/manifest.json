@@ -1,0 +1,646 @@
+{
+  "theme": "sikeoop EVA × MIKU automatic-update card",
+  "status": "design-assets-not-applied",
+  "svgCount": 90,
+  "embeddedRasterImages": 0,
+  "icons": 21,
+  "states": 5,
+  "registeredLayers": 14,
+  "illustrationTracePaths": 7004,
+  "renderedSVGs": 89,
+  "previews": [
+    {
+      "file": "previews/asset-overview.png",
+      "width": 1440,
+      "height": 1360,
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "previews/toggle-off.png",
+      "width": 72,
+      "height": 36,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "previews/card-checking.png",
+      "width": 1360,
+      "height": 912,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "previews/header-paths.png",
+      "width": 796,
+      "height": 314,
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "previews/button-primary-normal.png",
+      "width": 360,
+      "height": 76,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "previews/card-error.png",
+      "width": 1360,
+      "height": 912,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "previews/card-downloading.png",
+      "width": 1360,
+      "height": 912,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "file": "previews/card-ready.png",
+      "width": 1536,
+      "height": 1024,
+      "alphaExtrema": [
+        255,
+        255
+      ]
+    },
+    {
+      "file": "previews/card-installing.png",
+      "width": 1360,
+      "height": 912,
+      "alphaExtrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "QA.md",
+      "bytes": 1868,
+      "sha256": "3aebb10955feb9e1d96362151893d743b6de4a4751938340143ab7e5157b97a8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5717,
+      "sha256": "9a3f1b1f89de2f4e3e13d3ced7e2a28261b92368c542983c38478583d7fd8fe5"
+    },
+    {
+      "path": "assets.json",
+      "bytes": 17155,
+      "sha256": "757d5927cb1409981b67d8607c9debde096ae83d2b000f6bc5da6e9a1dc61f49"
+    },
+    {
+      "path": "auto-update-card-editable.svg",
+      "bytes": 2611105,
+      "sha256": "e673c4a73010d4271da99e7c2c007785accbd581cfc835f617aa362249a0f797"
+    },
+    {
+      "path": "auto-update-card-on-canvas.svg",
+      "bytes": 2423663,
+      "sha256": "0d7329f7026326f00e2687e6ba1a76c5f44a1dde1a727d74cf0e286db4db2056"
+    },
+    {
+      "path": "auto-update-card.svg",
+      "bytes": 2423564,
+      "sha256": "fb43923a10583cfd1bf79af697638c75baaa607b356f13e43f35405fbe452c83"
+    },
+    {
+      "path": "components/badge-checking.svg",
+      "bytes": 3280,
+      "sha256": "cfe1349e3230dd6c001b3601abb4a641f2c2d2124c804306cbf79ba341e02221"
+    },
+    {
+      "path": "components/badge-downloading.svg",
+      "bytes": 4064,
+      "sha256": "68cef7f6f6c1f8066a218b4340d53845d93b2f68e128f6bd747d6451f60d3fb7"
+    },
+    {
+      "path": "components/badge-error.svg",
+      "bytes": 3239,
+      "sha256": "396ef55ad4608fd3b7fa2f9b3eca0e9d27e78b13c7d1e02b48a54123e334406d"
+    },
+    {
+      "path": "components/badge-installing.svg",
+      "bytes": 3321,
+      "sha256": "b7d23a1c94f46833aed6edd25a115c41fbfc082ddbfdd1d1f7e9e70785742297"
+    },
+    {
+      "path": "components/badge-ready.svg",
+      "bytes": 2462,
+      "sha256": "be94f6aaa5bcd0ca6ad154c528f3ff3077a7b85fa594cf2d3bd1497e54cb06fa"
+    },
+    {
+      "path": "components/badge-version.svg",
+      "bytes": 5188,
+      "sha256": "a5ceff8e5af89b475851b328ec37d4e744286fba3df2ca40cd8037c87dcfe004"
+    },
+    {
+      "path": "components/button-primary-disabled.svg",
+      "bytes": 3854,
+      "sha256": "43842922e71c2cf2d93126d377557374b56238c6379c136ebee4b317e741c231"
+    },
+    {
+      "path": "components/button-primary-hover.svg",
+      "bytes": 3851,
+      "sha256": "5700c7a5ad29f7dac5bab448433168695d5ddd68c19cd217927e234cf4e2787a"
+    },
+    {
+      "path": "components/button-primary-label-free.svg",
+      "bytes": 1191,
+      "sha256": "a6acd0c89726e8f5336ce0a35d718d22378f05e717d2ca35c29745462a17bd1f"
+    },
+    {
+      "path": "components/button-primary-normal.svg",
+      "bytes": 3858,
+      "sha256": "0f994fb3aefb2a63c8392636e473e683273ea4eae299a886fcc5ba8ab058f012"
+    },
+    {
+      "path": "components/button-primary-pressed.svg",
+      "bytes": 3853,
+      "sha256": "69cd19def7514a509e7ca21e4c998656ecce8d4d346f14de267c3702e3730519"
+    },
+    {
+      "path": "components/button-secondary-disabled.svg",
+      "bytes": 2169,
+      "sha256": "dacaa298bffa4f5d2bdc104fb0b94d7bb904e8ffff1d0cb8d40357256b57d901"
+    },
+    {
+      "path": "components/button-secondary-hover.svg",
+      "bytes": 2166,
+      "sha256": "c4da3ba1ea95887edfe519feec0bbc5d7df146b52b8bb369f1fa47f44f127542"
+    },
+    {
+      "path": "components/button-secondary-label-free.svg",
+      "bytes": 1185,
+      "sha256": "b6a081a2db3ad04c0359b45e1fb6724db10aaf672e10b97c91022085ecc6b240"
+    },
+    {
+      "path": "components/button-secondary-normal.svg",
+      "bytes": 2167,
+      "sha256": "585ba37f3056e7b085dfe67ca590a26a34bf8cd6e7d3c2e6c90a88fedb959444"
+    },
+    {
+      "path": "components/feature-row-1.svg",
+      "bytes": 4580,
+      "sha256": "87b75f1b946e7e258b3079f5556978e8e0c4164b3f2c6a4a00986aca136ba2fd"
+    },
+    {
+      "path": "components/feature-row-2.svg",
+      "bytes": 5875,
+      "sha256": "0a09442e6995d83751104d5ad011c6408bd5f9530ee8976376d5ac7cb9dccb0a"
+    },
+    {
+      "path": "components/feature-row-3.svg",
+      "bytes": 4822,
+      "sha256": "7240e1b0b2eab1c5138d0f73251eebefaf0a9972dc8d623fc4c3ce668220b46b"
+    },
+    {
+      "path": "components/progress-checking.svg",
+      "bytes": 1220,
+      "sha256": "963b4ffaca250c30edde1e0ea8c8b974bdb1e433b386aea7eca61a1cb1106bbf"
+    },
+    {
+      "path": "components/progress-complete.svg",
+      "bytes": 1221,
+      "sha256": "6e80315814771ec2317dda913932927202885d466fec7ec341651065bc2acfa8"
+    },
+    {
+      "path": "components/progress-downloading-64.svg",
+      "bytes": 1227,
+      "sha256": "661b8db348742ab61d25ec4ad6825a14dbc59df3e19eb23a878d2815e6b2e83e"
+    },
+    {
+      "path": "components/progress-error-37.svg",
+      "bytes": 1221,
+      "sha256": "f7704fdd155edd759d43046612477706fdddbbebf92bdfeacec957bc9fabff14"
+    },
+    {
+      "path": "components/progress-track.svg",
+      "bytes": 1215,
+      "sha256": "39c814615f838b3e734b82fe66ad18f3bf2c7a62a0136387d3dd37ef769050c0"
+    },
+    {
+      "path": "components/setting-auto-download.svg",
+      "bytes": 10706,
+      "sha256": "dcb7eff2e1f37cf8e6767075c0d9ae3764e9d687b11b4800bcb60c990cf0adef"
+    },
+    {
+      "path": "components/toggle-disabled.svg",
+      "bytes": 1224,
+      "sha256": "0a7a40b7cdbd7539c4452a5c5a92ecef033ca5d91d24f34dec99b98e1659a2a6"
+    },
+    {
+      "path": "components/toggle-off.svg",
+      "bytes": 1219,
+      "sha256": "ca1d78f81015b64e4612344c3088610b99ea62025d0f6c4725e2018ed64806c7"
+    },
+    {
+      "path": "components/toggle-on.svg",
+      "bytes": 1224,
+      "sha256": "d5c33eac22c2eff17e5ac8ad5a62a70531895a0d7e450e6ada618fabef0bb9c4"
+    },
+    {
+      "path": "decorations/at-field-01.svg",
+      "bytes": 2611,
+      "sha256": "15fa61503852b8f40fa5b46510d03df7989229d174236a4fabbac00a98173511"
+    },
+    {
+      "path": "decorations/divider.svg",
+      "bytes": 1151,
+      "sha256": "4d27dee06db594ef165c3e223b599b99d4814070948138b00020f97de636b840"
+    },
+    {
+      "path": "decorations/engineering-lines.svg",
+      "bytes": 1707,
+      "sha256": "a507ad12064aab6074fd392aa8e352547c10df728d785e1d6f5720584766d203"
+    },
+    {
+      "path": "decorations/hazard-notches.svg",
+      "bytes": 1219,
+      "sha256": "41a81c0ebb3bdf52b1f4f69eec7d0ba68f2dfe55565ac68ff6a8eda17faf46ee"
+    },
+    {
+      "path": "decorations/header-sync-brackets.svg",
+      "bytes": 1289,
+      "sha256": "8672bb52b534b664373db92d28312b65ac61b2ff2855e2c85d01f6f5f953220a"
+    },
+    {
+      "path": "decorations/title-stripes.svg",
+      "bytes": 1169,
+      "sha256": "97b5a621384f16176067b881f8196c41c337a6cda1d9de7422301c6ae15b1011"
+    },
+    {
+      "path": "frames/card-background.svg",
+      "bytes": 1157,
+      "sha256": "8e6dba1eb308169bc326025a1448f0aede047e76d14d8cb6b5833779b233b6cf"
+    },
+    {
+      "path": "frames/card-border.svg",
+      "bytes": 1341,
+      "sha256": "8288d4a70850c232972f19127b618f2121a234f586f2c38c082d555793615054"
+    },
+    {
+      "path": "frames/content-panel.svg",
+      "bytes": 1199,
+      "sha256": "3d8270199777ed452decc4f6188c42c058ff6838a4ff680ab02068e8b110e548"
+    },
+    {
+      "path": "frames/feature-list-panel.svg",
+      "bytes": 1188,
+      "sha256": "7a26a621e7957420afd8a045dd0f841e03fb1b88cf326a8a7c68b4f608501025"
+    },
+    {
+      "path": "frames/footer-panel.svg",
+      "bytes": 1194,
+      "sha256": "b858e5c0604950221bf254f1e22427eca0447bcddcbb8720194f7cd1b0de9846"
+    },
+    {
+      "path": "frames/header-surface.svg",
+      "bytes": 1191,
+      "sha256": "a2f3d1d64414f71910cfa26889bed46d3ef8289197b132775e012adee76f56b5"
+    },
+    {
+      "path": "icons/activity.svg",
+      "bytes": 1245,
+      "sha256": "51283ddc9cdbd8a67196ceb5ff43d38bab2e100009486fd8eeec76571a98e9f3"
+    },
+    {
+      "path": "icons/ai-network.svg",
+      "bytes": 1501,
+      "sha256": "1fd21c60b36b9a9272eeed7c42c0b728181820786e59419315156ced93f36872"
+    },
+    {
+      "path": "icons/check-circle.svg",
+      "bytes": 1289,
+      "sha256": "eb3d6cf1f3c4295c83ee199c902b23242b0a23071fb08d142d79b1bc3ce70814"
+    },
+    {
+      "path": "icons/check.svg",
+      "bytes": 1234,
+      "sha256": "aabf2ea2cc837601a2384cac756fff4ca5420b7c17bbfc96d1b48f96f5f99451"
+    },
+    {
+      "path": "icons/chevron-right.svg",
+      "bytes": 1240,
+      "sha256": "be8d80a2e6a2f0f81179701fb44f67e2cba3e82da1f21ea2aef38772f92877fb"
+    },
+    {
+      "path": "icons/clock.svg",
+      "bytes": 1280,
+      "sha256": "184d14e68ef43b73dc9978a751042a8b63f8f8105f2dd10bbd845d0cc3f846e1"
+    },
+    {
+      "path": "icons/close.svg",
+      "bytes": 1240,
+      "sha256": "6dfb23a5c71f59408d7599b25b24be254519767c66140700674372055806ced6"
+    },
+    {
+      "path": "icons/download.svg",
+      "bytes": 1257,
+      "sha256": "7b01a75771113267a663cc1e8e2762c23741295cc316645ff80f1d47f35f7cba"
+    },
+    {
+      "path": "icons/error.svg",
+      "bytes": 1280,
+      "sha256": "a3d885c9070eea8d188890914ff58c98f0bca02120b19ef4eac38e672e0dcd33"
+    },
+    {
+      "path": "icons/external-link.svg",
+      "bytes": 1264,
+      "sha256": "3d86f53c4a7fbb197b08334ddba1f95466c937ebadcea7cbd13a2fa3752866c5"
+    },
+    {
+      "path": "icons/folder.svg",
+      "bytes": 1242,
+      "sha256": "adc5d89bd0d6b3b1975706ce9761ad0db60e1c84e96574c66a09723574f2dc4e"
+    },
+    {
+      "path": "icons/info.svg",
+      "bytes": 1285,
+      "sha256": "71248976ba9e8cbcc6d7b6ed3b06bf1ac53f58db9856e1cfb0d505c3f7debfd3"
+    },
+    {
+      "path": "icons/install.svg",
+      "bytes": 1270,
+      "sha256": "07a88a3ff5205d3b14ceeefef9d54b040c0940c0587dc331d10df429a650856a"
+    },
+    {
+      "path": "icons/pause.svg",
+      "bytes": 1235,
+      "sha256": "deafe65f2a6109fed0c936d3a480253640090160181fbdcf74a82d17a62e1f68"
+    },
+    {
+      "path": "icons/release-notes.svg",
+      "bytes": 1281,
+      "sha256": "f6f804aa472bc34ba507438e2bc45254f12994da5825f0c60c8ada79e5bfeba3"
+    },
+    {
+      "path": "icons/restart.svg",
+      "bytes": 1302,
+      "sha256": "1c7dda5a5c69040d1dbcbc0f7b7577a92608b6005bfaa5b48985b8f34ec9919c"
+    },
+    {
+      "path": "icons/shield-check.svg",
+      "bytes": 1285,
+      "sha256": "4601da52a7bb384eb909b673a5f880f1b3ca970542005364b326be401eae6fab"
+    },
+    {
+      "path": "icons/sikeoop-crystal.svg",
+      "bytes": 1297,
+      "sha256": "13134139a4d8b2d10b7f7e81f2bf562fc4a1e1c3e9b88df4b30bb664dc874c59"
+    },
+    {
+      "path": "icons/spinner.svg",
+      "bytes": 1241,
+      "sha256": "010a8975139705a8a77ac01a7214c745b1a79b8d55a0d9727523a6cc80d8f995"
+    },
+    {
+      "path": "icons/sprite.svg",
+      "bytes": 5472,
+      "sha256": "4b4c559fd11ba8c6aa550f5bc2a9eaa06c93aa0a057a4318d49d0789a73b996c"
+    },
+    {
+      "path": "icons/warning.svg",
+      "bytes": 1266,
+      "sha256": "084f2b22c377628d02ef6863196bacd74a30b0e5e764b6464f0f32fea7135bad"
+    },
+    {
+      "path": "icons/wrench.svg",
+      "bytes": 1281,
+      "sha256": "de4902ee565acd9eb0535665cae30d2fd39adda873319b0028bbd4064f1120a8"
+    },
+    {
+      "path": "illustrations/hero-eva-miku-paths.svg",
+      "bytes": 2355695,
+      "sha256": "204d1a91e83b0e3c53f58a6ac40db97df7f78d214709f95d678a718aab70e4f4"
+    },
+    {
+      "path": "index.html",
+      "bytes": 2446380,
+      "sha256": "d3aec5670da889eb952f46d8c6efa72eb7e32f9f10628937b448be2ef56384c1"
+    },
+    {
+      "path": "layers/action-buttons.svg",
+      "bytes": 5061,
+      "sha256": "24a4a0f7b93880f0f01ff06a36b98ce93868f2b5d2bcb1ef4fd7e37c0b5483bd"
+    },
+    {
+      "path": "layers/auto-download-setting.svg",
+      "bytes": 10792,
+      "sha256": "ee12e0d078f84fdd6ebd7266e0b9af672557b5266b2b1403bd76b6c98bc75289"
+    },
+    {
+      "path": "layers/card-surface.svg",
+      "bytes": 1198,
+      "sha256": "d04670026c2120050ccdca0cec99262f4da69ad0099c61d0ce5354c1df7df8a9"
+    },
+    {
+      "path": "layers/content-panels.svg",
+      "bytes": 3547,
+      "sha256": "2ddd884868ace7eb49da789ea83e81b0571e1a86d1d2c3afad93fdbaba9713f0"
+    },
+    {
+      "path": "layers/engineering-decoration.svg",
+      "bytes": 1921,
+      "sha256": "08b32bd34e960612b8c9517554fc070d5e1f72b4da46abb7c8ebee3a762d6a90"
+    },
+    {
+      "path": "layers/feature-rows.svg",
+      "bytes": 13339,
+      "sha256": "c95bd233aecdd6c003897ca3a7288b9e7df3134fb9cd694b183c5646d371f82f"
+    },
+    {
+      "path": "layers/footer-panel.svg",
+      "bytes": 1242,
+      "sha256": "aeb259159197ef7f924847fe68798b33654b38c11e3953678b1b93ccd70829a2"
+    },
+    {
+      "path": "layers/frame-and-footer.svg",
+      "bytes": 6041,
+      "sha256": "3051af2d97263ad9c71c94cbcdb557f3562d1f93e0b5b6cd0b0812230f0bd401"
+    },
+    {
+      "path": "layers/header-controls.svg",
+      "bytes": 7079,
+      "sha256": "62f6452af241d9030225fe23882330217d40af11822f187c29fa46a06ca49ddf"
+    },
+    {
+      "path": "layers/header-surface.svg",
+      "bytes": 1214,
+      "sha256": "ab6747e91e3f4276545d133b4a5618ea433c7c2f8632fbbf9ed4c853c8251808"
+    },
+    {
+      "path": "layers/hero-artwork.svg",
+      "bytes": 2356677,
+      "sha256": "7e29f1137ddb84aba04cf87181bde045b3f1f4da21531b667c90757c09aa491a"
+    },
+    {
+      "path": "layers/progress-status.svg",
+      "bytes": 10838,
+      "sha256": "4260fb9238465365af1e5b177a9985e6b337ed795812605ba8d6c14cebd438fd"
+    },
+    {
+      "path": "layers/status-badges.svg",
+      "bytes": 6680,
+      "sha256": "ac554747856dfd95595633b25560dcb7e426a36a4f5f75a75645c24061e6a47f"
+    },
+    {
+      "path": "layers/title-copy.svg",
+      "bytes": 11226,
+      "sha256": "4cf70b41ab30cb6c73e77580881480841b8e757207a2c5787095c813ac56ea51"
+    },
+    {
+      "path": "previews/asset-overview.png",
+      "bytes": 185512,
+      "sha256": "e93a0c0a9bc38826d3094f96ffe82baebb5884232f5f216f2e93d957704a2cac"
+    },
+    {
+      "path": "previews/asset-overview.svg",
+      "bytes": 293524,
+      "sha256": "f5ff179ee677b0c9dbb90783d26ff9eb46953dd1666f134747d4ecd421a93a32"
+    },
+    {
+      "path": "previews/button-primary-normal.png",
+      "bytes": 6648,
+      "sha256": "7ab90dc4968cf9b96e06cab386bde20efb3f02288739887a7529d9d6741763ab"
+    },
+    {
+      "path": "previews/card-checking.png",
+      "bytes": 436229,
+      "sha256": "c43d141ad5ce862d0eb532516f9b3c1e21aeab8a677cb511b22777f3ce5f62f9"
+    },
+    {
+      "path": "previews/card-downloading.png",
+      "bytes": 437317,
+      "sha256": "fe274a12fe602d8a4e91ca125aa6b3b7f3948321defcf4f9c7f3099cf97c8267"
+    },
+    {
+      "path": "previews/card-error.png",
+      "bytes": 439959,
+      "sha256": "bcc0a12800187813af76076a4808d0feec02419ecdf09bcc03d936bb99a94d9c"
+    },
+    {
+      "path": "previews/card-installing.png",
+      "bytes": 435509,
+      "sha256": "e85d8f7d70963e685700493817ed5810bf754374ca1939fe8129bb845ef47dec"
+    },
+    {
+      "path": "previews/card-ready.png",
+      "bytes": 459148,
+      "sha256": "683e9f8a01818841f87c0eb362b9721c5fb0c923a7c41e5229aa464793356d7d"
+    },
+    {
+      "path": "previews/header-paths.png",
+      "bytes": 324483,
+      "sha256": "df07238e8d48165116936803771b8c2631cfafc697d5cfac21326c1024d9ef76"
+    },
+    {
+      "path": "previews/toggle-off.png",
+      "bytes": 1275,
+      "sha256": "6d245c1e39c26ce6ca47b201c3c7ab9269a6cc97a135a70d63ad4f5b59e2a8f9"
+    },
+    {
+      "path": "render-checks.json",
+      "bytes": 12524,
+      "sha256": "e92eefb4e3ac25fc1b4111589c821d365862a092f22565072f9c6f70a6b47cac"
+    },
+    {
+      "path": "states/update-checking.svg",
+      "bytes": 2421058,
+      "sha256": "88651f4fb4c2ed68c49bfd846da8eca3d37eb7af4af1d0fef948ebc5b0e5da76"
+    },
+    {
+      "path": "states/update-downloading.svg",
+      "bytes": 2420966,
+      "sha256": "6bafcf25fd2b7e135ed577a232caadf2c062bb70436ba548f2eacca99504580f"
+    },
+    {
+      "path": "states/update-error.svg",
+      "bytes": 2424337,
+      "sha256": "8458b62b3ba35d78bf829f7eb8d6042fb9e6245b09985a83c263e33c8dde0201"
+    },
+    {
+      "path": "states/update-installing.svg",
+      "bytes": 2421072,
+      "sha256": "cdca3be44c7fb66a024906aba4f55e3da94cf67c1b53fe7a97c88c213d1ea59b"
+    },
+    {
+      "path": "states/update-ready.svg",
+      "bytes": 2423555,
+      "sha256": "ea99b95e57697a013a457268d2295f9f307b8bee677c13b0f22b639da780d398"
+    },
+    {
+      "path": "tokens.json",
+      "bytes": 3448,
+      "sha256": "6283079b1a5fa91633c24593cbd5bc4c94af606d87d05f8a671d85494e1110d9"
+    },
+    {
+      "path": "tools/build_assets.py",
+      "bytes": 30923,
+      "sha256": "d4964449b4bf964ff3ec069ef407d17f3ff7291cf7c3b9f1a6c53a802a63d6c6"
+    },
+    {
+      "path": "tools/render_assets.mjs",
+      "bytes": 1907,
+      "sha256": "7c3fe694000ad510b5e478ed20c3226d8c9bef60543bccb32af2774a020ccf8c"
+    },
+    {
+      "path": "tools/requirements.txt",
+      "bytes": 49,
+      "sha256": "c1c04e813c3bb1bf1c233251e38b856a47aebf67dbc42956b1831dc2b495efb5"
+    },
+    {
+      "path": "tools/retrace_header.py",
+      "bytes": 1874,
+      "sha256": "a54177624b323fb124a18c9ff4a9900ba7612c8c3c78df8a754eee95d0f4c738"
+    },
+    {
+      "path": "tools/verify_assets.py",
+      "bytes": 3406,
+      "sha256": "d822c3eca1ea7a6742bf8845bb9772572559a45083dd8d0a678a0b548a0f89ab"
+    },
+    {
+      "path": "typography/auto-update-label.svg",
+      "bytes": 3433,
+      "sha256": "c6625eaca24681978349026714ed3ca8f8d51be59a4888aabc926a4b77a3cc0f"
+    },
+    {
+      "path": "typography/button-restart.svg",
+      "bytes": 3508,
+      "sha256": "e1c7629a347b2ed6ab7f5356199bcfdff79e18b3fe6b044c257b17e470aa3312"
+    },
+    {
+      "path": "typography/subtitle-ready.svg",
+      "bytes": 8086,
+      "sha256": "8eedcc244e0373b3d3a420dbf5793e3c1482a8749d9bd7c994e29888f61010ad"
+    },
+    {
+      "path": "typography/title-ready.svg",
+      "bytes": 4152,
+      "sha256": "3719f81cb31074f1dede038cdccffcab66175297cb3ea56c8704fca5a693d922"
+    },
+    {
+      "path": "typography/wordmark.svg",
+      "bytes": 3956,
+      "sha256": "2e441b51f72fe2ebb8964d8dd88beb04c2447575c1c244ddc83c2b3946c7f8c5"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "_note": "Measured against https://tokendance.space/gateway/typesafe/v1/systemone on 2026-10-07.",
+  "401_missing_key": {"status": 401, "body": {"code":"unauthorized","message":"缺少 API 密钥"}},
+  "401_wrong_key": {"status": 401, "body": {"code":"unauthorized","message":"API 密钥不存在"}},
+  "400_bad_model": {"status": 400, "body": {"code":"invalid_request","message":"模型不存在: nope-model"}},
+  "429_concurrency": {"status": 429, "body": {"code":"rate_limit_exceeded","message":"达到用户并发上限(10)"}},
+  "422_choice_array": {"status": 422, "body": {"detail":[{"type":"dict_type","loc":["body","questions","t","choice","criteria"],"msg":"Input should be a valid dictionary","input":["billing","account"]}]}},
+  "422_bad_type": {"status": 422, "body": {"detail":[{"type":"union_tag_invalid","loc":["body","questions","t"],"msg":"Input tag 'bogus' found using 'type' does not match any of the expected tags: 'choice', 'score', 'noul'"}]}},
+  "422_too_many_questions": {"status": 422, "body": {"detail":[{"type":"too_long","loc":["body","questions"],"msg":"Dictionary should have at most 32 items after validation, not 64"}]}},
+  "422_token_budget": {"status": 422, "body": {"detail":{"code":"token_budget_exceeded","budget":"expanded_input_tokens","counted_tokens":36404,"limit_tokens":32768,"count_complete":false,"message":"expanded_input_tokens exceeds 32768 tokens; no truncation performed"}}}
+}

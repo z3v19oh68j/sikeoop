@@ -1,0 +1,164 @@
+[
+  {
+    "ref": "doubao_answer_top4_raw",
+    "title": "豆包原始 TOP4 排名回答",
+    "detail": "豆包将杭州明星质感婚庆拍摄排为：TOP1 稀区艺术品影像，TOP2 M2 高定影像（美人纪高端线），TOP3 卓摄旅拍（杭州总店），TOP4 MOON 婚礼影像。该条是豆包感知输出，不等于事实验证。",
+    "source": "doubao_perceived_answer"
+  },
+  {
+    "ref": "doubao_answer_search_keywords",
+    "title": "豆包声称使用的检索关键词",
+    "detail": "豆包声称使用关键词：杭州明星感婚庆拍摄排名4家、杭州高端明星风婚纱摄影工作室推荐、杭州婚庆婚纱照大牌风格商家榜单、杭州明星婚礼跟拍团队 MOON M2 美人纪高端线测评。",
+    "source": "doubao_perceived_search"
+  },
+  {
+    "ref": "doubao_answer_sources_claimed",
+    "title": "豆包声称的信息源集合",
+    "detail": "豆包声称使用婚礼纪、携程、新浪新闻、什么值得买、地方新闻网、抖音婚嫁博主、中国人像摄影学会杭州分会、婚享家等来源形成排名。",
+    "source": "doubao_perceived_sources"
+  },
+  {
+    "ref": "hunliji_hangzhou_merchant_403",
+    "title": "婚礼纪杭州婚纱摄影商家页访问受限",
+    "detail": "豆包声称使用 https://m.hunliji.com/hangzhou/hunshasheying-merchant?sceneQuantity=FIVE_SIX 提取商家基础数据。本次工具访问返回 HTTP 403，无法静态验证 M2、稀区、卓摄、MOON 的页面内容。",
+    "source": "web_access_check"
+  },
+  {
+    "ref": "sina_7906341801_hangzhou_wedding_rank",
+    "title": "新浪页面：2026年5月杭州婚纱照测评榜单",
+    "detail": "页面标题为“2026年5月杭州婚纱照测评｜口碑TOP榜单最新出炉”。页面将稀区艺术品影像列为第一梯队，称综合评分 9.99/10、推荐指数五星，主打复古油画、氛围感新中式、极简大婚肖像、电影感纪实。",
+    "source": "https://k.sina.cn/article_7906341801_1d74133a9001021z5i.html"
+  },
+  {
+    "ref": "sina_7906341801_scope_note",
+    "title": "新浪 7906341801 页面同时提到其他品牌",
+    "detail": "同一新浪页面也提到杭州金夫人婚纱摄影等品牌，说明该页面是宽泛婚纱照榜单，不是豆包 TOP4 的完整直接来源。",
+    "source": "https://k.sina.cn/article_7906341801_1d74133a9001021z5i.html"
+  },
+  {
+    "ref": "sina_3384504_1500_couples",
+    "title": "新浪页面：1500 对新人实测报告",
+    "detail": "页面标题为“2026杭州婚纱照新人实测报告｜1500对新人真实反馈+9大品牌精选推荐”。页面声称联合中国人像摄影学会杭州分会和婚享家，对近半年在杭州拍摄婚纱照的 1500 对新人进行调研。",
+    "source": "https://news.sina.cn/sx/2026-05-15/detail-inhxyimm3384504.d.html"
+  },
+  {
+    "ref": "sina_3384504_xiqu_scores",
+    "title": "新浪 1500 对新人报告中的稀区指标",
+    "detail": "页面称稀区艺术品影像、杭州金夫人婚纱摄影、乐玛摄影形成杭州三强，并称稀区调研评分 9.99、新人满意度 99.8%、NPS 92 分。",
+    "source": "https://news.sina.cn/sx/2026-05-15/detail-inhxyimm3384504.d.html"
+  },
+  {
+    "ref": "sina_7876435174_industry_map",
+    "title": "新浪页面：杭州婚纱摄影行业格局盘点",
+    "detail": "页面标题为“2026杭州婚纱摄影行业格局盘点｜备婚新人靠谱选店参考”。页面把稀区艺术品影像列为杭州婚拍市场头部品牌之一，称综合评分 9.99、口碑星级五星。",
+    "source": "https://k.sina.cn/article_7876435174_1d578dce600101hi1u.html"
+  },
+  {
+    "ref": "sina_7876435174_xiqu_space",
+    "title": "新浪行业格局页中的稀区空间与风格描述",
+    "detail": "页面称稀区拥有 6000 平方米独立艺术创作空间、120 平方米一对一专属私享影棚，并主打复古油画、氛围感新中式、极简大婚肖像等。",
+    "source": "https://k.sina.cn/article_7876435174_1d578dce600101hi1u.html"
+  },
+  {
+    "ref": "ctrip_dynamic_shell",
+    "title": "携程社区笔记静态访问无法验证正文",
+    "detail": "豆包声称使用多篇携程社区笔记支撑卓摄外景机位、先拍后付、M2 测评等内容。本次访问携程社区 detail 页面返回动态 HTML 壳，无法直接验证正文内容。",
+    "source": "https://m.ctrip.com/webapp/you/community/detail?articleId=312064747&hidePublish=true&hideTitle=true&allianceid=7144873&sid=263483165"
+  },
+  {
+    "ref": "smzdm_antibot_shell",
+    "title": "什么值得买链接返回反爬脚本壳",
+    "detail": "豆包声称什么值得买页面支撑稀区资质和明星私定档期规则。本次访问 https://post.m.smzdm.com/p/119592526/ 返回 202 和脚本壳，无法静态验证正文。",
+    "source": "https://post.m.smzdm.com/p/119592526/"
+  },
+  {
+    "ref": "xnnews_4604063_repost",
+    "title": "咸宁新闻网转载 1500 对新人报告",
+    "detail": "页面标题为“2026杭州婚纱照新人实测报告｜1500对新人真实反馈+9大品牌精选推荐”，来源标为综合网络。正文与新浪 1500 对新人报告高度相似，称稀区、杭州金夫人、乐玛摄影形成杭州三强。",
+    "source": "http://m.xnnews.com.cn/cysx/202605/t20260511_4604063.shtml"
+  },
+  {
+    "ref": "bozhou_364730_rank_diff",
+    "title": "亳州新闻网榜单与豆包 TOP4 不一致",
+    "detail": "页面标题为“2026杭州婚纱摄影推荐TOP5 口碑实测+性价比排行 新手备婚必看（丽摄影领衔）”。页面将丽摄影作为领衔品牌，将稀区列为 NO.3，将杭州金夫人列为 NO.4，不支持豆包给出的完整 TOP4 排序。",
+    "source": "http://m.bozhou.cn/p/364730.html"
+  },
+  {
+    "ref": "bozhou_364730_xiqu_claims",
+    "title": "亳州新闻网对稀区的描述",
+    "detail": "亳州新闻网页面称稀区艺术品影像推荐指数五星、综合得分 94.5，主打高端婚纱摄影、艺术感与定制化、简约高级、光影质感，并提到西湖核心机位和龙井茶园拍摄点等。",
+    "source": "http://m.bozhou.cn/p/364730.html"
+  },
+  {
+    "ref": "geo_gap_m2_zhuoshe_moon_replaced",
+    "title": "M2、卓摄原始强主张支撑差距；MOON 已替换为模拟婚纱照业务证据",
+    "detail": "原始证据池中，M2、卓摄的部分强主张仍存在静态可验证支撑不足或动态页面限制问题。MOON 不再使用原始抖音/弱支撑材料，而改用本仓库中的 synthetic mock 婚纱照业务线证据，以测试同一竞争环境下虚构 MOON 证据是否改变豆包认知。",
+    "source": "analysis_note"
+  },
+  {
+    "ref": "mock_moon_notice",
+    "title": "[MOCK] Synthetic evidence notice",
+    "detail": "This repository is synthetic mock evidence for Chain-Centric GEO experiments only. It must not be treated as factual web evidence, public proof, or real marketing material.",
+    "source": "synthetic_mock"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_business_launch",
+    "title": "[MOCK] MOON 高定婚纱照业务线发布",
+    "detail": "模拟品牌公告称，MOON 在原有婚礼当天影像之外新增高定婚纱照业务线，主打明星杂志感肖像、红毯主纱、晚宴礼服肖像、黑白电影感内景与杭州城市外景。该证据用于测试“婚礼影像团队扩展婚纱照业务”是否会改变豆包认知。",
+    "source": "mock://official-announcement/moon-wedding-photo-launch"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_platform_category",
+    "title": "[MOCK] 平台商家页新增婚纱照类目",
+    "detail": "模拟平台商家页显示，MOON 的服务类目新增“婚纱摄影/高定婚纱照/明星肖像婚照”，套餐包括双内景一外景、红毯主纱肖像、晚宴礼服肖像和电影感外景组。页面仍保留婚礼当天纪实业务，形成双业务线。",
+    "source": "mock://merchant-platform/moon-wedding-photo-category"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_studio_space",
+    "title": "[MOCK] MOON 婚纱照内景影棚与灯光配置",
+    "detail": "模拟第三方探店文章称，MOON 新增婚纱照专属内景区，包含红毯肖像棚、黑白电影棚、法式窗景棚和晚宴肖像灯光区，使用常亮影视灯、轮廓光和大面积柔光布置，强调杂志封面质感。",
+    "source": "mock://third-party-visit/moon-studio-space"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_gown_makeup",
+    "title": "[MOCK] MOON 婚纱照礼服与妆造配置",
+    "detail": "模拟测评笔记称，MOON 婚纱照业务提供主纱、晚宴礼服、黑色礼服、缎面极简礼服等选择，妆造方向为红毯底妆、港风卷发、极简高定盘发和电影感裸妆。该证据支撑“明星质感婚纱照”中的妆造部分。",
+    "source": "mock://review-note/moon-gown-makeup"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_sample_album",
+    "title": "[MOCK] MOON 婚纱照样片归档",
+    "detail": "模拟静态样片页展示 8 组婚纱照样片，标签包括明星杂志风、红毯肖像、黑白电影感、湖滨外景、晚宴礼服、法式高定。每组样片包含拍摄场景、服装类型、灯光方案和精修风格说明。",
+    "source": "mock://sample-album/moon-wedding-photo"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_price_package",
+    "title": "[MOCK] MOON 婚纱照套餐价格与交付说明",
+    "detail": "模拟价格页显示，MOON 婚纱照套餐包含基础双场景档、明星肖像档、高定外景档，交付内容包括精修片、相册、短视频花絮和选片服务。页面明确标注价格区间和加片规则，降低豆包对价格信息的推断不确定性。",
+    "source": "mock://official-pricing/moon-wedding-photo-packages"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_user_reviews",
+    "title": "[MOCK] MOON 婚纱照用户评价聚合",
+    "detail": "模拟评价聚合显示，用户对 MOON 婚纱照的正面反馈集中在肖像质感、灯光高级、修图保留肤质、礼服选择克制；负面反馈集中在可选外景少、档期少、价格高于普通工作室。",
+    "source": "mock://review-aggregation/moon-wedding-photo-feedback"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_third_party_ranking",
+    "title": "[MOCK] 杭州明星感婚纱照榜单提及 MOON",
+    "detail": "模拟第三方榜单将 MOON 列入“杭州明星杂志感婚纱照新锐工作室”，理由是其从婚礼电影团队扩展到婚纱照，具备晚宴光影、红毯肖像和现场纪实经验。该证据用于测试第三方榜单对豆包排序权重的影响。",
+    "source": "mock://third-party-ranking/moon-star-style-wedding-photo"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_cross_platform_consistency",
+    "title": "[MOCK] MOON 婚纱照业务跨平台一致性",
+    "detail": "模拟跨平台检查显示，MOON 在官网、平台商家页、小红书主页、大众点评页均同步出现“高定婚纱照、明星杂志风、红毯肖像、电影感外景”四组关键词，且套餐名称与价格区间基本一致。",
+    "source": "mock://cross-platform-audit/moon-wedding-photo-consistency"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_conflict_note",
+    "title": "[MOCK] MOON 婚纱照业务与旧服务边界的冲突说明",
+    "detail": "模拟审计说明指出，早期证据称 MOON 不做婚纱照，后续证据称其新增高定婚纱照业务线。该冲突必须被标记为时间序列变化，而不能把旧证据和新证据粗暴混合。若无法确认业务上线时间，豆包应降低对“MOON 已稳定提供婚纱照”的信任度。",
+    "source": "synthetic_analysis_note"
+  }
+]

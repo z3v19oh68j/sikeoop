@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>遮挡弹窗</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  #target { padding: 10px 22px; font: inherit; }
+  #open-overlay { padding: 6px 14px; font: inherit; margin-left: 8px; }
+  #status { margin-top: 12px; color: #2a7; }
+  .mask {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .mask.show { display: flex; }
+  .dialog { background: Canvas; color: CanvasText; padding: 24px; border-radius: 10px; min-width: 240px; }
+  .dialog button { margin-top: 12px; padding: 6px 14px; font: inherit; }
+</style>
+</head>
+<body>
+  <h1>遮挡弹窗</h1>
+  <p>目标按钮一直在页面上，但打开遮罩后它被盖住。命中检测应落到遮罩上，
+     自动化应报「被遮罩挡住」而不是照点。关掉遮罩后才可点。</p>
+
+  <button id="target">目标按钮</button>
+  <button id="open-overlay">打开遮罩</button>
+  <p id="status"></p>
+
+  <div class="mask" id="mask">
+    <div class="dialog" role="dialog" aria-modal="true" aria-label="遮罩对话框">
+      <p>我盖住了下面的目标按钮。</p>
+      <button id="close-overlay">关闭遮罩</button>
+    </div>
+  </div>
+
+  <script>
+    const status = document.getElementById("status");
+    const mask = document.getElementById("mask");
+    document.getElementById("target").addEventListener("click", () => {
+      status.textContent = "目标按钮被点到了（说明没被遮挡）。";
+    });
+    document.getElementById("open-overlay").addEventListener("click", () => {
+      mask.classList.add("show");
+      status.textContent = "";
+    });
+    document.getElementById("close-overlay").addEventListener("click", () => {
+      mask.classList.remove("show");
+    });
+  </script>
+</body>
+</html>

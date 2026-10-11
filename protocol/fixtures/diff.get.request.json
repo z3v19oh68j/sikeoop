@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "id": "8",
+  "method": "diff.get",
+  "params": {
+    "turnId": 41
+  }
+}

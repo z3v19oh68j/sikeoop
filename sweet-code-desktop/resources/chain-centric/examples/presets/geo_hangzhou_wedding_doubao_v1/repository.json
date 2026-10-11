@@ -1,0 +1,104 @@
+[
+  {
+    "ref": "doubao_answer_top4_raw",
+    "title": "豆包原始 TOP4 排名回答",
+    "detail": "豆包将杭州明星质感婚庆拍摄排为：TOP1 稀区艺术品影像，TOP2 M2 高定影像（美人纪高端线），TOP3 卓摄旅拍（杭州总店），TOP4 MOON 婚礼影像。该条是豆包感知输出，不等于事实验证。",
+    "source": "doubao_perceived_answer"
+  },
+  {
+    "ref": "doubao_answer_search_keywords",
+    "title": "豆包声称使用的检索关键词",
+    "detail": "豆包声称使用关键词：杭州明星感婚庆拍摄排名4家、杭州高端明星风婚纱摄影工作室推荐、杭州婚庆婚纱照大牌风格商家榜单、杭州明星婚礼跟拍团队 MOON M2 美人纪高端线测评。",
+    "source": "doubao_perceived_search"
+  },
+  {
+    "ref": "doubao_answer_sources_claimed",
+    "title": "豆包声称的信息源集合",
+    "detail": "豆包声称使用婚礼纪、携程、新浪新闻、什么值得买、地方新闻网、抖音婚嫁博主、中国人像摄影学会杭州分会、婚享家等来源形成排名。",
+    "source": "doubao_perceived_sources"
+  },
+  {
+    "ref": "hunliji_hangzhou_merchant_403",
+    "title": "婚礼纪杭州婚纱摄影商家页访问受限",
+    "detail": "豆包声称使用 https://m.hunliji.com/hangzhou/hunshasheying-merchant?sceneQuantity=FIVE_SIX 提取商家基础数据。本次工具访问返回 HTTP 403，无法静态验证 M2、稀区、卓摄、MOON 的页面内容。",
+    "source": "web_access_check"
+  },
+  {
+    "ref": "sina_7906341801_hangzhou_wedding_rank",
+    "title": "新浪页面：2026年5月杭州婚纱照测评榜单",
+    "detail": "页面标题为“2026年5月杭州婚纱照测评｜口碑TOP榜单最新出炉”。页面将稀区艺术品影像列为第一梯队，称综合评分 9.99/10、推荐指数五星，主打复古油画、氛围感新中式、极简大婚肖像、电影感纪实。",
+    "source": "https://k.sina.cn/article_7906341801_1d74133a9001021z5i.html"
+  },
+  {
+    "ref": "sina_7906341801_scope_note",
+    "title": "新浪 7906341801 页面同时提到其他品牌",
+    "detail": "同一新浪页面也提到杭州金夫人婚纱摄影等品牌，说明该页面是宽泛婚纱照榜单，不是豆包 TOP4 的完整直接来源。",
+    "source": "https://k.sina.cn/article_7906341801_1d74133a9001021z5i.html"
+  },
+  {
+    "ref": "sina_3384504_1500_couples",
+    "title": "新浪页面：1500 对新人实测报告",
+    "detail": "页面标题为“2026杭州婚纱照新人实测报告｜1500对新人真实反馈+9大品牌精选推荐”。页面声称联合中国人像摄影学会杭州分会和婚享家，对近半年在杭州拍摄婚纱照的 1500 对新人进行调研。",
+    "source": "https://news.sina.cn/sx/2026-05-15/detail-inhxyimm3384504.d.html"
+  },
+  {
+    "ref": "sina_3384504_xiqu_scores",
+    "title": "新浪 1500 对新人报告中的稀区指标",
+    "detail": "页面称稀区艺术品影像、杭州金夫人婚纱摄影、乐玛摄影形成杭州三强，并称稀区调研评分 9.99、新人满意度 99.8%、NPS 92 分。",
+    "source": "https://news.sina.cn/sx/2026-05-15/detail-inhxyimm3384504.d.html"
+  },
+  {
+    "ref": "sina_7876435174_industry_map",
+    "title": "新浪页面：杭州婚纱摄影行业格局盘点",
+    "detail": "页面标题为“2026杭州婚纱摄影行业格局盘点｜备婚新人靠谱选店参考”。页面把稀区艺术品影像列为杭州婚拍市场头部品牌之一，称综合评分 9.99、口碑星级五星。",
+    "source": "https://k.sina.cn/article_7876435174_1d578dce600101hi1u.html"
+  },
+  {
+    "ref": "sina_7876435174_xiqu_space",
+    "title": "新浪行业格局页中的稀区空间与风格描述",
+    "detail": "页面称稀区拥有 6000 平方米独立艺术创作空间、120 平方米一对一专属私享影棚，并主打复古油画、氛围感新中式、极简大婚肖像等。",
+    "source": "https://k.sina.cn/article_7876435174_1d578dce600101hi1u.html"
+  },
+  {
+    "ref": "ctrip_dynamic_shell",
+    "title": "携程社区笔记静态访问无法验证正文",
+    "detail": "豆包声称使用多篇携程社区笔记支撑卓摄外景机位、先拍后付、M2 测评等内容。本次访问携程社区 detail 页面返回动态 HTML 壳，无法直接验证正文内容。",
+    "source": "https://m.ctrip.com/webapp/you/community/detail?articleId=312064747&hidePublish=true&hideTitle=true&allianceid=7144873&sid=263483165"
+  },
+  {
+    "ref": "smzdm_antibot_shell",
+    "title": "什么值得买链接返回反爬脚本壳",
+    "detail": "豆包声称什么值得买页面支撑稀区资质和明星私定档期规则。本次访问 https://post.m.smzdm.com/p/119592526/ 返回 202 和脚本壳，无法静态验证正文。",
+    "source": "https://post.m.smzdm.com/p/119592526/"
+  },
+  {
+    "ref": "xnnews_4604063_repost",
+    "title": "咸宁新闻网转载 1500 对新人报告",
+    "detail": "页面标题为“2026杭州婚纱照新人实测报告｜1500对新人真实反馈+9大品牌精选推荐”，来源标为综合网络。正文与新浪 1500 对新人报告高度相似，称稀区、杭州金夫人、乐玛摄影形成杭州三强。",
+    "source": "http://m.xnnews.com.cn/cysx/202605/t20260511_4604063.shtml"
+  },
+  {
+    "ref": "bozhou_364730_rank_diff",
+    "title": "亳州新闻网榜单与豆包 TOP4 不一致",
+    "detail": "页面标题为“2026杭州婚纱摄影推荐TOP5 口碑实测+性价比排行 新手备婚必看（丽摄影领衔）”。页面将丽摄影作为领衔品牌，将稀区列为 NO.3，将杭州金夫人列为 NO.4，不支持豆包给出的完整 TOP4 排序。",
+    "source": "http://m.bozhou.cn/p/364730.html"
+  },
+  {
+    "ref": "bozhou_364730_xiqu_claims",
+    "title": "亳州新闻网对稀区的描述",
+    "detail": "亳州新闻网页面称稀区艺术品影像推荐指数五星、综合得分 94.5，主打高端婚纱摄影、艺术感与定制化、简约高级、光影质感，并提到西湖核心机位和龙井茶园拍摄点等。",
+    "source": "http://m.bozhou.cn/p/364730.html"
+  },
+  {
+    "ref": "douyin_video_script_shell",
+    "title": "抖音视频链接静态访问无法验证 MOON 说法",
+    "detail": "豆包声称抖音视频支撑 MOON 婚礼影像的电视台出身、艺人婚宴、只做婚礼跟拍等说法。本次访问 https://www.iesdouyin.com/share/video/7551746705415277860 返回脚本壳，无法静态验证视频文案。",
+    "source": "https://www.iesdouyin.com/share/video/7551746705415277860"
+  },
+  {
+    "ref": "geo_gap_m2_moon_zhuoshe",
+    "title": "M2、卓摄、MOON 的强主张在可见网页中支撑不足",
+    "detail": "豆包对 M2、卓摄、MOON 给出了较强定位和价格/资源/履历描述，但本次可打开静态网页中，对这些品牌的直接支撑明显少于稀区。该差距是 GEO 读账本时需要重点攻击和解释的对象。",
+    "source": "analysis_note"
+  }
+]

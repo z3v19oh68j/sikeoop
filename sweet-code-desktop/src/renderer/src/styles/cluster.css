@@ -1,0 +1,142 @@
+/* The Harmony cluster console. Colors come from the theme tokens in theme.css. */
+
+.cluster {
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.cluster-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cluster-counts {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cluster-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cluster-clear:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cluster-hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cluster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cluster-card {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--muted);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.cluster-card.running {
+  border-left-color: var(--accent);
+}
+
+.cluster-card.ok {
+  border-left-color: var(--ok);
+}
+
+.cluster-card.fail,
+.cluster-card.blocked {
+  border-left-color: var(--bad);
+}
+
+.cluster-card.cancelled {
+  border-left-color: var(--warn);
+}
+
+.cluster-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.cluster-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.cluster-status.ok {
+  color: var(--ok);
+}
+
+.cluster-status.fail,
+.cluster-status.blocked {
+  color: var(--bad);
+}
+
+.cluster-status.cancelled {
+  color: var(--warn);
+}
+
+.cluster-role {
+  font-family: var(--font-code);
+  color: var(--muted);
+}
+
+.cluster-time {
+  margin-left: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cluster-goal {
+  margin: 8px 0 0;
+}
+
+.cluster-activity {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.cluster-summary,
+.cluster-route {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.cluster-route {
+  color: var(--muted);
+}
+
+.cluster-errors {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: var(--bad);
+  font-size: 12px;
+}

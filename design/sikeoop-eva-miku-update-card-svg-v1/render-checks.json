@@ -1,0 +1,625 @@
+[
+  {
+    "file": "auto-update-card-editable.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 54074,
+    "status": "rendered"
+  },
+  {
+    "file": "auto-update-card-on-canvas.svg",
+    "width": 1536,
+    "height": 1024,
+    "thumbnailBytes": 44706,
+    "status": "rendered"
+  },
+  {
+    "file": "auto-update-card.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 54031,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-checking.svg",
+    "width": 146,
+    "height": 34,
+    "thumbnailBytes": 1718,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-downloading.svg",
+    "width": 188,
+    "height": 34,
+    "thumbnailBytes": 2420,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-error.svg",
+    "width": 124,
+    "height": 34,
+    "thumbnailBytes": 1527,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-installing.svg",
+    "width": 158,
+    "height": 34,
+    "thumbnailBytes": 1673,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-ready.svg",
+    "width": 124,
+    "height": 34,
+    "thumbnailBytes": 1464,
+    "status": "rendered"
+  },
+  {
+    "file": "components/badge-version.svg",
+    "width": 208,
+    "height": 34,
+    "thumbnailBytes": 2601,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-disabled.svg",
+    "width": 360,
+    "height": 76,
+    "thumbnailBytes": 4112,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-hover.svg",
+    "width": 360,
+    "height": 76,
+    "thumbnailBytes": 4298,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-label-free.svg",
+    "width": 360,
+    "height": 76,
+    "thumbnailBytes": 2313,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-normal.svg",
+    "width": 360,
+    "height": 76,
+    "thumbnailBytes": 6050,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-pressed.svg",
+    "width": 360,
+    "height": 76,
+    "thumbnailBytes": 4307,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-disabled.svg",
+    "width": 160,
+    "height": 76,
+    "thumbnailBytes": 2267,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-hover.svg",
+    "width": 160,
+    "height": 76,
+    "thumbnailBytes": 2318,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-label-free.svg",
+    "width": 160,
+    "height": 76,
+    "thumbnailBytes": 1250,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-normal.svg",
+    "width": 160,
+    "height": 76,
+    "thumbnailBytes": 2351,
+    "status": "rendered"
+  },
+  {
+    "file": "components/feature-row-1.svg",
+    "width": 1246,
+    "height": 66,
+    "thumbnailBytes": 976,
+    "status": "rendered"
+  },
+  {
+    "file": "components/feature-row-2.svg",
+    "width": 1246,
+    "height": 66,
+    "thumbnailBytes": 1279,
+    "status": "rendered"
+  },
+  {
+    "file": "components/feature-row-3.svg",
+    "width": 1246,
+    "height": 66,
+    "thumbnailBytes": 1008,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-checking.svg",
+    "width": 1054,
+    "height": 14,
+    "thumbnailBytes": 285,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-complete.svg",
+    "width": 1054,
+    "height": 14,
+    "thumbnailBytes": 221,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-downloading-64.svg",
+    "width": 1054,
+    "height": 14,
+    "thumbnailBytes": 255,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-error-37.svg",
+    "width": 1054,
+    "height": 14,
+    "thumbnailBytes": 246,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-track.svg",
+    "width": 1054,
+    "height": 14,
+    "thumbnailBytes": 210,
+    "status": "rendered"
+  },
+  {
+    "file": "components/setting-auto-download.svg",
+    "width": 470,
+    "height": 70,
+    "thumbnailBytes": 6152,
+    "status": "rendered"
+  },
+  {
+    "file": "components/toggle-disabled.svg",
+    "width": 72,
+    "height": 36,
+    "thumbnailBytes": 1201,
+    "status": "rendered"
+  },
+  {
+    "file": "components/toggle-off.svg",
+    "width": 72,
+    "height": 36,
+    "thumbnailBytes": 1275,
+    "status": "rendered"
+  },
+  {
+    "file": "components/toggle-on.svg",
+    "width": 72,
+    "height": 36,
+    "thumbnailBytes": 1514,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/at-field-01.svg",
+    "width": 176,
+    "height": 176,
+    "thumbnailBytes": 5459,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/divider.svg",
+    "width": 1240,
+    "height": 2,
+    "thumbnailBytes": 104,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/engineering-lines.svg",
+    "width": 1280,
+    "height": 252,
+    "thumbnailBytes": 703,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/hazard-notches.svg",
+    "width": 64,
+    "height": 14,
+    "thumbnailBytes": 336,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/header-sync-brackets.svg",
+    "width": 330,
+    "height": 30,
+    "thumbnailBytes": 647,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/title-stripes.svg",
+    "width": 128,
+    "height": 10,
+    "thumbnailBytes": 190,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/card-background.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 3775,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/card-border.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1705,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/content-panel.svg",
+    "width": 1314,
+    "height": 374,
+    "thumbnailBytes": 1942,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/feature-list-panel.svg",
+    "width": 1246,
+    "height": 198,
+    "thumbnailBytes": 643,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/footer-panel.svg",
+    "width": 1314,
+    "height": 112,
+    "thumbnailBytes": 841,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/header-surface.svg",
+    "width": 1360,
+    "height": 60,
+    "thumbnailBytes": 586,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/activity.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 366,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/ai-network.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 524,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/check-circle.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 545,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/check.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 204,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/chevron-right.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 184,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/clock.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 563,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/close.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 231,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/download.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 261,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/error.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 298,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/external-link.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 265,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/folder.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 221,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/info.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 515,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/install.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 325,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/pause.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 139,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/release-notes.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 261,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/restart.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 598,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/shield-check.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 571,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/sikeoop-crystal.svg",
+    "width": 40,
+    "height": 40,
+    "thumbnailBytes": 748,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/spinner.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 433,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/warning.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 435,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/wrench.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 621,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/hero-eva-miku-paths.svg",
+    "width": 796,
+    "height": 314,
+    "thumbnailBytes": 93518,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/action-buttons.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 2552,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/auto-download-setting.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 2465,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/card-surface.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 3775,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/content-panels.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 2602,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/engineering-decoration.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1040,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/feature-rows.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 2872,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/footer-panel.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1167,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/frame-and-footer.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 2343,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/header-controls.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1617,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/header-surface.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 671,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-artwork.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 36682,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/progress-status.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1757,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/status-badges.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 1315,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/title-copy.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 4218,
+    "status": "rendered"
+  },
+  {
+    "file": "previews/asset-overview.svg",
+    "width": 1440,
+    "height": 1360,
+    "thumbnailBytes": 27449,
+    "status": "rendered"
+  },
+  {
+    "file": "states/update-checking.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 53168,
+    "status": "rendered"
+  },
+  {
+    "file": "states/update-downloading.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 53603,
+    "status": "rendered"
+  },
+  {
+    "file": "states/update-error.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 53548,
+    "status": "rendered"
+  },
+  {
+    "file": "states/update-installing.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 53009,
+    "status": "rendered"
+  },
+  {
+    "file": "states/update-ready.svg",
+    "width": 1360,
+    "height": 912,
+    "thumbnailBytes": 54031,
+    "status": "rendered"
+  },
+  {
+    "file": "typography/auto-update-label.svg",
+    "width": 146,
+    "height": 28,
+    "thumbnailBytes": 1593,
+    "status": "rendered"
+  },
+  {
+    "file": "typography/button-restart.svg",
+    "width": 176,
+    "height": 44,
+    "thumbnailBytes": 2517,
+    "status": "rendered"
+  },
+  {
+    "file": "typography/subtitle-ready.svg",
+    "width": 560,
+    "height": 46,
+    "thumbnailBytes": 3674,
+    "status": "rendered"
+  },
+  {
+    "file": "typography/title-ready.svg",
+    "width": 560,
+    "height": 98,
+    "thumbnailBytes": 4576,
+    "status": "rendered"
+  },
+  {
+    "file": "typography/wordmark.svg",
+    "width": 150,
+    "height": 44,
+    "thumbnailBytes": 2174,
+    "status": "rendered"
+  }
+]

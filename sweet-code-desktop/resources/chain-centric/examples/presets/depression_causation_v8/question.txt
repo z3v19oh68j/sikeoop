@@ -1,0 +1,13 @@
+Analyze competing hypotheses about depression causation:
+
+Hypothesis A (Serotonin Deficiency): Major depressive disorder is primarily caused by low serotonin concentration or reduced serotonin activity.
+
+Hypothesis B (Neuroinflammation / Immune Dysregulation): Major depressive disorder is primarily caused by chronic inflammation, cytokine signaling, or immune dysregulation.
+
+Hypothesis C (Neuroplasticity / BDNF / Stress-Circuit Dysfunction): Major depressive disorder is primarily caused by impaired neuroplasticity, reduced BDNF-related signaling, and stress-related dysfunction in mood circuits.
+
+Questions:
+1. Which hypothesis has the strongest causal evidence? Rank by evidence type, not by rhetorical plausibility.
+2. Are the three hypotheses mutually exclusive, or do they occupy different causal layers?
+3. Which specific evidence items become unreliable, scope-limited, or overgeneralized after cross-examination?
+4. Design an experiment that would distinguish causal primacy among A, B, and C.

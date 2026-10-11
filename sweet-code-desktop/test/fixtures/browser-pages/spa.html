@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPA 路由</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  nav button { padding: 6px 14px; font: inherit; margin-right: 8px; }
+  nav button[aria-current="page"] { font-weight: 700; text-decoration: underline; }
+  #view { margin-top: 20px; padding: 16px; border: 1px solid rgba(127,127,127,.4); border-radius: 8px; min-height: 80px; }
+  .path { color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>SPA 路由</h1>
+  <p class="path">当前地址：<span id="url"></span></p>
+  <nav>
+    <button data-route="/">首页</button>
+    <button data-route="/about">关于</button>
+    <button data-route="/slow">慢加载</button>
+  </nav>
+  <main id="view" aria-live="polite"></main>
+
+  <script>
+    // 关键：切换「路由」只用 history.pushState + 改 innerHTML，
+    // 不发生真实导航，所以 did-stop-loading / load 事件都不会触发。
+    // 自动化若靠加载事件等待，这里会一直干等。应改用 DOM 变更 / 文字出现来等。
+    const view = document.getElementById("view");
+    const urlEl = document.getElementById("url");
+    const buttons = [...document.querySelectorAll("nav button")];
+
+    const routes = {
+      "/": () => { view.innerHTML = '<h2>首页</h2><p>这是首页内容。</p>'; },
+      "/about": () => { view.innerHTML = '<h2>关于</h2><p>这是关于页。</p>'; },
+      "/slow": () => {
+        view.innerHTML = '<h2>慢加载</h2><p>加载中…</p>';
+        // 内容延迟 800ms 才出现，模拟异步数据；期间没有任何加载事件。
+        setTimeout(() => {
+          if (location.pathname === "/slow")
+            view.innerHTML = '<h2>慢加载</h2><p id="slow-done">数据已就绪。</p>';
+        }, 800);
+      }
+    };
+
+    function render(path) {
+      urlEl.textContent = location.pathname;
+      buttons.forEach((b) => b.setAttribute("aria-current", b.dataset.route === path ? "page" : "false"));
+      (routes[path] || routes["/"])();
+    }
+
+    buttons.forEach((b) => b.addEventListener("click", () => {
+      const path = b.dataset.route;
+      history.pushState({ path }, "", path);
+      render(path);
+    }));
+
+    window.addEventListener("popstate", () => render(location.pathname));
+    render(location.pathname === "/spa.html" ? "/" : location.pathname);
+  </script>
+</body>
+</html>

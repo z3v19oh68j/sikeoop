@@ -1,0 +1,317 @@
+[
+  {
+    "ref": "hart_1975_qjras",
+    "title": "An Explanation for the Absence of Extraterrestrials on Earth",
+    "source": "Hart 1975; Quarterly Journal of the Royal Astronomical Society 16:128-135",
+    "claims": [
+      {
+        "title": "Absence premise",
+        "detail": "Hart framed the problem around the apparent absence of extraterrestrial visitors or artifacts on Earth."
+      },
+      {
+        "title": "Travel-time argument",
+        "detail": "Hart argued that interstellar travel times are short compared with the age of the Galaxy under some assumptions about technological civilizations."
+      },
+      {
+        "title": "Colonization inference",
+        "detail": "Hart argued that if extraterrestrial civilizations capable of interstellar expansion had arisen sufficiently long ago and expanded, evidence of their presence should be observable."
+      },
+      {
+        "title": "Rejected explanations",
+        "detail": "Hart discussed several proposed explanations for the absence of extraterrestrials, including physical difficulty, lack of interest, and deliberate avoidance."
+      },
+      {
+        "title": "Conclusion about technological civilizations",
+        "detail": "Hart concluded that the absence of observed extraterrestrial presence was evidence against the existence of other advanced civilizations in the Galaxy under his expansion assumptions."
+      }
+    ]
+  },
+  {
+    "ref": "tipler_1980_qjras",
+    "title": "Extraterrestrial Intelligent Beings Do Not Exist",
+    "source": "Tipler 1980; Quarterly Journal of the Royal Astronomical Society 21:267-281",
+    "claims": [
+      {
+        "title": "Self-replicating probe premise",
+        "detail": "Tipler considered self-replicating interstellar probes as a mechanism by which a technological civilization could explore or colonize the Galaxy."
+      },
+      {
+        "title": "Replication amplification",
+        "detail": "The argument relies on the idea that probes able to reproduce using extraterrestrial resources could expand the search or colonization front without requiring a civilization to send probes individually to every star."
+      },
+      {
+        "title": "Galaxy exploration inference",
+        "detail": "Tipler argued that if such probe-using civilizations existed and chose expansion, their probes should already have reached the Solar System."
+      },
+      {
+        "title": "Non-observation premise",
+        "detail": "The paper treated the absence of observed probes or extraterrestrial artifacts as an important datum."
+      },
+      {
+        "title": "Strong conclusion",
+        "detail": "Tipler drew a strong conclusion that extraterrestrial intelligent beings do not exist, conditional on the assumptions about probe feasibility and expansion behavior."
+      }
+    ]
+  },
+  {
+    "ref": "sagan_newman_1983_qjras",
+    "title": "The Solipsist Approach to Extraterrestrial Intelligence",
+    "source": "Sagan and Newman 1983; Quarterly Journal of the Royal Astronomical Society 24:113-121",
+    "claims": [
+      {
+        "title": "Colonization-wave critique",
+        "detail": "Sagan and Newman criticized simple arguments that assume stable and inevitable exponential colonization across the Galaxy."
+      },
+      {
+        "title": "Social and ecological constraints",
+        "detail": "The paper discussed the possibility that civilizations may not sustain unlimited expansion because of social, ecological, or stability constraints."
+      },
+      {
+        "title": "Behavioral assumption",
+        "detail": "The argument emphasized that conclusions from non-observation depend on assumptions about the motivations and behaviors of extraterrestrial civilizations."
+      },
+      {
+        "title": "Non-observation interpretation",
+        "detail": "The paper did not treat the absence of visitors as a simple proof that extraterrestrial intelligence is absent."
+      }
+    ]
+  },
+  {
+    "ref": "ball_1973_icarus",
+    "title": "The Zoo Hypothesis",
+    "source": "Ball 1973; Icarus 19(3):347-349; DOI 10.1016/0019-1035(73)90111-5",
+    "claims": [
+      {
+        "title": "Zoo hypothesis formulation",
+        "detail": "Ball proposed that advanced extraterrestrial civilizations might deliberately avoid open contact with Earth."
+      },
+      {
+        "title": "Non-contact explanation",
+        "detail": "The hypothesis interprets absence of contact as compatible with the existence of extraterrestrial civilizations if they follow a non-interference policy."
+      },
+      {
+        "title": "Behavioral dependence",
+        "detail": "The explanation depends on assumptions about coordinated behavior, restraint, or policy among advanced civilizations."
+      },
+      {
+        "title": "Observability implication",
+        "detail": "Under the zoo hypothesis, non-detection is not direct evidence that civilizations are absent."
+      }
+    ]
+  },
+  {
+    "ref": "carter_2008_ijastro",
+    "title": "Five- or Six-Step Scenario for Evolution?",
+    "source": "Carter 2008; International Journal of Astrobiology 7(3-4):177-182; DOI 10.1017/S1473550408004023",
+    "claims": [
+      {
+        "title": "Hard-step framework",
+        "detail": "Carter discussed an evolutionary hard-step framework in which several difficult transitions may be required before intelligent observers arise."
+      },
+      {
+        "title": "Timescale comparison",
+        "detail": "The hard-step argument compares the time required for intelligence to emerge with the finite habitable lifetime of a planet."
+      },
+      {
+        "title": "Multiple-step scenario",
+        "detail": "The paper considered scenarios involving approximately five or six major evolutionary steps."
+      },
+      {
+        "title": "Rarity implication",
+        "detail": "If multiple evolutionary transitions are hard, then intelligent observers may be rare even if habitable planets are common."
+      }
+    ]
+  },
+  {
+    "ref": "watson_2008_astrobiology",
+    "title": "Implications of an Anthropic Model of Evolution for Emergence of Complex Life and Intelligence",
+    "source": "Watson 2008; Astrobiology 8(1):175-185; DOI 10.1089/ast.2007.0137",
+    "claims": [
+      {
+        "title": "Anthropic evolutionary model",
+        "detail": "Watson modeled the emergence of complex life and intelligence using an anthropic hard-step framework."
+      },
+      {
+        "title": "Finite habitability window",
+        "detail": "The model treats Earth's future habitability window as finite and uses this timescale in estimating the number and difficulty of evolutionary steps."
+      },
+      {
+        "title": "Number of steps estimate",
+        "detail": "Watson argued that the timing of key evolutionary events is consistent with a small number of difficult evolutionary steps."
+      },
+      {
+        "title": "Probability implication",
+        "detail": "The model implies that complex life and intelligence may be uncommon if several difficult steps are required within a planet's habitable window."
+      }
+    ]
+  },
+  {
+    "ref": "petigura_2013_pnas",
+    "title": "Prevalence of Earth-size Planets Orbiting Sun-like Stars",
+    "source": "Petigura, Howard, and Marcy 2013; PNAS 110(48):19273-19278; DOI 10.1073/pnas.1319909110",
+    "claims": [
+      {
+        "title": "Kepler occurrence study",
+        "detail": "The study used Kepler data to estimate occurrence rates of Earth-size planets around Sun-like stars."
+      },
+      {
+        "title": "Earth-size planet frequency",
+        "detail": "The authors estimated that a substantial fraction of Sun-like stars have Earth-size planets receiving Earth-like stellar flux."
+      },
+      {
+        "title": "Habitable-zone planet implication",
+        "detail": "The result implies that potentially temperate, Earth-size planets are not extremely rare around Sun-like stars."
+      },
+      {
+        "title": "Planet occurrence scope",
+        "detail": "The study estimates planet occurrence, not the occurrence of life, intelligence, technology, or detectable civilizations."
+      }
+    ]
+  },
+  {
+    "ref": "frank_sullivan_2016_astrobiology",
+    "title": "A New Empirical Constraint on the Prevalence of Technological Species in the Universe",
+    "source": "Frank and Sullivan 2016; Astrobiology 16(5):359-362; DOI 10.1089/ast.2015.1418",
+    "claims": [
+      {
+        "title": "Exoplanet-informed Drake framing",
+        "detail": "Frank and Sullivan used exoplanet occurrence constraints to reformulate part of the Drake equation around the probability of technological species per habitable-zone planet."
+      },
+      {
+        "title": "Humanity-not-first threshold",
+        "detail": "The paper reported a very low probability threshold above which humanity is unlikely to be the first technological species ever to arise in the observable universe."
+      },
+      {
+        "title": "Milky Way versus universe distinction",
+        "detail": "The analysis distinguishes between the probability of prior technological species in the observable universe and the probability of currently coexisting civilizations in the Milky Way."
+      },
+      {
+        "title": "Lifetime limitation",
+        "detail": "The paper does not by itself establish how long technological civilizations remain detectable or whether they expand."
+      }
+    ]
+  },
+  {
+    "ref": "wright_2018_aj",
+    "title": "How Much SETI Has Been Done? Finding Needles in the n-Dimensional Cosmic Haystack",
+    "source": "Wright, Kanodia, and Lubar 2018; The Astronomical Journal 156:260; DOI 10.3847/1538-3881/aae099",
+    "claims": [
+      {
+        "title": "Cosmic haystack framing",
+        "detail": "The paper described SETI search space as a high-dimensional haystack involving factors such as sky position, frequency, bandwidth, sensitivity, time, polarization, and modulation."
+      },
+      {
+        "title": "Limited searched fraction",
+        "detail": "The authors estimated that only a tiny fraction of the relevant SETI search space had been searched."
+      },
+      {
+        "title": "Non-detection interpretation",
+        "detail": "The paper argued that current non-detections should be interpreted in light of the small fraction of search space explored."
+      },
+      {
+        "title": "Radio-focused scope",
+        "detail": "The analysis focuses on certain technosignature search dimensions and does not cover all possible forms of extraterrestrial technology or activity."
+      }
+    ]
+  },
+  {
+    "ref": "griffith_2015_apjs",
+    "title": "The G Infrared Search for Extraterrestrial Civilizations with Large Energy Supplies. III. The Reddest Extended Sources in WISE",
+    "source": "Griffith et al. 2015; The Astrophysical Journal Supplement Series 217:25; DOI 10.1088/0067-0049/217/2/25",
+    "claims": [
+      {
+        "title": "WISE infrared search",
+        "detail": "The study searched WISE data for galaxies with mid-infrared signatures that could be consistent with very large energy use."
+      },
+      {
+        "title": "Galaxy-scale technosignature target",
+        "detail": "The search was motivated by possible waste-heat signatures of Kardashev Type III or galaxy-spanning civilizations."
+      },
+      {
+        "title": "No obvious Type III detections",
+        "detail": "The study did not report clear detections of galaxy-spanning civilizations with very large infrared waste heat signatures."
+      },
+      {
+        "title": "Candidate and astrophysical contamination",
+        "detail": "The paper discussed red infrared sources and the need to distinguish possible candidates from natural astrophysical sources such as dust-obscured galaxies."
+      },
+      {
+        "title": "Search scope",
+        "detail": "The search constrains a particular class of high-energy, waste-heat-producing civilizations, not all possible technological civilizations."
+      }
+    ]
+  },
+  {
+    "ref": "haqq_misra_baum_2009_jbis",
+    "title": "The Sustainability Solution to the Fermi Paradox",
+    "source": "Haqq-Misra and Baum 2009; Journal of the British Interplanetary Society 62:47-51; arXiv:0906.0568",
+    "claims": [
+      {
+        "title": "Sustainability explanation",
+        "detail": "The paper proposed that long-lived civilizations may adopt sustainable development patterns rather than rapid exponential expansion."
+      },
+      {
+        "title": "Expansion assumption critique",
+        "detail": "The explanation challenges the assumption that advanced civilizations will inevitably expand rapidly across the Galaxy."
+      },
+      {
+        "title": "Detectability implication",
+        "detail": "Civilizations following low-growth or sustainable trajectories may be less detectable than rapidly expanding high-energy civilizations."
+      },
+      {
+        "title": "Civilization behavior dependence",
+        "detail": "The solution depends on assumptions about the long-term behavior, resource use, and growth strategies of technological civilizations."
+      }
+    ]
+  },
+  {
+    "ref": "carroll_nellenback_2019_aj",
+    "title": "The Fermi Paradox and the Aurora Effect: Exo-civilization Settlement, Expansion, and Steady States",
+    "source": "Carroll-Nellenback et al. 2019; The Astronomical Journal 158:117; DOI 10.3847/1538-3881/ab31a3",
+    "claims": [
+      {
+        "title": "Settlement model",
+        "detail": "The paper modeled interstellar settlement dynamics rather than assuming instantaneous or uniform Galactic colonization."
+      },
+      {
+        "title": "Stellar motion",
+        "detail": "The model incorporated the motion of stars through the Galaxy as a factor in settlement dynamics."
+      },
+      {
+        "title": "Patchy settlement possibility",
+        "detail": "The paper found that settlement patterns can be non-uniform or patchy under some assumptions."
+      },
+      {
+        "title": "Earth non-visitation compatibility",
+        "detail": "The authors argued that the absence of evidence for visitation of Earth can be compatible with settlement elsewhere in the Galaxy under some model conditions."
+      },
+      {
+        "title": "Dependence on assumptions",
+        "detail": "The results depend on assumptions about spacecraft range, launch rates, settlement lifetimes, and whether settlements continue to generate further settlements."
+      }
+    ]
+  },
+  {
+    "ref": "hanson_1998_great_filter",
+    "title": "The Great Filter - Are We Almost Past It?",
+    "source": "Hanson 1998; online essay, George Mason University",
+    "claims": [
+      {
+        "title": "Great filter concept",
+        "detail": "Hanson described the Great Filter as one or more difficult steps between lifeless matter and large, visible, expansionist civilizations."
+      },
+      {
+        "title": "Filter location question",
+        "detail": "The framework distinguishes between filters that may lie behind humanity and filters that may lie ahead."
+      },
+      {
+        "title": "Observation of silence",
+        "detail": "The Great Filter framework uses the lack of observed large-scale extraterrestrial civilizations as a datum to be explained."
+      },
+      {
+        "title": "Conditional interpretation",
+        "detail": "The meaning of extraterrestrial non-observation differs depending on which steps are rare or dangerous."
+      }
+    ]
+  }
+]

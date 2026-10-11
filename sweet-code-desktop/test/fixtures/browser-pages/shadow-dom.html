@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadow DOM（open / closed）</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  .host { margin: 16px 0; padding: 12px; border: 1px dashed rgba(127,127,127,.5); border-radius: 8px; }
+  .label { font-weight: 600; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+  <h1>Shadow DOM</h1>
+  <p>两个自定义元素，一个用 open 影子根，一个用 closed。普通页面脚本拿不到 closed 的内容，
+     CDP 用 <code>DOM.getDocument(pierce)</code> 两种都能看见。</p>
+
+  <div class="label">① open shadow root</div>
+  <div class="host"><open-widget></open-widget></div>
+
+  <div class="label">② closed shadow root</div>
+  <div class="host"><closed-widget></closed-widget></div>
+
+  <script>
+    function build(root, tag) {
+      const wrap = document.createElement("div");
+      wrap.innerHTML =
+        '<input type="text" placeholder="' + tag + ' 里的输入框" aria-label="' + tag + ' 输入框">' +
+        ' <button>' + tag + ' 里的按钮</button>' +
+        '<p class="echo"></p>';
+      const btn = wrap.querySelector("button");
+      const input = wrap.querySelector("input");
+      const echo = wrap.querySelector(".echo");
+      btn.addEventListener("click", () => { echo.textContent = "点了 " + tag + " 的按钮，输入：" + input.value; });
+      root.appendChild(wrap);
+    }
+
+    class OpenWidget extends HTMLElement {
+      connectedCallback() {
+        const root = this.attachShadow({ mode: "open" });
+        build(root, "open");
+      }
+    }
+    class ClosedWidget extends HTMLElement {
+      connectedCallback() {
+        const root = this.attachShadow({ mode: "closed" }); // 页面脚本之后无法从 this.shadowRoot 拿到
+        build(root, "closed");
+      }
+    }
+    customElements.define("open-widget", OpenWidget);
+    customElements.define("closed-widget", ClosedWidget);
+  </script>
+</body>
+</html>

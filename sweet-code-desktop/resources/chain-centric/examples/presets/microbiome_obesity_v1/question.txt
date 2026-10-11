@@ -1,0 +1,18 @@
+Analyze competing hypotheses about gut microbiota and obesity:
+
+Hypothesis A (Microbiota-Driven): Altered microbiota is causal in obesity.
+Ridaura et al. (Science, 2013) — fecal transplant from obese/lean twins into germ-free mice.
+Turnbaugh et al. (Nature, 2006) — microbiota affects energy extraction from diet.
+
+Hypothesis B (Diet-Driven): Diet drives obesity, microbiota changes are downstream.
+Sonnenburg & Backhed (Nature, 2016) — diet predicts outcomes better than microbiota alone.
+
+Hypothesis C (Host-Genetics-Driven): Host genes regulate microbiota.
+Goodrich et al. (Cell, 2014) — microbiota heritability ~30%.
+Thaiss et al. (Cell, 2014) — circadian genes shape microbiota via feeding timing.
+
+Reviews: Cani et al. (2019), Fan & Pedersen (2021), de Vos et al. (2022).
+
+1. Which causal direction? Rank by evidence type.
+2. Mutually exclusive?
+3. Design experiment to distinguish.

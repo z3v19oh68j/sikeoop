@@ -1,0 +1,1 @@
+{"name":"sikeoop-hosting","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"wrangler dev --local","typecheck":"tsc --noEmit","db:local":"wrangler d1 migrations apply hosting --local","smoke":"bash scripts/smoke.sh"},"devDependencies":{"@cloudflare/workers-types":"^5.20261006.1","typescript":"^5.9.3","wrangler":"^4.0.0"}}

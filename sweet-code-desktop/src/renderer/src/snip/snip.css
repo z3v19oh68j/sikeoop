@@ -1,0 +1,18 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #000; cursor: crosshair; user-select: none; }
+body { font: 13px "Geist Variable", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+#shot { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: fill; pointer-events: none; }
+/* Dim everything; while selecting, a huge box-shadow around the box does the dimming instead. */
+#shade { position: fixed; inset: 0; background: rgba(0, 0, 0, .35); pointer-events: none; }
+.selecting #shade { display: none; }
+#box {
+  position: fixed; box-sizing: border-box; border: 1.5px solid #f0789b; pointer-events: none;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(255, 255, 255, .35);
+}
+#size {
+  position: absolute; left: 0; top: -26px; padding: 2px 8px; border-radius: 6px; white-space: nowrap;
+  background: rgba(20, 20, 26, .85); color: #fff; font-size: 12px; font-variant-numeric: tabular-nums;
+}
+#hint {
+  position: fixed; left: 50%; top: 22%; transform: translateX(-50%); padding: 10px 18px; border-radius: 20px;
+  background: rgba(20, 20, 26, .78); color: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .25);
+}

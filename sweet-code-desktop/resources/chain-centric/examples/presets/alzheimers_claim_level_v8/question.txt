@@ -1,0 +1,13 @@
+Analyze competing hypotheses about Alzheimer's disease causation:
+
+Hypothesis A (Amyloid-Beta Cascade): amyloid-beta plaque deposition or soluble amyloid-beta assemblies are the primary etiological driver.
+
+Hypothesis B (Tau Propagation): tau tangle pathology and trans-synaptic tau spread are the proximate lethal mechanism driving cognitive decline.
+
+Hypothesis C (Neuroinflammation / Immune Dysfunction): chronic microglial activation and immune dysregulation are the primary drivers of disease initiation and progression.
+
+Questions:
+1. Which hypothesis has the strongest causal evidence? Rank by evidence type, not by rhetorical plausibility.
+2. Are the three hypotheses mutually exclusive, or do they occupy different causal layers?
+3. Which specific evidence items become unreliable, scope-limited, or overgeneralized after cross-examination?
+4. Design an experiment that would distinguish causal primacy among A, B, and C.

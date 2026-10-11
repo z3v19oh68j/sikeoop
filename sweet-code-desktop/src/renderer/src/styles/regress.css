@@ -1,0 +1,246 @@
+/* The regression panel (RegressConsole.tsx). Colors come from the theme tokens in theme.css. */
+
+.regress {
+  overflow-y: auto;
+  padding: 16px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.regress-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.regress-title { display: grid; gap: 2px; min-width: 0; }
+.regress-counts { color: var(--muted); font-size: 12.5px; }
+.regress-counts .ok { color: var(--ok); }
+.regress-counts .bad { color: var(--bad); }
+.regress-counts .warn { color: var(--warn); }
+
+.regress-session { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-size: 12.5px; color: var(--muted); }
+.regress-session select,
+.regress-form select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font: 12.5px var(--font-ui);
+}
+
+.regress-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.regress-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: 12.5px var(--font-ui);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.regress-btn:hover:not(:disabled) { background: var(--panel-2); }
+.regress-btn.on { background: var(--panel-3); }
+.regress-btn.primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+.regress-btn.primary:hover:not(:disabled) { background: var(--primary); opacity: 0.9; }
+.regress-btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, var(--line-2)); }
+.regress-btn.small { height: 24px; padding: 0 8px; font-size: 12px; }
+.regress-btn.icon { padding: 0 6px; }
+.regress-btn:disabled { opacity: 0.4; cursor: default; }
+.regress-btn .icon { width: 14px; height: 14px; }
+
+.regress-x { border: 0; background: none; color: var(--muted); cursor: pointer; padding: 2px; margin-left: auto; display: inline-grid; }
+.regress-x:hover { color: var(--ink); }
+
+.regress-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--bad) 40%, var(--line));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.regress-error .icon { color: var(--bad); flex: none; }
+
+.regress-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.regress-empty > .icon { width: 28px; height: 28px; color: var(--accent); }
+.regress-empty b { color: var(--ink); font-size: 14.5px; }
+.regress-empty p { margin: 0; max-width: 36em; font-size: 13px; line-height: 1.7; }
+
+/* ---- panels: generate, baselines, settings ---- */
+.regress-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.regress-panel h3 { margin: 0; font-size: 13.5px; color: var(--ink); }
+.regress-panel .hint { margin: 0; }
+.regress-row { display: flex; gap: 8px; align-items: center; }
+.regress-row.end { justify-content: flex-end; }
+.regress-row input,
+.regress-form input,
+.regress-form textarea {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font: 12.5px var(--font-ui);
+}
+.regress-form textarea { height: auto; padding: 6px 10px; resize: vertical; line-height: 1.6; }
+.regress-row input:focus,
+.regress-form input:focus,
+.regress-form textarea:focus { outline: none; border-color: var(--accent); }
+.regress-form { display: grid; gap: 8px; }
+
+.regress-candidates { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 360px; overflow-y: auto; }
+.regress-candidates li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); }
+.regress-candidates li.off { opacity: 0.45; }
+.regress-candidates input { margin-top: 3px; }
+
+.regress-raw summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
+.regress-raw pre,
+.regress-reply pre {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--ink-2);
+  font: 12px/1.6 var(--font-code);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.regress-baselines { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.regress-baselines li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 13px; }
+.regress-baselines li:hover { background: var(--panel-2); }
+
+.regress-diff { display: grid; gap: 8px; }
+.regress-diff-sum { display: flex; flex-wrap: wrap; gap: 6px; }
+.regress-diff table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.regress-diff th,
+.regress-diff td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.regress-diff th { color: var(--muted); font-weight: 500; }
+.regress-diff tr.regressed td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+.regress-diff tr.fixed td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
+.regress-kind { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; border: 1px solid var(--line-2); color: var(--muted); }
+.regress-kind.regressed { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.regress-kind.fixed { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, transparent); background: color-mix(in srgb, var(--ok) 10%, transparent); }
+.regress-kind.new { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+.regress-settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.regress-settings label { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.regress-settings input { height: 30px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel-2); color: var(--ink); font: 12.5px var(--font-code); }
+.regress-settings small { color: var(--muted); font-size: 11.5px; }
+.regress-settings label.bad input { border-color: var(--bad); }
+.regress-settings .regress-row { grid-column: 1 / -1; }
+
+/* ---- items ---- */
+.regress-select-all { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.regress-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.regress-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.regress-item.conflict { border-color: color-mix(in srgb, var(--warn) 55%, var(--line)); }
+.regress-item.editing { display: block; }
+.regress-check { margin-top: 3px; }
+.regress-main { display: grid; gap: 6px; min-width: 0; }
+.regress-item-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.regress-item-head b { font-size: 13.5px; color: var(--ink); }
+.regress-owner { padding: 1px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line-2); color: var(--muted); }
+.regress-owner.frontend { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.regress-owner.backend { color: #8fb8ff; border-color: rgba(143, 184, 255, 0.45); }
+.regress-conflict { padding: 1px 8px; border-radius: 999px; font-size: 11px; color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.regress-detail { margin: 0; color: var(--ink-2); font-size: 12.5px; line-height: 1.65; }
+.regress-criteria { margin: 0; display: flex; gap: 8px; font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
+.regress-criteria span { flex: none; color: var(--muted); }
+.regress-item-actions { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.regress-confirm { display: inline-flex; gap: 4px; }
+
+.regress-runs { display: grid; gap: 4px; margin-top: 2px; }
+.regress-run {
+  display: grid;
+  grid-template-columns: 54px auto auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  font-size: 12px;
+}
+.regress-cli { font-weight: 600; color: var(--ink); }
+.regress-session-name { color: var(--muted); font-family: var(--font-code); }
+.regress-verdict { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; white-space: nowrap; }
+.regress-verdict em { font-style: normal; font-weight: 400; color: var(--muted); }
+.regress-verdict.pass { color: var(--ok); }
+.regress-verdict.fail,
+.regress-verdict.error { color: var(--bad); }
+.regress-verdict.pending,
+.regress-verdict.timeout { color: var(--warn); }
+.regress-verdict.queued,
+.regress-verdict.running { color: var(--accent); }
+.regress-verdict.gone,
+.regress-verdict.cancelled { color: var(--muted); }
+.regress-time { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.regress-reason { min-width: 0; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regress-run-actions { display: inline-flex; gap: 10px; white-space: nowrap; }
+.regress-spinner { width: 10px; height: 10px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: regress-spin 0.8s linear infinite; }
+@keyframes regress-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .regress-spinner { animation: none; } }
+
+@media (max-width: 900px) {
+  .regress-run { grid-template-columns: 54px auto auto minmax(0, 1fr); }
+  .regress-run .regress-session-name,
+  .regress-run .regress-reason { display: none; }
+}
+
+/* ---- full reply ---- */
+.regress-reply {
+  width: min(860px, calc(100vw - 48px));
+  max-height: calc(100vh - 80px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.regress-reply header { display: flex; align-items: center; gap: 10px; }
+.regress-reply header b { font-size: 13.5px; }
+.regress-reply pre { max-height: none; margin: 0; }

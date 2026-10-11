@@ -1,0 +1,9 @@
+{
+  "jsonrpc": "2.0",
+  "id": "3",
+  "result": {
+    "accepted": true,
+    "requestId": "req-1",
+    "turnId": 41
+  }
+}

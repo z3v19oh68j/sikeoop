@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob:; font-src 'self' data:"
+    />
+    <title>语音输入</title>
+  </head>
+  <body>
+    <div id="bubble" hidden>
+      <span id="dot"></span>
+      <span id="wave"><i></i><i></i><i></i><i></i><i></i></span>
+      <span id="text"></span>
+    </div>
+    <script type="module" src="/src/dictation/main.ts"></script>
+  </body>
+</html>

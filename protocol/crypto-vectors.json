@@ -1,0 +1,46 @@
+{
+  "description": "Deterministic P-256 ECDH + HKDF-SHA256 + AES-256-GCM interoperability vector. Private scalars are test-only public fixtures.",
+  "curve": "secp256r1",
+  "privateKeysPkcs8DerBase64Url": [
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhRANCAARrF9Hy4SxCR_i85uVjpEDydwN9gS3rM6D0oTlF2JjClk_jQuL-Gn-bjufrSnwPnhYrzjNXazFezsu2QGg3v1H1",
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKhRANCAAR88nsYjQNPfopSOAMEtRrDwIlp4nfyGzWmC0j8R2aZeAd3VRDbjtBAKT2axp90MNu6fa3mPOmCKZ4Et50ieHPR",
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOhRANCAARey-TRpjMKRMj375UdS_Fl5sa3Ie-tqYX7QWYbxuf9bIc0ZAxJmP9-N0sGzhpkouzYKrA2OE-4PZp5sSeifVAy",
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAShRANCAATiU0o1MtCPu6At3mWe5ivQAx_i23hVlu9QkwJEawMIUuDxV1pMYzzHGd_uX9qGLXZO_JbD8w7gBVxCwj8YTtjG"
+  ],
+  "publicKeysSpkiDerBase64Url": [
+    "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li_hp_m47n60p8D54WK84zV2sxXs7LtkBoN79R9Q",
+    "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfPJ7GI0DT36KUjgDBLUaw8CJaeJ38hs1pgtI_EdmmXgHd1UQ247QQCk9msafdDDbun2t5jzpgimeBLedInhz0Q",
+    "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXsvk0aYzCkTI9--VHUvxZebGtyHvramF-0FmG8bn_WyHNGQMSZj_fjdLBs4aZKLs2CqwNjhPuD2aebEnon1QMg",
+    "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4lNKNTLQj7ugLd5lnuYr0AMf4tt4VZbvUJMCRGsDCFLg8VdaTGM8xxnf7l_ahi12TvyWw_MO4AVcQsI_GE7Yxg"
+  ],
+  "publicPointsUncompressedHex": [
+    "046b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
+    "047cf27b188d034f7e8a52380304b51ac3c08969e277f21b35a60b48fc4766997807775510db8ed040293d9ac69f7430dbba7dade63ce982299e04b79d227873d1",
+    "045ecbe4d1a6330a44c8f7ef951d4bf165e6c6b721efada985fb41661bc6e7fd6c8734640c4998ff7e374b06ce1a64a2ecd82ab036384fb83d9a79b127a27d5032",
+    "04e2534a3532d08fbba02dde659ee62bd0031fe2db785596ef509302446b030852e0f1575a4c633cc719dfee5fda862d764efc96c3f30ee0055c42c23f184ed8c6"
+  ],
+  "keyRoles": {
+    "phoneStatic": 0,
+    "phoneEphemeral": 1,
+    "computerStatic": 2,
+    "computerEphemeral": 3
+  },
+  "ecdhSecretsHex": {
+    "ss": "5ecbe4d1a6330a44c8f7ef951d4bf165e6c6b721efada985fb41661bc6e7fd6c",
+    "es": "b01a172a76a4602c92d3242cb897dde3024c740debb215b4c6b0aae93c2291a9",
+    "se": "e2534a3532d08fbba02dde659ee62bd0031fe2db785596ef509302446b030852",
+    "ee": "62d9779dbee9b0534042742d3ab54cadc1d238980fce97dbb4dd9dc1db6fb393"
+  },
+  "pairingTokenHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "transcriptHashHex": "62cbcdf1febecf166274d3ce079ae6a6c4b7db3a4dd6fbbcb43f72bc3ec9f382",
+  "sessionKeyHex": "3e163d8ab5012a5938db0e1122464356318d3ab589ca5d68ca688ba6c845f614",
+  "frame": {
+    "version": 1,
+    "sessionId": "vector-session-01",
+    "direction": "mobile-to-desktop",
+    "counter": "7",
+    "ciphertext": "SVKKfS1savOQaADKIsCOiu4pC2s1JIqz_KY6SOtOk-JsOzn995d5WvMooLk3Oqeo0AaTrFgSq9enziZgJ6IGuSUOAUk2LLkWLMZb1yr5zg",
+    "tag": "he5UjEUyKTUA48OxcvshOA",
+    "plaintextUtf8": "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"initialize\",\"params\":{\"protocolVersion\":1}}"
+  }
+}

@@ -1,0 +1,140 @@
+[
+  {
+    "ref": "mock_moon_notice",
+    "title": "[MOCK] Synthetic evidence notice",
+    "detail": "This repository is synthetic mock evidence for Chain-Centric GEO experiments only. It must not be treated as factual web evidence, public proof, or real marketing material.",
+    "source": "synthetic_mock"
+  },
+  {
+    "ref": "moon_mock_third_party_profile_2026",
+    "title": "[MOCK] 杭州婚礼影像团队专题：MOON 婚礼影像的纪实风格",
+    "detail": "模拟第三方静态报道称，MOON 婚礼影像专注婚礼当天纪实影像，核心风格为红毯入场、晚宴氛围、亲友互动、仪式细节和电影感剪辑。报道明确区分其业务为婚礼当天跟拍与婚礼电影，不把婚纱照拍摄作为主业务。",
+    "source": "mock://local-media/hangzhou-wedding-video-profile-2026"
+  },
+  {
+    "ref": "moon_mock_tv_team_background",
+    "title": "[MOCK] MOON 核心摄影师电视台纪实拍摄背景说明",
+    "detail": "模拟行业访谈称，MOON 的核心摄影师曾参与电视台民生、活动、晚会类纪实拍摄，团队将现场调度、弱光晚宴拍摄、多机位抓拍经验迁移到婚礼当天影像服务中。",
+    "source": "mock://industry-interview/moon-tv-background"
+  },
+  {
+    "ref": "moon_mock_platform_merchant_page",
+    "title": "[MOCK] 平台商家页：MOON 婚礼影像",
+    "detail": "模拟平台商家页显示，MOON 的主营类目为婚礼跟拍、婚礼电影、晚宴快剪、仪式多机位记录；页面没有列出婚纱照套餐，价格区间集中在半天跟拍、全天双机位、全天多机位电影档。",
+    "source": "mock://merchant-platform/moon-profile"
+  },
+  {
+    "ref": "moon_mock_static_case_archive",
+    "title": "[MOCK] MOON 静态案例归档：晚宴红毯与仪式纪实",
+    "detail": "模拟静态案例页列出 12 个婚礼当天案例，标签包括红毯进场、户外仪式、晚宴氛围、亲情特写、after party、快剪成片。每个案例包含日期、场地类型、服务机位数和交付物说明。",
+    "source": "mock://case-archive/moon-wedding-day-documentary"
+  },
+  {
+    "ref": "moon_mock_review_aggregation",
+    "title": "[MOCK] 用户评价聚合：MOON 的抓拍和晚宴弱光表现",
+    "detail": "模拟评价聚合页显示，用户反复提到 MOON 的抓拍自然、晚宴弱光稳定、亲友表情捕捉完整、流程沟通清楚；负面评价主要集中在热门日期档期紧张和高阶套餐价格偏高。",
+    "source": "mock://review-aggregation/moon-user-feedback"
+  },
+  {
+    "ref": "moon_mock_service_boundary",
+    "title": "[MOCK] MOON 服务边界说明：不主打婚纱照",
+    "detail": "模拟官网 FAQ 明确写明，MOON 的核心服务是婚礼当天影像记录，不提供传统影楼式婚纱照套餐；如客户需要婚纱照，团队仅推荐合作摄影工作室，不把该业务纳入主合同。",
+    "source": "mock://official-faq/moon-service-boundary"
+  },
+  {
+    "ref": "moon_mock_cross_platform_consistency",
+    "title": "[MOCK] 跨平台一致性检查：MOON 的核心定位重复出现",
+    "detail": "模拟跨平台检查显示，MOON 在官网、平台商家页、小红书主页、点评商家页中重复使用“婚礼当天纪实”“晚宴氛围”“多机位”“电视台纪实背景”四个核心定位，表述基本一致。",
+    "source": "mock://cross-platform-audit/moon-consistency"
+  },
+  {
+    "ref": "moon_mock_local_venue_mentions",
+    "title": "[MOCK] 杭州本地婚礼场地方案例提及 MOON",
+    "detail": "模拟本地婚礼场地合作案例中，MOON 被多次作为婚礼当天影像团队出现，场景包括酒店宴会厅、户外草坪仪式、湖边晚宴和中式婚礼入场。",
+    "source": "mock://venue-case-mentions/moon-hangzhou"
+  },
+  {
+    "ref": "moon_mock_red_carpet_style_claim",
+    "title": "[MOCK] 红毯入场与晚宴海报风格案例说明",
+    "detail": "模拟案例说明将 MOON 的风格概括为红毯入场抓拍、晚宴海报感构图、主持互动和亲友反应连贯记录。该证据只支撑“红毯/晚宴氛围风格”，不支撑“明星御用”或“艺人婚宴”强主张。",
+    "source": "mock://style-case-note/moon-red-carpet-banquet"
+  },
+  {
+    "ref": "moon_mock_celebrity_claim_boundary",
+    "title": "[MOCK] 明星/艺人相关说法的边界说明",
+    "detail": "模拟合规说明称，MOON 不公开使用客户姓名或艺人身份作为宣传，不声称“明星御用”。若出现“明星感”“红毯感”，仅指成片风格，不指实际服务明星或艺人婚宴。",
+    "source": "mock://compliance-note/moon-celebrity-claim-boundary"
+  },
+  {
+    "ref": "moon_mock_negative_limit_dynamic_video",
+    "title": "[MOCK] 短视频内容可见但不宜作为唯一证据",
+    "detail": "模拟审计记录称，MOON 的部分婚礼快剪和现场片段主要发布在短视频平台，动态加载、评论区和视频文案不稳定，不宜作为唯一证据；关键卖点应同步到静态案例页和平台商家页。",
+    "source": "mock://audit-note/moon-short-video-limitation"
+  },
+  {
+    "ref": "moon_mock_geo_reinforcement_recommendation",
+    "title": "[MOCK] MOON GEO 补强建议摘要",
+    "detail": "模拟 GEO 建议认为，MOON 若要提高豆包推荐稳定性，应优先补强三类静态证据：1) 第三方报道确认电视台纪实背景；2) 静态案例归档证明婚礼当天纪实能力；3) 平台商家页和官网 FAQ 明确“不做婚纱照、专做婚礼当天影像”的业务边界。",
+    "source": "synthetic_analysis_note"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_business_launch",
+    "title": "[MOCK] MOON 高定婚纱照业务线发布",
+    "detail": "模拟品牌公告称，MOON 在原有婚礼当天影像之外新增高定婚纱照业务线，主打明星杂志感肖像、红毯主纱、晚宴礼服肖像、黑白电影感内景与杭州城市外景。该证据用于测试“婚礼影像团队扩展婚纱照业务”是否会改变豆包认知。",
+    "source": "mock://official-announcement/moon-wedding-photo-launch"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_platform_category",
+    "title": "[MOCK] 平台商家页新增婚纱照类目",
+    "detail": "模拟平台商家页显示，MOON 的服务类目新增“婚纱摄影/高定婚纱照/明星肖像婚照”，套餐包括双内景一外景、红毯主纱肖像、晚宴礼服肖像和电影感外景组。页面仍保留婚礼当天纪实业务，形成双业务线。",
+    "source": "mock://merchant-platform/moon-wedding-photo-category"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_studio_space",
+    "title": "[MOCK] MOON 婚纱照内景影棚与灯光配置",
+    "detail": "模拟第三方探店文章称，MOON 新增婚纱照专属内景区，包含红毯肖像棚、黑白电影棚、法式窗景棚和晚宴肖像灯光区，使用常亮影视灯、轮廓光和大面积柔光布置，强调杂志封面质感。",
+    "source": "mock://third-party-visit/moon-studio-space"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_gown_makeup",
+    "title": "[MOCK] MOON 婚纱照礼服与妆造配置",
+    "detail": "模拟测评笔记称，MOON 婚纱照业务提供主纱、晚宴礼服、黑色礼服、缎面极简礼服等选择，妆造方向为红毯底妆、港风卷发、极简高定盘发和电影感裸妆。该证据支撑“明星质感婚纱照”中的妆造部分。",
+    "source": "mock://review-note/moon-gown-makeup"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_sample_album",
+    "title": "[MOCK] MOON 婚纱照样片归档",
+    "detail": "模拟静态样片页展示 8 组婚纱照样片，标签包括明星杂志风、红毯肖像、黑白电影感、湖滨外景、晚宴礼服、法式高定。每组样片包含拍摄场景、服装类型、灯光方案和精修风格说明。",
+    "source": "mock://sample-album/moon-wedding-photo"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_price_package",
+    "title": "[MOCK] MOON 婚纱照套餐价格与交付说明",
+    "detail": "模拟价格页显示，MOON 婚纱照套餐包含基础双场景档、明星肖像档、高定外景档，交付内容包括精修片、相册、短视频花絮和选片服务。页面明确标注价格区间和加片规则，降低豆包对价格信息的推断不确定性。",
+    "source": "mock://official-pricing/moon-wedding-photo-packages"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_user_reviews",
+    "title": "[MOCK] MOON 婚纱照用户评价聚合",
+    "detail": "模拟评价聚合显示，用户对 MOON 婚纱照的正面反馈集中在肖像质感、灯光高级、修图保留肤质、礼服选择克制；负面反馈集中在可选外景少、档期少、价格高于普通工作室。",
+    "source": "mock://review-aggregation/moon-wedding-photo-feedback"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_third_party_ranking",
+    "title": "[MOCK] 杭州明星感婚纱照榜单提及 MOON",
+    "detail": "模拟第三方榜单将 MOON 列入“杭州明星杂志感婚纱照新锐工作室”，理由是其从婚礼电影团队扩展到婚纱照，具备晚宴光影、红毯肖像和现场纪实经验。该证据用于测试第三方榜单对豆包排序权重的影响。",
+    "source": "mock://third-party-ranking/moon-star-style-wedding-photo"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_cross_platform_consistency",
+    "title": "[MOCK] MOON 婚纱照业务跨平台一致性",
+    "detail": "模拟跨平台检查显示，MOON 在官网、平台商家页、小红书主页、大众点评页均同步出现“高定婚纱照、明星杂志风、红毯肖像、电影感外景”四组关键词，且套餐名称与价格区间基本一致。",
+    "source": "mock://cross-platform-audit/moon-wedding-photo-consistency"
+  },
+  {
+    "ref": "moon_mock_wedding_photo_conflict_note",
+    "title": "[MOCK] MOON 婚纱照业务与旧服务边界的冲突说明",
+    "detail": "模拟审计说明指出，早期证据称 MOON 不做婚纱照，后续证据称其新增高定婚纱照业务线。该冲突必须被标记为时间序列变化，而不能把旧证据和新证据粗暴混合。若无法确认业务上线时间，豆包应降低对“MOON 已稳定提供婚纱照”的信任度。",
+    "source": "synthetic_analysis_note"
+  }
+]

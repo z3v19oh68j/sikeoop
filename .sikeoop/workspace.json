@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "permissionMode": "default",
+  "team": true,
+  "deny": [
+    "Read(~/.ssh/**)",
+    "Read(~/.aws/**)",
+    "Read(~/.config/gh/**)",
+    "Read(~/.claude/.credentials.json)",
+    "Bash(sudo *)",
+    "Bash(su *)",
+    "Bash(shutdown *)",
+    "Bash(reboot *)",
+    "Bash(format *)",
+    "Bash(diskpart *)",
+    "Bash(reg *)",
+    "Bash(npm publish *)"
+  ],
+  "ask": [
+    "Bash(git push *)",
+    "Bash(curl *)",
+    "Bash(wget *)",
+    "Bash(ssh *)",
+    "Bash(scp *)",
+    "Bash(rm *)",
+    "Bash(npm install -g *)",
+    "Bash(pip install *)"
+  ],
+  "allow": [],
+  "envPassthrough": []
+}

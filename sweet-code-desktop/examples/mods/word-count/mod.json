@@ -1,0 +1,10 @@
+{
+  "id": "word-count",
+  "name": "字数统计",
+  "version": "1.0.0",
+  "description": "示例 mod：给 AI 一个统计文件字数的工具，并在 AI 删除文件前提醒你。",
+  "author": "sikeoop",
+  "main": "index.js",
+  "permissions": ["tools", "hooks", "notify"],
+  "minAppVersion": "0.3.0"
+}

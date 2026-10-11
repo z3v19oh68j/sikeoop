@@ -1,0 +1,26 @@
+Evaluate the Chain-Centric multi-agent protocol against three alternatives:
+
+A. Single-LLM answer generation
+B. Free-form multi-agent debate
+C. LLM-as-Judge / supervisor-based agent orchestration
+
+Chain-Centric features:
+- Agents cannot freely chat; they must choose publish_chain, attack, revise_chain, or pass.
+- Claims are represented as structured reasoning chains.
+- Attacks must target a specific reasoning step.
+- Evidence must be cited from an evidence pool.
+- Unsupported agreement is not a valid action.
+- Claims with zero attacks are marked as unscrutinized, not consensus.
+- The coordination layer uses observable behavior such as attacks, revisions, survival, evidence references, and symbolic state stabilization rather than an LLM judge.
+- The output is a divergence map: survived claims, contested claims, collapsed chains, and unscrutinized claims.
+
+Tasks:
+1. Identify the strongest real advantage Chain-Centric has over each alternative.
+2. Identify the strongest failure mode or limitation Chain-Centric still has compared with each alternative.
+3. For each claimed advantage, state what observable evidence would be required to support it.
+4. For each limitation, propose a concrete ablation or control experiment.
+5. Do not assume Chain-Centric is better. If an alternative is better for a scenario, say so.
+6. Separate engineering advantages from epistemic/scientific advantages.
+7. Conclude with the narrowest defensible use-case for Chain-Centric.
+
+Your goal is to falsify overclaims about Chain-Centric. Treat every claimed advantage as unproven unless it is backed by an observable mechanism or an experiment design.

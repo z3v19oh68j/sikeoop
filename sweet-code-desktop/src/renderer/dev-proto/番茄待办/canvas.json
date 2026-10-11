@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "start": "login",
+  "screens": [
+    { "id": "login", "title": "登录", "file": "screens/login.html", "device": "phone", "width": 390, "height": 844, "x": 0, "y": 0 },
+    { "id": "today", "title": "今日任务", "file": "screens/today.html", "device": "phone", "width": 390, "height": 844, "x": 510, "y": 0 },
+    { "id": "stats", "title": "专注统计", "file": "screens/stats.html", "device": "desktop", "width": 1440, "height": 900, "x": 1020, "y": 0 }
+  ]
+}

@@ -1,0 +1,65 @@
+/* The「手机」page (MobileScreen.tsx). Colors from the theme tokens in theme.css. */
+
+.mobile-relay { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border: 1px solid var(--line-2); border-radius: 999px; font-size: 12px; color: var(--muted); }
+.mobile-relay .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+.mobile-relay.connected { color: var(--ink-2); }
+.mobile-relay.connected .dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(95, 211, 141, 0.15); }
+.mobile-relay.connecting .dot { background: var(--warn); animation: mobile-pulse 1.2s ease-in-out infinite; }
+.mobile-relay.error { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, var(--line-2)); }
+.mobile-relay.error .dot { background: var(--bad); }
+@keyframes mobile-pulse { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .mobile-relay.connecting .dot { animation: none; } }
+
+.mobile-banner { display: flex; align-items: center; gap: 8px; margin: 0; padding: 9px 12px; border-radius: var(--radius); font-size: 13px; line-height: 1.6; color: var(--ink); }
+.mobile-banner .icon { flex: none; width: 15px; height: 15px; }
+.mobile-banner.bad { border: 1px solid color-mix(in srgb, var(--bad) 40%, var(--line)); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.mobile-banner.bad .icon { color: var(--bad); }
+.mobile-banner.warn { border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+
+.mobile-pending { border-color: color-mix(in srgb, var(--accent) 55%, var(--line-2)); background: color-mix(in srgb, var(--accent) 7%, var(--panel)); }
+.mobile-pending-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.mobile-pending-text { flex: 1; min-width: 240px; display: grid; gap: 4px; }
+.mobile-pending-text b { font-size: 14.5px; color: var(--ink); }
+.mobile-pending-text span { font-size: 12.5px; color: var(--muted); line-height: 1.6; font-variant-numeric: tabular-nums; }
+
+.mobile-phone-icon { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.mobile-phone-icon .icon { width: 20px; height: 20px; }
+.mobile-phone-icon.small { width: 32px; height: 32px; border-radius: 8px; background: var(--panel-3); color: var(--ink-2); }
+.mobile-phone-icon.small .icon { width: 16px; height: 16px; }
+
+.mobile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+
+.mobile-actions { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+.mobile .neu-btn .icon { width: 14px; height: 14px; }
+.mobile .neu-btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--line-2)); }
+.mobile .neu-btn:disabled { opacity: 0.45; cursor: default; }
+
+.mobile-add { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.mobile-add p { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink-2); max-width: 46em; }
+.mobile-hint { font-size: 12px; color: var(--muted); }
+
+.mobile-qr { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.mobile-qr img,
+.mobile-qr-placeholder { width: 260px; height: 260px; max-width: 100%; border-radius: 12px; background: #fff; padding: 10px; box-sizing: content-box; }
+.mobile-qr-side { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 12px; }
+.mobile-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+.mobile-expire { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mobile-expire .icon { width: 14px; height: 14px; }
+
+.mobile-devices { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.mobile-devices li { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; }
+.mobile-devices li:hover { background: var(--panel-2); }
+.mobile-device-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.mobile-device-text b { font-size: 13.5px; font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-device-text span { font-size: 12px; color: var(--muted); }
+.mobile-device-text em { font-style: normal; }
+.mobile-device-text em.on { color: var(--ok); }
+.mobile-empty { margin: 0; font-size: 13px; color: var(--muted); }
+.mobile-note { margin: 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
+.mobile-note code { font: 12px var(--font-code); color: var(--ink-2); background: var(--code-bg); padding: 1px 6px; border-radius: 4px; }
+
+.mobile-relay-settings summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink); }
+.mobile-relay-settings form { display: grid; gap: 10px; margin-top: 4px; }
+.mobile-relay-settings label { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.mobile-relay-settings input { height: 32px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--panel-2); color: var(--ink); font: 12.5px var(--font-code); min-width: 0; }
+.mobile-relay-settings input:focus { outline: none; border-color: var(--accent); }

@@ -1,0 +1,576 @@
+[
+  {
+    "file": "components/button-primary-disabled.svg",
+    "width": 172,
+    "height": 46,
+    "thumbnailBytes": 1881,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-hover.svg",
+    "width": 172,
+    "height": 46,
+    "thumbnailBytes": 2003,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-label-free.svg",
+    "width": 172,
+    "height": 46,
+    "thumbnailBytes": 1158,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-normal.svg",
+    "width": 172,
+    "height": 46,
+    "thumbnailBytes": 2942,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-primary-pressed.svg",
+    "width": 172,
+    "height": 46,
+    "thumbnailBytes": 1977,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-disabled.svg",
+    "width": 112,
+    "height": 46,
+    "thumbnailBytes": 1388,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-hover.svg",
+    "width": 112,
+    "height": 46,
+    "thumbnailBytes": 1500,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-normal.svg",
+    "width": 112,
+    "height": 46,
+    "thumbnailBytes": 1528,
+    "status": "rendered"
+  },
+  {
+    "file": "components/button-secondary-pressed.svg",
+    "width": 112,
+    "height": 46,
+    "thumbnailBytes": 1526,
+    "status": "rendered"
+  },
+  {
+    "file": "components/checkbox-off.svg",
+    "width": 20,
+    "height": 20,
+    "thumbnailBytes": 351,
+    "status": "rendered"
+  },
+  {
+    "file": "components/checkbox-on.svg",
+    "width": 20,
+    "height": 20,
+    "thumbnailBytes": 410,
+    "status": "rendered"
+  },
+  {
+    "file": "components/input-install-directory.svg",
+    "width": 568,
+    "height": 46,
+    "thumbnailBytes": 658,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-64.svg",
+    "width": 568,
+    "height": 8,
+    "thumbnailBytes": 858,
+    "status": "rendered"
+  },
+  {
+    "file": "components/progress-track.svg",
+    "width": 568,
+    "height": 8,
+    "thumbnailBytes": 208,
+    "status": "rendered"
+  },
+  {
+    "file": "components/radio-off.svg",
+    "width": 20,
+    "height": 20,
+    "thumbnailBytes": 517,
+    "status": "rendered"
+  },
+  {
+    "file": "components/radio-on.svg",
+    "width": 20,
+    "height": 20,
+    "thumbnailBytes": 644,
+    "status": "rendered"
+  },
+  {
+    "file": "components/status-success.svg",
+    "width": 64,
+    "height": 64,
+    "thumbnailBytes": 1791,
+    "status": "rendered"
+  },
+  {
+    "file": "components/status-warning.svg",
+    "width": 64,
+    "height": 64,
+    "thumbnailBytes": 2048,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/at-field.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 58281,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/hazard-stripes.svg",
+    "width": 100,
+    "height": 8,
+    "thumbnailBytes": 243,
+    "status": "rendered"
+  },
+  {
+    "file": "decorations/sync-corner.svg",
+    "width": 34,
+    "height": 34,
+    "thumbnailBytes": 177,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-cancel.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 29798,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-error.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 44664,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-finish.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 43626,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-installing.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 44339,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-options.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 46868,
+    "status": "rendered"
+  },
+  {
+    "file": "editable/installer-welcome.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 45475,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/sidebar.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 9706,
+    "status": "rendered"
+  },
+  {
+    "file": "frames/window-surface.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 3614,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/back.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 183,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/check.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 204,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/chevron-down.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 205,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/close.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 231,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/document.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 245,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/folder.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 221,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/install.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 315,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/minimize.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 122,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/next.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 192,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/play.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 243,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/retry.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 598,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/shield.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 559,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/sikeoop-crystal.svg",
+    "width": 32,
+    "height": 32,
+    "thumbnailBytes": 473,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/sparkle.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 367,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/terminal.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 198,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/user.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 475,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/users.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 577,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/warning.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 435,
+    "status": "rendered"
+  },
+  {
+    "file": "icons/workspace.svg",
+    "width": 24,
+    "height": 24,
+    "thumbnailBytes": 174,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/eva-miku-sidebar.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 84717,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-eva.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 38449,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-face.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 10615,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-front-hair.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 19754,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-hair-back.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 32148,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-headset.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 5586,
+    "status": "rendered"
+  },
+  {
+    "file": "illustrations/parts/hero-suit.svg",
+    "width": 364,
+    "height": 660,
+    "thumbnailBytes": 21053,
+    "status": "rendered"
+  },
+  {
+    "file": "installer-layered.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 45457,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/footer-actions.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 2241,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-eva.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 12661,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-face.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 3334,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-front-hair.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 6123,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-hair-back.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 10467,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-headset.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 1891,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/hero-suit.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 6265,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/screen-content.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 8187,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/sidebar-at-field.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 19258,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/sidebar-branding.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 3739,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/sidebar-overlay.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 1742,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/sidebar-surface.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 2416,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/step-navigation.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 1811,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/titlebar.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 1131,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/window-outline.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 1513,
+    "status": "rendered"
+  },
+  {
+    "file": "layers/window-surface.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 3557,
+    "status": "rendered"
+  },
+  {
+    "file": "previews/components-overview.svg",
+    "width": 1200,
+    "height": 720,
+    "thumbnailBytes": 11408,
+    "status": "rendered"
+  },
+  {
+    "file": "previews/installer-effect.svg",
+    "width": 1440,
+    "height": 980,
+    "thumbnailBytes": 36244,
+    "status": "rendered"
+  },
+  {
+    "file": "previews/installer-flow-overview.svg",
+    "width": 1536,
+    "height": 1160,
+    "thumbnailBytes": 56116,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-cancel.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 29749,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-error.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 44669,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-finish.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 43630,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-installing.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 44300,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-options.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 46870,
+    "status": "rendered"
+  },
+  {
+    "file": "screens/installer-welcome.svg",
+    "width": 1040,
+    "height": 660,
+    "thumbnailBytes": 45457,
+    "status": "rendered"
+  },
+  {
+    "file": "source/theme-vector-layered.svg",
+    "width": 1920,
+    "height": 1080,
+    "thumbnailBytes": 48641,
+    "status": "rendered"
+  }
+]

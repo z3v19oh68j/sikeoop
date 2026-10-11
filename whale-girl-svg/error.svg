@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 480" width="480" height="480" role="img" aria-labelledby="title desc">
+<title id="title">Error Whale Girl</title><desc id="desc">A looping vector animation of a white-haired chibi whale girl 出错状态.</desc>
+
+<defs>
+  <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffefe"/><stop offset=".55" stop-color="#f3efff"/><stop offset="1" stop-color="#d9caff"/></linearGradient>
+  <linearGradient id="hairShade" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#e9e0ff"/><stop offset="1" stop-color="#bda9f3"/></linearGradient>
+  <linearGradient id="skin" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#fff8f2"/><stop offset="1" stop-color="#ffdccc"/></linearGradient>
+  <linearGradient id="dress" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#dfd5ff"/></linearGradient>
+  <linearGradient id="fin" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#ede7ff"/><stop offset="1" stop-color="#c8b9f4"/></linearGradient>
+  <radialGradient id="iris" cx=".5" cy=".28" r=".75"><stop stop-color="#d8caff"/><stop offset=".55" stop-color="#9880cf"/><stop offset="1" stop-color="#665486"/></radialGradient>
+  <radialGradient id="cheek"><stop stop-color="#f7a2ad" stop-opacity=".55"/><stop offset="1" stop-color="#f7a2ad" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.5"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#8170a6" flood-opacity=".18"/></filter>
+  <style>
+    .ink{stroke:#43345f;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#8c78b7;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .softline{stroke:#c4b4eb;stroke-width:2;stroke-linecap:round;fill:none}
+    .breathe{animation:breathe 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .hair-sway{animation:sway 3.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 0%}
+    .float{animation:float 3s ease-in-out infinite}
+    .blink{animation:blink 4.7s infinite;transform-box:fill-box;transform-origin:center}
+    .workL{animation:type 420ms ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+    .workR{animation:type 510ms ease-in-out infinite alternate-reverse;transform-box:fill-box;transform-origin:center}
+    .slowbob{animation:slowbob 3.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .zfloat{animation:zfloat 2.2s ease-in-out infinite}
+    .lazyarm{animation:lazyarm 3.5s ease-in-out infinite;transform-box:fill-box;transform-origin:0% 80%}
+    .typing-key{animation:key 520ms ease-in-out infinite alternate}
+
+    .waitnod{animation:waitnod 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .waitarm{animation:waitarm 1.8s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+    .errorjitter{animation:errorjitter 1.7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .errorarm{animation:errorarm 1s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+    @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    @keyframes sway{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.5deg)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @keyframes blink{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.08)}}
+    @keyframes type{from{transform:translateY(0)}to{transform:translateY(4px)}}
+    @keyframes slowbob{0%,100%{transform:translateY(0) rotate(0)}35%{transform:translateY(3px) rotate(2deg)}65%{transform:translateY(-2px) rotate(-1deg)}}
+    @keyframes zfloat{0%{opacity:0;transform:translate(0,8px) scale(.8)}25%{opacity:1}100%{opacity:0;transform:translate(9px,-24px) scale(1.12)}}
+    @keyframes lazyarm{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(4deg)}}
+    @keyframes key{0%{opacity:.4}100%{opacity:1}}
+
+    @keyframes waitnod{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-1deg)}}
+    @keyframes waitarm{0%{transform:translateY(1px)}100%{transform:translateY(-2px)}}
+    @keyframes errorjitter{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-1px,1px) rotate(-.6deg)}30%{transform:translate(1px,0) rotate(.5deg)}45%{transform:translate(-1px,0) rotate(-.4deg)}60%{transform:translate(1px,1px) rotate(.5deg)}75%{transform:translate(0,-1px) rotate(0)}}
+    @keyframes errorarm{0%{transform:rotate(-3deg)}100%{transform:rotate(3deg)}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:8s!important}}
+  </style>
+</defs>
+<g aria-hidden="true">
+  <ellipse cx="244" cy="435" rx="176" ry="19" fill="#e8e0f5" opacity=".6"/>
+  <circle cx="92" cy="171" r="8" fill="#eee8fb"/><circle cx="389" cy="166" r="5" fill="#e8f6fa"/><circle cx="367" cy="310" r="7" fill="#f4efff"/><path d="M91 188 q7 -10 14 0 q-7 11 -14 0Z" fill="#fff" stroke="#c8b6eb" stroke-width="1.5"/>
+  <g><path d="M112 131 L127 105 L142 131Z" fill="#fff3f1" stroke="#e06a70" stroke-width="2.5"/><path d="M127 113 L127 122 M127 126 L127 127" stroke="#d65761" stroke-width="3" stroke-linecap="round"/><path d="M359 161 C350 146 365 137 374 147 C383 137 398 148 386 161 Q374 174 359 161Z" fill="#fff" stroke="#e06a70" stroke-width="2.5"/><text x="374" y="159" text-anchor="middle" font-size="17" font-weight="800" fill="#d65761" font-family="system-ui,sans-serif">!</text><path d="M331 208 Q347 197 350 207 Q351 214 340 219 Q330 218 331 208Z" fill="#c9e9ff" stroke="#83a8c7" stroke-width="1.5"/><path d="M340 207 Q343 212 340 216" fill="none" stroke="#fff" stroke-width="1.5"/></g>
+  <g>
+    <g class="errorjitter">
+    <!-- translucent whale-fin horns -->
+    <path d="M174 168 Q145 147 139 117 Q136 99 148 82 Q153 69 147 56 Q168 61 181 78 Q195 96 190 120 L202 153Z" fill="url(#fin)" class="ink"/>
+    <path d="M316 155 Q311 119 319 94 Q325 76 348 61 Q348 82 359 95 Q373 108 365 129 Q359 149 337 168Z" fill="url(#fin)" class="ink"/>
+    <path d="M148 91 Q168 92 185 106 M140 116 Q163 113 191 128 M153 74 Q172 79 185 92 M324 103 Q344 101 366 111 M317 128 Q340 120 366 132 M335 79 Q340 94 358 102" class="softline"/>
+    <path d="M158 141 Q161 127 173 119 M341 146 Q348 132 354 120" class="fine"/>
+    <!-- back hair -->
+    <path d="M163 160 Q153 104 201 82 Q242 62 292 81 Q352 88 369 144 Q385 194 362 253 Q351 295 326 327 Q335 276 318 247 Q299 288 277 315 Q283 265 266 240 Q249 292 219 316 Q224 267 204 244 Q185 281 156 296 Q170 249 153 218 Q143 192 163 160Z" fill="url(#hair)" class="ink" filter="url(#shadow)"/>
+    <path d="M166 213 Q151 259 160 279 M181 194 Q169 254 181 287 M337 184 Q362 235 345 283 M322 213 Q336 263 312 298 M205 111 Q242 85 280 104" class="softline"/>
+    <path d="M160 264 Q151 290 137 296 Q145 278 143 265 Q137 294 123 302 Q133 283 126 270" fill="url(#hairShade)" class="ink"/>
+    <path d="M354 256 Q365 280 385 286 Q368 273 371 259 Q381 282 397 285 Q380 269 383 254" fill="url(#hairShade)" class="ink"/>
+    </g>
+    <!-- neck and dress -->
+    <path d="M221 291 Q223 321 213 333 L245 355 L278 331 Q266 312 272 291Z" fill="url(#skin)" class="ink"/>
+    <path d="M181 324 Q201 306 221 309 L245 327 L270 307 Q292 310 310 327 Q328 350 324 387 L166 387 Q163 351 181 324Z" fill="url(#dress)" class="ink"/>
+    <path d="M216 310 Q227 326 245 329 Q264 325 276 309 L287 322 L268 341 L245 336 L221 342 L202 322Z" fill="#fff" stroke="#9e8bc5" stroke-width="2"/>
+    <path d="M231 333 L245 344 L259 333 L255 355 L245 363 L235 355Z" fill="#d5c7f2" stroke="#8f7cb9" stroke-width="2"/>
+    <path d="M245 343 L245 385 M226 350 L238 359 M264 350 L252 359" class="fine"/>
+    <path d="M191 339 Q180 356 184 378 M298 338 Q309 357 305 378" class="softline"/>
+    <g filter="url(#shadow)"><path d="M117 374 Q118 365 129 365 H361 Q372 365 373 374 L360 426 H131Z" fill="#c6b4e8" class="ink"/><path d="M117 374 H373 L368 392 H122Z" fill="#dfd5f2" stroke="#8170a6" stroke-width="2"/><rect x="199" y="370" width="95" height="40" rx="7" fill="#473c62"/><rect x="204" y="375" width="85" height="28" rx="4" fill="#fff0ef"/><path d="M220 394 L230 379 L240 394Z" fill="#ed6b6f"/><path d="M230 384 L230 389 M230 391 L230 392" stroke="#fff" stroke-width="2" stroke-linecap="round"/><text x="263" y="391" text-anchor="middle" font-size="8" font-weight="700" fill="#cb555b" font-family="system-ui,sans-serif">ERROR</text><path d="M186 415 H307" stroke="#917cb9" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="errorarm"><path d="M191 324 Q174 328 167 344 L183 351" fill="none" stroke="#43345f" stroke-width="19" stroke-linecap="round"/><path d="M191 324 Q174 328 167 344 L183 351" fill="none" stroke="url(#dress)" stroke-width="13" stroke-linecap="round"/><path d="M299 324 Q316 328 323 344 L307 351" fill="none" stroke="#43345f" stroke-width="19" stroke-linecap="round"/><path d="M299 324 Q316 328 323 344 L307 351" fill="none" stroke="url(#dress)" stroke-width="13" stroke-linecap="round"/><path d="M177 344 Q183 336 189 342 L190 352 Q184 357 178 352Z M301 342 Q307 336 313 344 L312 352 Q306 357 300 352Z" fill="url(#skin)" class="ink"/></g>
+    
+    <!-- ears and face -->
+    <g class="errorjitter">
+    <path d="M169 195 Q145 183 148 211 Q152 230 173 226Z" fill="url(#skin)" class="ink"/><path d="M321 195 Q345 183 342 211 Q338 230 317 226Z" fill="url(#skin)" class="ink"/>
+    <ellipse cx="245" cy="205" rx="84" ry="99" fill="url(#skin)" class="ink" filter="url(#shadow)"/>
+    <path d="M164 199 Q175 144 214 126 Q267 102 315 144 Q337 165 329 204 Q318 178 302 170 Q287 193 268 198 Q247 201 233 177 Q215 200 188 201 Q177 201 164 199Z" fill="url(#hairShade)"/>
+    <ellipse cx="184" cy="239" rx="25" ry="13" fill="url(#cheek)"/><ellipse cx="300" cy="239" rx="25" ry="13" fill="url(#cheek)"/>
+    <g class="blink" style="animation-duration:5.3s"><g transform="translate(205 218)"><path d="M-24 -10 Q0 -23 24 -9 Q24 19 4 24 Q-20 22 -24 -10Z" fill="#fff" class="ink"/><path d="M-20 -5 Q0 -14 20 -5 L18 3 Q0 8 -19 4Z" fill="#44345f"/><path d="M-17 2 Q0 0 17 5 Q16 22 1 22 Q-13 21 -17 2Z" fill="url(#iris)"/><ellipse cx="-5" cy="7" rx="5" ry="7" fill="#fff"/><circle cx="8" cy="15" r="2" fill="#fff"/><path d="M-27 -14 Q-12 -25 1 -19 M5 -19 Q17 -24 27 -13" fill="none" stroke="#43345f" stroke-width="4" stroke-linecap="round"/><path d="M-25 -10 Q-2 -23 24 -9" fill="none" class="ink" stroke-width="5"/></g><g transform="translate(278 218)"><path d="M-24 -10 Q0 -23 24 -9 Q24 19 4 24 Q-20 22 -24 -10Z" fill="#fff" class="ink"/><path d="M-20 -5 Q0 -14 20 -5 L18 3 Q0 8 -19 4Z" fill="#44345f"/><path d="M-17 2 Q0 0 17 5 Q16 22 1 22 Q-13 21 -17 2Z" fill="url(#iris)"/><ellipse cx="-5" cy="7" rx="5" ry="7" fill="#fff"/><circle cx="8" cy="15" r="2" fill="#fff"/><path d="M-27 -13 Q-16 -24 -4 -20 M2 -20 Q16 -25 27 -14" fill="none" stroke="#43345f" stroke-width="4" stroke-linecap="round"/><path d="M-25 -10 Q-2 -23 24 -9" fill="none" class="ink" stroke-width="5"/></g></g>
+    <path d="M241 237 Q246 234 250 237" fill="none" stroke="#bd8392" stroke-width="2" stroke-linecap="round"/>
+    <path d="M237 250 Q245 246 253 250 Q253 266 245 269 Q237 266 237 250Z" fill="#a85f75" stroke="#8b536c" stroke-width="1.5"/>
+    <!-- long, layered fringe -->
+    <g class="hair-sway">
+      <path d="M162 190 Q158 128 208 99 Q251 73 300 104 Q331 123 335 177 Q318 162 302 140 Q302 178 282 198 Q272 175 264 148 Q257 182 242 202 Q226 181 220 147 Q211 179 190 197 Q178 179 181 148 Q170 175 162 190Z" fill="url(#hair)" class="ink"/>
+      <path d="M177 169 Q185 119 222 101 M196 185 Q210 134 235 113 M247 189 Q266 134 282 114 M291 175 Q304 144 302 128" fill="none" stroke="#c5b4ed" stroke-width="3" stroke-linecap="round"/>
+      <path d="M217 104 Q235 117 240 137 M264 106 Q278 118 286 137" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+    </g>
+    <!-- signature whale-knot hair ornament and tassel -->
+    <g transform="translate(324 194) rotate(12)">
+      <path d="M0 0 C-15 -21 -34 -5 -18 8 C-7 18 9 5 0 -8 C-8 -21 12 -28 20 -11 C28 7 5 18 -7 8 C-18 -1 -5 -16 8 -11 C22 -6 24 14 10 23" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M0 0 C-15 -21 -34 -5 -18 8 C-7 18 9 5 0 -8 C-8 -21 12 -28 20 -11 C28 7 5 18 -7 8 C-18 -1 -5 -16 8 -11 C22 -6 24 14 10 23" fill="none" class="ink" stroke-width="3"/>
+      <path d="M14 23 L16 54 M3 21 L4 52" stroke="#8d78b6" stroke-width="2.5"/><path d="M3 27 L16 27 M4 34 L16 34" stroke="#c7b5eb" stroke-width="2"/>
+      <path d="M2 50 L10 65 L18 50Z" fill="#dfd3fb" class="ink"/><circle cx="10" cy="35" r="4" fill="#fff" stroke="#8d78b6" stroke-width="1.5"/>
+    </g>
+    <!-- delicate hair curls framing cheeks -->
+    <path d="M171 247 Q151 261 163 276 Q177 286 187 273 M318 247 Q339 261 327 276 Q314 286 304 273" fill="none" stroke="#43345f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M171 251 Q158 262 168 272 M318 251 Q331 262 321 272" class="softline"/>
+    </g>
+  </g>
+</g>
+</svg>

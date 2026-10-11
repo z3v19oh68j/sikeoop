@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>contenteditable 富文本</title>
+<style>
+  body { font: 15px/1.6 system-ui, sans-serif; max-width: 600px; margin: 24px auto; padding: 0 16px; }
+  .toolbar button { font: inherit; padding: 4px 10px; margin-right: 6px; }
+  #editor {
+    margin-top: 10px; min-height: 140px; padding: 12px;
+    border: 1px solid rgba(127,127,127,.5); border-radius: 8px; outline: none;
+  }
+  #editor:focus { border-color: #5a8; }
+  .hint { color: #888; font-size: 13px; }
+  #len { color: #2a7; }
+</style>
+</head>
+<body>
+  <h1>contenteditable 富文本</h1>
+  <p>这不是 <code>&lt;input&gt;</code>，是可编辑的 <code>&lt;div&gt;</code>。逐键模拟常出错，
+     应走 <code>Input.insertText</code> 整段插入到光标处。</p>
+
+  <div class="toolbar" aria-label="工具栏">
+    <button type="button" data-cmd="bold"><b>加粗</b></button>
+    <button type="button" data-cmd="italic"><i>斜体</i></button>
+  </div>
+
+  <div id="editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="富文本编辑器">
+    <p>在这里编辑，可<b>保留</b>格式。</p>
+  </div>
+
+  <p class="hint">当前纯文本长度：<span id="len">0</span></p>
+
+  <script>
+    const editor = document.getElementById("editor");
+    const len = document.getElementById("len");
+    function update() { len.textContent = String(editor.textContent.replace(/\s+/g, "").length); }
+    editor.addEventListener("input", update);
+    document.querySelectorAll(".toolbar button").forEach((b) => {
+      b.addEventListener("mousedown", (e) => {
+        e.preventDefault(); // 保住编辑器焦点
+        document.execCommand(b.dataset.cmd, false);
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

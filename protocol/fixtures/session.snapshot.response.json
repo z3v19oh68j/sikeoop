@@ -1,0 +1,52 @@
+{
+  "jsonrpc": "2.0",
+  "id": "2",
+  "result": {
+    "cursor": 17,
+    "view": {
+      "status": "idle",
+      "presence": {
+        "online": true,
+        "lastSeenAt": 1791567000000
+      },
+      "computer": {
+        "id": "desktop-01",
+        "name": "MacBook"
+      },
+      "project": {
+        "name": "shop-web",
+        "path": "/work/shop-web"
+      },
+      "pendingApprovals": 0,
+      "lastReceipt": {
+        "turnId": 40,
+        "summary": "登录接口已修复。",
+        "changedFiles": 2,
+        "completedAt": 1791567000000
+      }
+    },
+    "messages": [
+      {
+        "id": "msg-40",
+        "role": "user",
+        "text": "修复登录接口",
+        "createdAt": 1791567000000,
+        "source": {
+          "kind": "mobile",
+          "deviceName": "Pixel 9"
+        }
+      }
+    ],
+    "events": [
+      {
+        "cursor": 17,
+        "event": {
+          "type": "status",
+          "state": "idle"
+        }
+      }
+    ],
+    "approvals": [],
+    "questions": []
+  }
+}
