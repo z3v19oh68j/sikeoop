@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { CcResult, ResearchCandidate, ResearchEnv, ResearchPreset, ResearchRun } from "@shared/types";
 import { Icon } from "../Icon";
 import { StatusBadge, cleanError } from "../settings/ui";
@@ -28,7 +28,7 @@ const LIVE = new Set<ResearchRun["status"]>(["preparing", "running"]);
  * 深度科研: several models argue over one question with Chain-Centric (a separate Python process),
  * and the claims that survive the attacks are sorted into four zones.
  */
-export function ResearchScreen({ hidden, onSettings, onOpenDispatch, initialRepository }: Props) {
+export const ResearchScreen = memo(function ResearchScreen({ hidden, onSettings, onOpenDispatch, initialRepository }: Props) {
   const [env, setEnv] = useState<ResearchEnv | null>(null);
   const [presets, setPresets] = useState<ResearchPreset[]>([]);
   const [candidates, setCandidates] = useState<ResearchCandidate[]>([]);
@@ -173,4 +173,4 @@ export function ResearchScreen({ hidden, onSettings, onOpenDispatch, initialRepo
       </div>
     </main>
   );
-}
+});

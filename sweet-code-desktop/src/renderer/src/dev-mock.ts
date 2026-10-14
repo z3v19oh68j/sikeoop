@@ -2806,6 +2806,8 @@ export function installDevMock() {
     ...createPaperMock4(),
     ...createQuotaMock(),
     dispatchView: async () => dispatchSnapshot(),
+    dispatchJob: async (jobId) => structuredClone(DISPATCH_JOBS.find((j) => j.id === jobId) ?? null),
+    dispatchWatch: async () => {},
     dispatchAgentSubmit: async (input) => agentSubmitMock(input),
     dispatchAgentPermission: async (id, optionId) => agentPermissionMock(id, optionId),
     onDispatchEvent: (cb) => {

@@ -1,4 +1,4 @@
-import { isValidElement, memo, type ReactNode, useEffect, useMemo, useState } from "react";
+import { createContext, isValidElement, memo, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import ReactMarkdown, { type Components, defaultUrlTransform } from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
@@ -6,6 +6,7 @@ import { colorizeLines, languageForTag, tagLabel } from "../languages";
 import { runInTerminal } from "./TerminalPanel";
 import { Icon } from "./Icon";
 import { MermaidBlock } from "./Mermaid";
+import { splitBlocks } from "../markdown-blocks";
 
 const SHELL_LANGS = new Set(["bash", "sh", "shell", "zsh", "console", "terminal", "powershell", "ps", "cmd"]);
 
@@ -20,18 +21,55 @@ export interface OpenFileDetail {
 // Chat answers as GitHub-flavoured Markdown: headings, nested and task lists, tables, quotes,
 // links, strikethrough and fenced code with highlighting. react-markdown builds React elements
 // and drops raw HTML, so model output can't inject markup. Single line breaks stay line breaks
-// (remark-breaks), which is how models write Chinese prose. Re-parsed on every streamed delta;
-// an unclosed ``` fence renders as a code block until the closing fence arrives.
+// (remark-breaks), which is how models write Chinese prose. An unclosed ``` fence renders as a
+// code block until the closing fence arrives.
 
 const PLUGINS = [remarkGfm, remarkBreaks];
 
-export const Markdown = memo(function Markdown({ text }: { text: string }) {
+/**
+ * False inside the last block of a reply that is still being written: it changes with every
+ * delta, so its code blocks stay plain text and its diagrams stay source until the block is done.
+ */
+const BlockDone = createContext(true);
+
+/** `streaming`: the text is still growing (see StreamingMarkdown). */
+export const Markdown = memo(function Markdown({ text, streaming = false }: { text: string; streaming?: boolean }) {
+  if (streaming) return <StreamingMarkdown text={text} />;
   return (
     <div className="md">
       <ReactMarkdown remarkPlugins={PLUGINS} components={COMPONENTS} urlTransform={urlTransform} skipHtml>
         {text}
       </ReactMarkdown>
     </div>
+  );
+});
+
+/**
+ * A reply still being written. Parsing all of it again on every delta costs more the longer it
+ * gets, so each finished block is parsed once and only the last one, still growing, again. Once
+ * the reply is complete it is rendered whole (Markdown without `streaming`), which is what stays:
+ * a reference link or a loose list that spans blocks looks right from then on.
+ */
+function StreamingMarkdown({ text }: { text: string }) {
+  const blocks = splitBlocks(text);
+  const last = blocks.length - 1;
+  return (
+    <div className="md">
+      {blocks.map((b, i) => (
+        // Same element type when a block stops being the last one: it is not parsed again, only highlighted.
+        <BlockDone.Provider key={i} value={i < last}>
+          <MarkdownBlock text={b} />
+        </BlockDone.Provider>
+      ))}
+    </div>
+  );
+}
+
+const MarkdownBlock = memo(function MarkdownBlock({ text }: { text: string }) {
+  return (
+    <ReactMarkdown remarkPlugins={PLUGINS} components={COMPONENTS} urlTransform={urlTransform} skipHtml>
+      {text}
+    </ReactMarkdown>
   );
 });
 
@@ -91,7 +129,7 @@ const COMPONENTS: Components = {
     const lang = code?.className?.match(/language-(\S+)/)?.[1] ?? "";
     const source = String(code?.children ?? "").replace(/\n$/, "");
     const block = <CodeBlock lang={lang} code={source} />;
-    return lang.toLowerCase() === "mermaid" ? <MermaidBlock code={source} fallback={block} /> : block;
+    return lang.toLowerCase() === "mermaid" ? <Diagram code={source} fallback={block} /> : block;
   },
   code({ children, className }) {
     // Only inline code gets here (blocks are taken by `pre` above).
@@ -167,9 +205,15 @@ function MdLink({ href, children }: { href: string; children: ReactNode }) {
   return <span className="md-badlink">{children}</span>;
 }
 
+/** A ```mermaid block: drawn once its block is done, shown as source while it is still being written. */
+function Diagram({ code, fallback }: { code: string; fallback: ReactNode }) {
+  return useContext(BlockDone) ? <MermaidBlock code={code} fallback={fallback} /> : <>{fallback}</>;
+}
+
 function CodeBlock({ lang, code }: { lang: string; code: string }) {
   const [copied, setCopied] = useState(false);
-  const language = languageForTag(lang);
+  // Highlighting the whole block again on every streamed delta is what made long code answers stutter.
+  const language = useContext(BlockDone) ? languageForTag(lang) : "plaintext";
   const lines = useHighlighted(code, language);
   return (
     <div className="codeblock">
@@ -222,17 +266,18 @@ function CodeBlock({ lang, code }: { lang: string; code: string }) {
 
 /** Highlighted lines once Monaco has tokenized them; plain text until then. */
 export function useHighlighted(code: string, language: string): string[] | null {
-  const [lines, setLines] = useState<string[] | null>(null);
+  const [done, setDone] = useState<{ code: string; language: string; lines: string[] } | null>(null);
   useEffect(() => {
-    if (language === "plaintext") return setLines(null);
+    if (language === "plaintext") return;
     let alive = true;
     colorizeLines(code, language).then(
-      (l) => alive && setLines(l),
-      () => alive && setLines(null),
+      (lines) => alive && setDone({ code, language, lines }),
+      () => alive && setDone(null),
     );
     return () => {
       alive = false;
     };
   }, [code, language]);
-  return lines;
+  // Lines highlighted for an earlier version of the code would show text that is no longer there.
+  return done && done.code === code && done.language === language ? done.lines : null;
 }

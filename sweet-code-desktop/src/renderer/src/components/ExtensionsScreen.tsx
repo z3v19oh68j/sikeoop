@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { ExtensionSearchItem, InstalledExtension } from "@shared/types";
 import { currentEditorTheme, editorThemes, onExtensionsApplied, setEditorTheme } from "../extensions";
 import { Icon } from "./Icon";
@@ -21,7 +21,7 @@ function summaryText(e: InstalledExtension): string {
   return parts.length ? `带来：${parts.join("、")}` : "没有 sikeoop 能用的内容（主题、语法、片段）";
 }
 
-export function ExtensionsScreen({ hidden }: { hidden: boolean }) {
+export const ExtensionsScreen = memo(function ExtensionsScreen({ hidden }: { hidden: boolean }) {
   const [tab, setTab] = useState<"search" | "installed">("search");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ total: number; items: ExtensionSearchItem[] } | null>(null);
@@ -236,4 +236,4 @@ export function ExtensionsScreen({ hidden }: { hidden: boolean }) {
       </div>
     </main>
   );
-}
+});

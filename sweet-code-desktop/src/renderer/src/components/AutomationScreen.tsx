@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import {
   AUTOMATION_END,
   AUTOMATION_FAIL,
@@ -132,7 +132,7 @@ function blank(): AutomationInput {
 }
 
 /** Automations: steps the AI (or a command) does on a schedule, going on by each step's outcome. */
-export function AutomationScreen({ hidden, hasProject, onOpenSession }: Props) {
+export const AutomationScreen = memo(function AutomationScreen({ hidden, hasProject, onOpenSession }: Props) {
   const [view, setView] = useState<AutomationView | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   /** The automation being edited (new ones have no id). */
@@ -272,7 +272,7 @@ export function AutomationScreen({ hidden, hasProject, onOpenSession }: Props) {
       </section>
     </main>
   );
-}
+});
 
 function TemplatePicker({ onPick }: { onPick(input: AutomationInput): void }) {
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Icon } from "../Icon";
 import { MoreMenu } from "../plugins/ui";
 import { StatusBadge, cleanError } from "../settings/ui";
@@ -19,7 +19,7 @@ interface Pane { key: string; siteId: string; url: string }
 
 const hostOf = (u: string) => { try { return new URL(u).host; } catch { return ""; } };
 
-export function ToolboxScreen({ hidden }: { hidden: boolean }) {
+export const ToolboxScreen = memo(function ToolboxScreen({ hidden }: { hidden: boolean }) {
   const [sites, setSites] = useState<AiSite[]>([]);
   const [prefs, setPrefs] = useState<AiToolboxPrefs>(EMPTY);
   const [q, setQ] = useState("");
@@ -239,7 +239,7 @@ export function ToolboxScreen({ hidden }: { hidden: boolean }) {
       </div>
     </main>
   );
-}
+});
 
 function AddSite({ onCancel, onAdd }: { onCancel(): void; onAdd(s: AiSite): Promise<void> }) {
   const [name, setName] = useState("");

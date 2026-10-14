@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { ProviderView, WikiState } from "@shared/types";
 import { Icon } from "./Icon";
 import { Markdown } from "./Markdown";
@@ -19,7 +19,7 @@ interface Props {
  * 项目百科: an AI-written guide to the open project, with architecture diagrams. File links in
  * the pages open in the editor (Markdown dispatches OPEN_FILE; the workbench switches to itself).
  */
-export function WikiScreen({ hidden, canWrite, providers, activeId }: Props) {
+export const WikiScreen = memo(function WikiScreen({ hidden, canWrite, providers, activeId }: Props) {
   const [wiki, setWiki] = useState<WikiState | null>(null);
   const [pageId, setPageId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -30,13 +30,12 @@ export function WikiScreen({ hidden, canWrite, providers, activeId }: Props) {
   const articleRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Followed while on screen. Coming back to it fetches the state afresh, which also re-checks
+  // which pages went stale while editing.
   useEffect(() => {
+    if (hidden) return;
     void window.sweet.wikiGet().then(setWiki);
     return window.sweet.onWikiState(setWiki);
-  }, []);
-  // Coming back to the screen: re-check which pages went stale while editing.
-  useEffect(() => {
-    if (!hidden) void window.sweet.wikiGet().then(setWiki);
   }, [hidden]);
 
   const generate = (mode: "all" | "stale") => {
@@ -156,4 +155,4 @@ export function WikiScreen({ hidden, canWrite, providers, activeId }: Props) {
       )}
     </main>
   );
-}
+});

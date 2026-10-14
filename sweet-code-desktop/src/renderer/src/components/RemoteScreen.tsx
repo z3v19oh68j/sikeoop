@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import type { RemoteView } from "@shared/types";
 
@@ -12,7 +12,7 @@ const STATUS: Record<RemoteView["status"], string> = {
 };
 
 /** WeChat remote control: scan to log in, then send tasks from the phone. */
-export function RemoteScreen({ hidden }: { hidden: boolean }) {
+export const RemoteScreen = memo(function RemoteScreen({ hidden }: { hidden: boolean }) {
   const [v, setV] = useState<RemoteView | null>(null);
   const [qr, setQr] = useState("");
   const [pending, setPending] = useState(false);
@@ -91,4 +91,4 @@ export function RemoteScreen({ hidden }: { hidden: boolean }) {
       </div>
     </main>
   );
-}
+});

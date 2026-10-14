@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { AgentCli, AgentSessionView, RegressCandidate, RegressDiffRow, RegressItem, RegressOwner, RegressRun, RegressSettings, RegressVerdict, RegressView } from "@shared/types";
 import { Icon } from "./Icon";
 import "../styles/regress.css";
@@ -59,7 +59,7 @@ interface Props {
   hidden: boolean;
 }
 
-export function RegressConsole({ hidden }: Props) {
+export const RegressConsole = memo(function RegressConsole({ hidden }: Props) {
   const [view, setView] = useState<RegressView>(EMPTY);
   const [sessions, setSessions] = useState<AgentSessionView[]>([]);
   const [session, setSession] = useState("");
@@ -69,14 +69,18 @@ export function RegressConsole({ hidden }: Props) {
   const [panel, setPanel] = useState<null | "generate" | "baselines" | "settings">(null);
   const [reply, setReply] = useState<{ run: RegressRun; text: string | null } | null>(null);
 
+  // Followed only while it is on screen (the terminal sessions change with every tool call they
+  // make); fetched afresh each time it comes back.
   useEffect(() => {
+    if (hidden) return;
     void window.sweet.regressView().then(setView);
     return window.sweet.onRegressChanged(setView);
-  }, []);
+  }, [hidden]);
   useEffect(() => {
+    if (hidden) return;
     void window.sweet.termAgents().then(setSessions);
     return window.sweet.onTermAgents(setSessions);
-  }, []);
+  }, [hidden]);
 
   // Sessions the panel can use: open, and not already busy with the panel.
   const usable = sessions.filter((s) => !view.busy.sessions.includes(s.name));
@@ -87,10 +91,10 @@ export function RegressConsole({ hidden }: Props) {
 
   const running = view.busy.runs.length;
   useEffect(() => {
-    if (!running && !view.busy.generate) return;
+    if ((!running && !view.busy.generate) || hidden) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [running, view.busy.generate]);
+  }, [running, view.busy.generate, hidden]);
 
   // Forget selections of items that were deleted.
   useEffect(() => {
@@ -248,7 +252,7 @@ export function RegressConsole({ hidden }: Props) {
       {reply && <ReplyDialog run={reply.run} text={reply.text} onClose={() => setReply(null)} />}
     </main>
   );
-}
+});
 
 // ---- one item ----------------------------------------------------------------------------
 

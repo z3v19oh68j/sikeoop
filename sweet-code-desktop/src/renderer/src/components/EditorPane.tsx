@@ -76,9 +76,14 @@ export function EditorPane({ files, activePath, projectName, onActivate, onClose
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       if (latest.current.activePath) latest.current.onSave(latest.current.activePath);
     });
+    // Dragging a selection changes it on every mouse move; the window hears about it once it settles.
+    let selecting: ReturnType<typeof setTimeout> | undefined;
     editor.onDidChangeCursorSelection((e) => {
+      clearTimeout(selecting);
       const model = editor.getModel();
-      onSelection(model && !e.selection.isEmpty() ? model.getValueInRange(e.selection) : "");
+      if (!model || e.selection.isEmpty()) return onSelection("");
+      // The file may have been closed meanwhile.
+      selecting = setTimeout(() => !model.isDisposed() && onSelection(model.getValueInRange(e.selection)), 120);
     });
   };
 

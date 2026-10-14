@@ -402,9 +402,14 @@ const cliAgentsDir = () => path.join(app.getPath("userData"), "cli-agents");
 const jobLog = new JobLog(path.join(app.getPath("userData"), "dispatch"));
 const DISPATCH_HISTORY = 200;
 let dispatchChangedTimer: NodeJS.Timeout | null = null;
+/**
+ * The console is on screen. Only then does it get the view and the events: with many jobs running
+ * that is a few hundred KB several times a second, for a page nobody is looking at.
+ */
+let dispatchWatched = false;
 /** The console gets the whole view, at most a few times a second. */
 function dispatchChangedSoon(): void {
-  if (dispatchChangedTimer) return;
+  if (dispatchChangedTimer || !dispatchWatched) return;
   dispatchChangedTimer = setTimeout(() => {
     dispatchChangedTimer = null;
     win?.webContents.send("dispatch:changed", dispatcher.view());
@@ -427,7 +432,7 @@ const dispatcher = new Dispatcher({
   },
   emit: (e) => {
     if (e.type === "job") {
-      // Logged when it starts and when it ends, in the project it was handed out in.
+      // Logged when its status changes, in the project it was handed out in.
       void jobLog.record(e.job, hasRoot() ? getRoot() : null);
       dispatchChangedSoon();
       crossSessions.sync();
@@ -438,7 +443,7 @@ const dispatcher = new Dispatcher({
       island.notice("AI 互相派活太多次了", `${e.refused.from} → ${e.refused.to} 被拦下，等你确认再继续`, "question");
       sound("question");
     }
-    win?.webContents.send("dispatch:event", e);
+    if (dispatchWatched) win?.webContents.send("dispatch:event", e);
   },
 });
 const agentApprovals = new AgentApprovals(
@@ -1896,6 +1901,9 @@ function createWindow() {
     return { action: "deny" };
   });
   win.webContents.on("will-navigate", (e) => e.preventDefault());
+  // A reload starts over without the console; it says again when it is on screen. Main frame only:
+  // a prototype reloading in an iframe is not a reload of the window.
+  win.webContents.on("did-navigate", () => (dispatchWatched = false));
 
   background.attach(win);
   win.on("closed", () => (win = null));
@@ -2276,6 +2284,10 @@ function registerIpc() {
     agentApprovals.answer(id, optionId);
   });
   ipcMain.handle("dispatch:view", () => dispatcher.view());
+  ipcMain.handle("dispatch:job", (_e, jobId: unknown) => dispatcher.job(String(jobId)) ?? null);
+  ipcMain.handle("dispatch:watch", (_e, on: unknown) => {
+    dispatchWatched = on === true;
+  });
   ipcMain.handle("dispatch:cancel", (_e, jobId: string) => dispatcher.cancel(String(jobId)));
   // Cross-project sessions: the service checks every argument and answers { ok, data | message }.
   ipcMain.handle("session:list", () => crossSessions.list());
@@ -2636,9 +2648,30 @@ app.whenReady().then(async () => {
   browserSession.setUserAgent(browserSession.getUserAgent().replace(/ (Electron|sikeoop)\/\S+/g, ""));
   browserSession.setPermissionRequestHandler((_wc, permission, done) => done(permission === "clipboard-sanitized-write" || permission === "fullscreen"));
   if (!app.isPackaged) app.dock?.setIcon(path.join(__dirname, "../../build/icon.png"));
-  await Promise.all([providers.load(), loadShellEnv(), contextSettings.load(), usageLedger.load()]);
-  quota?.start();
-  await research.init();
+  // The user's login shell can take seconds to print its environment (nvm, oh-my-zsh…). The window
+  // opens meanwhile; what it asks for waits until the environment and the rest of startup are in,
+  // so every handler sees the PATH it saw before.
+  const shellEnv = loadShellEnv();
+  let startupDone!: () => void;
+  const startupReady = new Promise<void>((resolve) => (startupDone = resolve));
+  const handle = ipcMain.handle.bind(ipcMain);
+  ipcMain.handle = ((channel: string, listener: Parameters<typeof ipcMain.handle>[1]) =>
+    handle(channel, async (event, ...callArgs) => {
+      await startupReady;
+      return listener(event, ...callArgs);
+    })) as typeof ipcMain.handle;
+  await Promise.all([providers.load(), contextSettings.load(), usageLedger.load()]);
+  handleProtoScheme();
+  protocol.handle(PV_SCHEME, req => servePvMedia(req, currentRoot));
+  registerIpc();
+  createWindow();
+  try {
+    await shellEnv;
+    quota?.start();
+    await research.init();
+  } finally {
+    startupDone();
+  }
   // After the shell environment is loaded, so `npx` / `uvx` servers can be found.
   void mcp.load();
   void mods.load().catch((err) => console.error("[mods] load failed:", err));
@@ -2651,10 +2684,6 @@ app.whenReady().then(async () => {
     })
     .then(() => installPvSkills(skills, path.join(pvResources, "skills")))
     .then(refreshSkills);
-  handleProtoScheme();
-  protocol.handle(PV_SCHEME, req => servePvMedia(req, currentRoot));
-  registerIpc();
-  createWindow();
   await background.init();
   await island.init();
   let snipSaved: { enabled?: boolean; gesture?: boolean; sideButton?: number; copy?: boolean } = {};

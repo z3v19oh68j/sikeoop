@@ -307,6 +307,8 @@ const api: SweetApi = {
     return () => ipcRenderer.removeListener("dispatch:event", listener);
   },
   dispatchView: () => ipcRenderer.invoke("dispatch:view"),
+  dispatchJob: (jobId) => ipcRenderer.invoke("dispatch:job", jobId),
+  dispatchWatch: (on) => ipcRenderer.invoke("dispatch:watch", on),
   dispatchCancel: (jobId) => ipcRenderer.invoke("dispatch:cancel", jobId),
   onDispatchChanged: (cb) => {
     const listener = (_e: unknown, v: DispatchView) => cb(v);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import type { MobileGatewayState, MobilePairingQr } from "@shared/types";
 import { Icon } from "./Icon";
@@ -32,7 +32,7 @@ function useNow(active: boolean): number {
   return now;
 }
 
-export function MobileScreen({ hidden }: { hidden: boolean }) {
+export const MobileScreen = memo(function MobileScreen({ hidden }: { hidden: boolean }) {
   const [v, setV] = useState<MobileGatewayState | null>(null);
   const [qr, setQr] = useState<MobilePairingQr | null>(null);
   const [qrImage, setQrImage] = useState("");
@@ -292,4 +292,4 @@ export function MobileScreen({ hidden }: { hidden: boolean }) {
       </div>
     </main>
   );
-}
+});

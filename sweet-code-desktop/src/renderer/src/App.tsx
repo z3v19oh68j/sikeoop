@@ -3,7 +3,7 @@ import { BrowserPane } from "./components/BrowserPane";
 import { HelpCenter } from "./components/HelpCenter";
 import { Tour } from "./components/Tour";
 import { Splash } from "./splash/Splash";
-import type { AgentEvent, ContextUsage, FileNode, LoadedSession, ProvidersState, UnfinishedTask } from "@shared/types";
+import type { AgentEvent, ContextUsage, FileNode, LoadedSession, ProviderView, ProvidersState, UnfinishedTask } from "@shared/types";
 import { ChatPanel } from "./components/ChatPanel";
 import { EditorPane, type OpenFile } from "./components/EditorPane";
 import { FileTree } from "./components/FileTree";
@@ -73,6 +73,18 @@ function revealLine(path: string, line: number, tries = 20) {
   editor.focus();
 }
 
+/**
+ * A callback that keeps its identity from render to render and always runs the latest version, so
+ * a memo'd screen given it doesn't render again whenever the window does.
+ */
+function useStable<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) => R {
+  const latest = useRef(fn);
+  latest.current = fn;
+  return useCallback((...args: A) => latest.current(...args), []);
+}
+
+const NO_PROVIDERS: ProviderView[] = [];
+
 export function App() {
   const [root, setRoot] = useState<string | null>(null);
   const [tree, setTree] = useState<FileNode[]>([]);
@@ -141,8 +153,19 @@ export function App() {
   const [injected, setInjected] = useState<{ text: string; nonce: number; dispatch?: boolean }>();
   /** Errors Monaco found in the file being edited. */
   const [problems, setProblems] = useState<string[]>([]);
+  /**
+   * The open files as they are right now. Keystrokes land here first and the files state follows
+   * a few times a second (see the editor's onChange), so typing doesn't re-render the whole window.
+   * Every other change goes through updateFiles, which sets both.
+   */
   const filesRef = useRef(files);
-  filesRef.current = files;
+  const filesSync = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const updateFiles = useCallback((next: OpenFile[] | ((fs: OpenFile[]) => OpenFile[])) => {
+    filesRef.current = typeof next === "function" ? next(filesRef.current) : next;
+    if (filesSync.current) clearTimeout(filesSync.current);
+    filesSync.current = null;
+    setFiles(filesRef.current);
+  }, []);
 
   const flash = useCallback((msg: ReactNode) => {
     setToast(msg);
@@ -208,12 +231,12 @@ export function App() {
         if (e.created || e.content === null) void window.sweet.refreshTree().then(setTree);
         if (e.content === null) {
           disposeModel(e.path);
-          setFiles((fs) => fs.filter((f) => f.path !== e.path));
+          updateFiles((fs) => fs.filter((f) => f.path !== e.path));
           setActivePath((p) => (p === e.path ? undefined : p));
           return;
         }
         const content = e.content;
-        setFiles((fs) => {
+        updateFiles((fs) => {
           const open = fs.find((f) => f.path === e.path);
           if (!open) return fs;
           if (open.content !== open.savedContent) flash(`AI 改了 ${e.path}，你没保存的改动可以按 ⌘Z 找回`);
@@ -280,7 +303,7 @@ export function App() {
   async function enterProject(res: { root: string; tree: FileNode[] }) {
     setRoot(res.root);
     setTree(res.tree);
-    setFiles([]);
+    updateFiles([]);
     setActivePath(undefined);
     // Pick up the last conversation with the current partner; other partners' chats stay in 历史.
     const [sessions, state] = await Promise.all([window.sweet.listSessions(), window.sweet.getProviders()]);
@@ -353,10 +376,10 @@ export function App() {
   useEffect(() => setInlineCompletion(Boolean(providers?.completion.enabled && providers.completion.ready)), [providers]);
 
   async function openFile(path: string) {
-    if (!files.some((f) => f.path === path)) {
+    if (!filesRef.current.some((f) => f.path === path)) {
       try {
         const content = await window.sweet.readFile(path);
-        setFiles((fs) => [...fs, { path, content, savedContent: content }]);
+        updateFiles((fs) => [...fs, { path, content, savedContent: content }]);
       } catch (e) {
         return flash(cleanError(e));
       }
@@ -377,7 +400,7 @@ export function App() {
         continue;
       }
       if (content === f.savedContent) continue;
-      setFiles((fs) => fs.map((x) => (x.path === f.path ? { ...x, content, savedContent: content } : x)));
+      updateFiles((fs) => fs.map((x) => (x.path === f.path ? { ...x, content, savedContent: content } : x)));
       syncModel(f.path, content);
     }
   }
@@ -521,6 +544,23 @@ export function App() {
   }, []);
 
   const askAI = useCallback((text: string, dispatch?: boolean) => setInjected({ text, nonce: Date.now(), ...(dispatch ? { dispatch } : {}) }), []);
+  // What the screens kept mounted behind the current one are given: the same functions every
+  // render, so those (memo'd) screens don't render again whenever the window does.
+  const openSettingsStable = useStable((id?: string) => openSettings(id));
+  const openDispatch = useStable(() => setScreen("dispatch"));
+  const openSessionFromAutomation = useStable((id: string) => {
+    setScreen("work");
+    void openSession(id);
+  });
+  const handOffFromGroup = useStable((text: string, dispatch?: boolean) => {
+    if (!root) return flash("先打开一个项目，Agent 才能动手");
+    setScreen("work");
+    askAI(text, dispatch);
+  });
+  const askInWork = useStable((text: string) => {
+    setScreen("work");
+    askAI(text);
+  });
 
   // "Continue in the chat" from the island's screenshot answer.
   const rootRef = useRef(root);
@@ -550,7 +590,7 @@ export function App() {
       try {
         const written = new Map(dirty.map((f) => [f.path, f.content]));
         for (const [p, content] of written) await window.sweet.writeFile(p, content);
-        setFiles((fs) => fs.map((f) => (written.has(f.path) ? { ...f, savedContent: written.get(f.path)! } : f)));
+        updateFiles((fs) => fs.map((f) => (written.has(f.path) ? { ...f, savedContent: written.get(f.path)! } : f)));
         // Anything in scope changed during the save (more typing, another tab edited): stay.
         if (filesRef.current.some((f) => inScope(f) && f.content !== (written.get(f.path) ?? f.savedContent))) {
           flash("保存的时候又有新修改，先留在这里");
@@ -568,7 +608,7 @@ export function App() {
   async function closeFile(path: string) {
     if (!(await settleUnsaved([path]))) return;
     disposeModel(path);
-    setFiles((fs) => {
+    updateFiles((fs) => {
       const next = fs.filter((f) => f.path !== path);
       if (path === activePath) setActivePath(next[next.length - 1]?.path);
       return next;
@@ -576,13 +616,13 @@ export function App() {
   }
 
   async function saveFile(path: string) {
-    const f = files.find((x) => x.path === path);
+    const f = filesRef.current.find((x) => x.path === path);
     if (!f) return;
     // What reaches the disk is this snapshot; typing during the write stays unsaved.
     const written = f.content;
     try {
       await window.sweet.writeFile(path, written);
-      setFiles((fs) => fs.map((x) => (x.path === path ? { ...x, savedContent: written } : x)));
+      updateFiles((fs) => fs.map((x) => (x.path === path ? { ...x, savedContent: written } : x)));
       if (path.startsWith("prototypes/")) setProtoSaved((n) => n + 1);
       flash(<>保存好啦 <Icon name="check" /></>);
     } catch (e) {
@@ -591,11 +631,11 @@ export function App() {
   }
 
   async function saveAllDirty() {
-    const dirty = files.filter((f) => f.content !== f.savedContent);
+    const dirty = filesRef.current.filter((f) => f.content !== f.savedContent);
     for (const f of dirty) await window.sweet.writeFile(f.path, f.content);
     if (dirty.length) {
       const saved = new Map(dirty.map((f) => [f.path, f.content]));
-      setFiles((fs) => fs.map((f) => (saved.has(f.path) ? { ...f, savedContent: saved.get(f.path)! } : f)));
+      updateFiles((fs) => fs.map((f) => (saved.has(f.path) ? { ...f, savedContent: saved.get(f.path)! } : f)));
       flash(`发送前帮你保存了 ${dirty.length} 个文件`);
     }
   }
@@ -768,8 +808,8 @@ export function App() {
         <DispatchConsole hidden={screen !== "dispatch"} />
         <ResearchScreen
           hidden={screen !== "research"}
-          onSettings={(id) => openSettings(id)}
-          onOpenDispatch={() => setScreen("dispatch")}
+          onSettings={openSettingsStable}
+          onOpenDispatch={openDispatch}
           initialRepository={researchRepo ?? undefined}
         />
         <ToolboxScreen hidden={screen !== "toolbox"} />
@@ -798,37 +838,24 @@ export function App() {
         <AutomationScreen
           hidden={screen !== "automation"}
           hasProject={!!root}
-          onOpenSession={(id) => {
-            setScreen("work");
-            void openSession(id);
-          }}
+          onOpenSession={openSessionFromAutomation}
         />
         {groupOpened && (
           <GroupScreen
             key={`group:${root ?? "none"}`}
             hidden={screen !== "group"}
-            onSettings={() => openSettings()}
-            onHandOff={(text, dispatch) => {
-              if (!root) return flash("先打开一个项目，Agent 才能动手");
-              setScreen("work");
-              askAI(text, dispatch);
-            }}
+            onSettings={openSettingsStable}
+            onHandOff={handOffFromGroup}
           />
         )}
-        {root && wikiOpened && <WikiScreen key={`wiki:${root}`} hidden={screen !== "wiki"} canWrite={ready} providers={providers?.providers ?? []} activeId={providers?.activeId ?? ""} />}
+        {root && wikiOpened && <WikiScreen key={`wiki:${root}`} hidden={screen !== "wiki"} canWrite={ready} providers={providers?.providers ?? NO_PROVIDERS} activeId={providers?.activeId ?? ""} />}
         {root && graphOpened && (
           <GraphScreen
             key={`graph:${root}`}
             hidden={screen !== "graph"}
             canWrite={ready}
-            onAsk={(text) => {
-              setScreen("work");
-              askAI(text);
-            }}
-            onHandOff={(text) => {
-              setScreen("work");
-              askAI(text);
-            }}
+            onAsk={askInWork}
+            onHandOff={askInWork}
           />
         )}
         {/* Stays mounted while another screen is shown, so the chat, terminal and open files survive. */}
@@ -909,10 +936,13 @@ export function App() {
                 }}
                 onClose={closeFile}
                 onChange={(p, c) => {
-                  const edit = (fs: OpenFile[]) => fs.map((f) => (f.path === p ? { ...f, content: c } : f));
-                  // Right away, not at the next render: settleUnsaved reads it across an await.
-                  filesRef.current = edit(filesRef.current);
-                  setFiles(edit);
+                  const before = filesRef.current.find((f) => f.path === p);
+                  if (!before || before.content === c) return;
+                  // Right away: saving and settleUnsaved read the files from here.
+                  filesRef.current = filesRef.current.map((f) => (f.path === p ? { ...f, content: c } : f));
+                  // The tab's unsaved dot changes at once; otherwise the state catches up a few times a second.
+                  if ((before.content === before.savedContent) !== (c === before.savedContent)) updateFiles(filesRef.current);
+                  else filesSync.current ??= setTimeout(() => updateFiles(filesRef.current), 300);
                 }}
                 onSave={(p) => void saveFile(p)}
                 onSelection={setSelection}

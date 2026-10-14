@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Fragment, memo, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { DispatchBudget, DispatchCheck, DispatchExecutorKind, DispatchJob, DispatchJobStatus, DispatchOrigin, DispatchView, DispatchProgress, AgentPermissionCard, ResumePlan } from "@shared/types";
 import { Icon } from "./Icon";
 import "../styles/dispatch.css";
@@ -131,14 +131,18 @@ interface Props {
   hidden: boolean;
 }
 
-export function DispatchConsole({ hidden }: Props) {
+export const DispatchConsole = memo(function DispatchConsole({ hidden }: Props) {
   const [view, setView] = useState<DispatchView>(EMPTY);
   const [now, setNow] = useState(Date.now());
   const [filter, setFilter] = useState<Filter>("all");
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [cancelError, setCancelError] = useState("");
 
+  // Only while it is on screen: the main process sends the view and the events only then, and
+  // the list is fetched afresh each time the console comes back.
   useEffect(() => {
+    if (hidden) return;
+    void window.sweet.dispatchWatch(true);
     void window.sweet.dispatchView().then(setView);
     const offView = window.sweet.onDispatchChanged(setView);
     // External agents stream progress between view updates: append it to the job it belongs to.
@@ -148,19 +152,20 @@ export function DispatchConsole({ hidden }: Props) {
       else if (e.type === "job") setView((v) => ({ ...v, jobs: v.jobs.some((j) => j.id === e.job.id) ? v.jobs.map((j) => (j.id === e.job.id ? e.job : j)) : [e.job, ...v.jobs] }));
     });
     return () => {
+      void window.sweet.dispatchWatch(false);
       offView();
       offEvent();
     };
-  }, []);
+  }, [hidden]);
 
   const anyLive = view.jobs.some(isLive);
-  // Running and queued rows tick once a second; nothing else needs the clock.
+  // Running and queued rows tick once a second while they are on screen; nothing else needs the clock.
   useEffect(() => {
-    if (!anyLive) return;
+    if (!anyLive || hidden) return;
     setNow(Date.now());
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [anyLive]);
+  }, [anyLive, hidden]);
 
   const trees = useMemo(() => buildTrees(view), [view]);
   const match = (j: DispatchJob) => filter === "all" || (filter === "live" ? isLive(j) : hasProblem(j));
@@ -256,7 +261,7 @@ export function DispatchConsole({ hidden }: Props) {
       )}
     </main>
   );
-}
+});
 
 function TreeHead({ tree }: { tree: Tree }) {
   const origin = tree.root?.origin ?? tree.rows[0]?.job.origin;
@@ -334,7 +339,28 @@ function JobRow({ job, depth, now, dim, open, onToggle, onCancel }: RowProps) {
   );
 }
 
-function JobDetail({ job }: { job: DispatchJob }) {
+/**
+ * The list carries each job without most of its progress and with long texts cut. An opened row
+ * asks for its job in full (again whenever its status moves) and adds the progress that streams in.
+ */
+function JobDetail({ job: listed }: { job: DispatchJob }) {
+  const [full, setFull] = useState<DispatchJob | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void window.sweet.dispatchJob(listed.id).then((j) => alive && setFull(j));
+    return () => {
+      alive = false;
+    };
+  }, [listed.id, listed.status]);
+  useEffect(
+    () =>
+      window.sweet.onDispatchEvent((e) => {
+        if (e.type === "progress" && e.jobId === listed.id) setFull((f) => f && { ...f, progress: [...(f.progress ?? []), e.progress].slice(-100) });
+      }),
+    [listed.id],
+  );
+  // The list's copy is the newest for everything but what it leaves out.
+  const job = full ? { ...listed, input: full.input, result: full.result, progress: full.progress } : listed;
   return (
     <div className="dispatch-detail">
       <Field label="任务内容">

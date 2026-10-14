@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { GROUP_MIN_CANDIDATES, type GroupCandidate, type GroupChat, type GroupMember, type GroupSummary } from "@shared/types";
 import { characterFor } from "../home/characters";
 import { Avatar } from "./Avatar";
@@ -24,7 +24,7 @@ function defaultName(c: GroupCandidate, all: GroupCandidate[]): string {
 const key = (c: GroupCandidate) => `${c.providerId}::${c.model}`;
 
 /** Agent group chat: several AI members discuss with the user; members only read. */
-export function GroupScreen({ hidden, onSettings, onHandOff }: Props) {
+export const GroupScreen = memo(function GroupScreen({ hidden, onSettings, onHandOff }: Props) {
   const [candidates, setCandidates] = useState<GroupCandidate[] | null>(null);
   const [groups, setGroups] = useState<GroupSummary[]>([]);
   const [chat, setChat] = useState<GroupChat | null>(null);
@@ -125,7 +125,7 @@ export function GroupScreen({ hidden, onSettings, onHandOff }: Props) {
       )}
     </main>
   );
-}
+});
 
 function Locked({ count, onSettings }: { count: number; onSettings(): void }) {
   return (
@@ -237,12 +237,44 @@ function ChatView({
   const listRef = useRef<HTMLDivElement>(null);
   const byId = new Map(chat.members.map((m) => [m.id, m]));
 
+  // A reply streams in many small deltas: they are added once a frame, not one render each
+  // (also while the screen is hidden behind another). Any other event first adds what is waiting.
+  const pending = useRef<{ messageId: string; text: string } | null>(null);
+  const frame = useRef<{ raf: number; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const flush = useRef(() => {
+    if (frame.current) {
+      cancelAnimationFrame(frame.current.raf);
+      clearTimeout(frame.current.timer);
+      frame.current = null;
+    }
+    const p = pending.current;
+    if (!p) return;
+    pending.current = null;
+    setLive((l) => (l && l.messageId === p.messageId ? { ...l, text: l.text + p.text } : l));
+  }).current;
+  useEffect(
+    () => () => {
+      if (frame.current) {
+        cancelAnimationFrame(frame.current.raf);
+        clearTimeout(frame.current.timer);
+      }
+    },
+    [],
+  );
+
   useEffect(
     () =>
       window.sweet.onGroupEvent((e) => {
         if (e.groupId !== chat.id) return;
+        if (e.type === "delta") {
+          if (pending.current && pending.current.messageId !== e.messageId) flush();
+          pending.current = { messageId: e.messageId, text: (pending.current?.text ?? "") + e.text };
+          // A hidden window gets no animation frames; the timer still brings the text in.
+          frame.current ??= { raf: requestAnimationFrame(flush), timer: setTimeout(flush, 100) };
+          return;
+        }
+        flush();
         if (e.type === "speaking") setLive({ memberId: e.memberId, messageId: e.messageId, text: "" });
-        else if (e.type === "delta") setLive((l) => (l && l.messageId === e.messageId ? { ...l, text: l.text + e.text } : l));
         else if (e.type === "message") {
           setLive((l) => (l?.messageId === e.message.id ? null : l));
           setChat((c) => (c.messages.some((m) => m.id === e.message.id) ? c : { ...c, messages: [...c.messages, e.message] }));
@@ -423,7 +455,7 @@ function Bubble({ member, text, error, mine, typing }: { member?: GroupMember; t
           {member?.name ?? "成员"} <span className="meta">{member?.model}</span>
         </span>
         <div className="g-body">
-          {text ? <Markdown text={text} /> : typing ? <span className="typing">正在输入…</span> : null}
+          {text ? <Markdown text={text} streaming={typing} /> : typing ? <span className="typing">正在输入…</span> : null}
           {error && <p className="wiki-warn bad">{error}</p>}
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { UsageModelRow, UsageSummary } from "@shared/types";
 import { Icon } from "./Icon";
 
@@ -34,7 +34,7 @@ interface DayTotals {
 type Range = 7 | 30 | "all";
 
 /** Token use since the first recorded request: totals, a bar per day, and a ranking by model. */
-export function UsageScreen({ hidden }: { hidden: boolean }) {
+export const UsageScreen = memo(function UsageScreen({ hidden }: { hidden: boolean }) {
   const [data, setData] = useState<UsageSummary | null>(null);
   const [range, setRange] = useState<Range>(30);
   const [hover, setHover] = useState(-1);
@@ -241,7 +241,7 @@ export function UsageScreen({ hidden }: { hidden: boolean }) {
       </div>
     </main>
   );
-}
+});
 
 /** A round axis top just above the largest bar: 1/2/5 × 10^n. */
 function niceTop(max: number): number {

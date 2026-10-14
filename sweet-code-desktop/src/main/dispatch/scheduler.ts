@@ -85,6 +85,29 @@ export interface DispatcherOptions {
 
 const ACTIVE = new Set<DispatchJob["status"]>(["starting", "running", "waiting_approval"]);
 const FINISHED = new Set<DispatchJob["status"]>(["done", "failed", "cancelled", "timeout", "exited"]);
+/** How much of a job's input and result the console list carries (job() has all of it). */
+const LISTED_TEXT = 400;
+
+const cut = (text: string) => (text.length > LISTED_TEXT ? `${text.slice(0, LISTED_TEXT)}…` : text);
+
+/**
+ * A job as the console list shows it: its live line needs only the newest progress, and a pending
+ * permission card the newest request; the rest of the progress, and long texts, are left to job().
+ */
+export function listed(job: DispatchJob): DispatchJob {
+  const progress = job.progress ?? [];
+  const long = job.input.length > LISTED_TEXT || (job.result?.text.length ?? 0) > LISTED_TEXT;
+  if (progress.length <= 2 && !long) return job;
+  const latest = progress.findLast((p) => p.type !== "permission");
+  const asking = job.status === "waiting_approval" ? progress.findLast((p) => p.type === "permission") : undefined;
+  const tail = progress.filter((p) => p === latest || p === asking);
+  return {
+    ...job,
+    input: cut(job.input),
+    ...(job.result ? { result: { ...job.result, text: cut(job.result.text) } } : {}),
+    progress: tail.length ? tail : undefined,
+  };
+}
 /** An agent chain the user didn't start stays short; the user's own requests get room to fan out. */
 const DEFAULT_BUDGET: Record<DispatchOrigin, number> = {
   agent: 5,
@@ -224,16 +247,26 @@ export class Dispatcher {
     return [...[...this.entries.values()].map((e) => ({ ...e.job })), ...this.finished.map((j) => ({ ...j }))];
   }
 
+  /**
+   * What the console lists, sent several times a second while it is open: each job without the
+   * bulk (all its progress, a long input or result). The console asks for one in full with job().
+   */
   view(): DispatchView {
     const live = [...this.entries.values()];
     const queued = live.filter((e) => this.isQueued(e)).length;
     return {
-      jobs: this.jobs(),
+      jobs: this.jobs().map(listed),
       budgets: [...this.budgets.values()].map((b) => ({ ...b })),
       running: live.length - queued,
       queued,
       maxRunning: this.maxRunning,
     };
+  }
+
+  /** One job with everything: all of its progress, its whole input and result. */
+  job(id: string): DispatchJob | undefined {
+    const job = this.find(id);
+    return job && { ...job };
   }
 
   /** The job an executor finished most recently, while it is still listed. */

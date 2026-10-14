@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GraphEdge, GraphEdgeKind, GraphNode, GraphNodeKind, GraphState, KnowledgeGraph } from "@shared/types";
 import { Icon } from "../components/Icon";
 import { OPEN_FILE, type OpenFileDetail } from "../components/Markdown";
@@ -45,7 +45,7 @@ interface Props {
  * 知识图谱: the open project's code, or a development document, as flat typed nodes and the
  * relations between them, drawn as swim lanes or as a web.
  */
-export function GraphScreen({ hidden, canWrite, onAsk, onHandOff }: Props) {
+export const GraphScreen = memo(function GraphScreen({ hidden, canWrite, onAsk, onHandOff }: Props) {
   const [state, setState] = useState<GraphState>({ graphs: [], running: null });
   const [graphId, setGraphId] = useState<string | null>(null);
   const [graph, setGraph] = useState<KnowledgeGraph | null>(null);
@@ -264,7 +264,7 @@ export function GraphScreen({ hidden, canWrite, onAsk, onHandOff }: Props) {
       </div>
     </main>
   );
-}
+});
 
 function Canvas({
   graph,

@@ -410,7 +410,15 @@ export function ChatPanel(props: Props) {
                 g.kind === "activity" ? (
                   <ActivityGroup key={j} parts={g.parts} busy={busy} onRespond={respond} onUndo={(id) => void undo(id)} />
                 ) : (
-                  <PartView key={j} part={g.part} busy={busy} onRespond={respond} onUndo={(id) => void undo(id)} />
+                  <PartView
+                    key={j}
+                    part={g.part}
+                    busy={busy}
+                    // The reply's last text while the turn runs: it is still being written.
+                    streaming={busy && i === turns.length - 1 && g.part === t.parts[t.parts.length - 1]}
+                    onRespond={respond}
+                    onUndo={(id) => void undo(id)}
+                  />
                 ),
               )}
               {busy && i === turns.length - 1 && (
@@ -836,11 +844,13 @@ function ActivityGroup({ parts, ...rest }: { parts: Part[] } & Omit<PartViewProp
 interface PartViewProps {
   part: Part;
   busy: boolean;
+  /** A text part that is still growing. */
+  streaming?: boolean;
   onRespond(r: ApprovalResponse): void;
   onUndo(turnId: number): void;
 }
 
-function PartView({ part, busy, onRespond, onUndo }: PartViewProps) {
+function PartView({ part, busy, streaming, onRespond, onUndo }: PartViewProps) {
   switch (part.kind) {
     case "approval":
       return (
@@ -904,7 +914,7 @@ function PartView({ part, busy, onRespond, onUndo }: PartViewProps) {
         </details>
       );
     case "text":
-      return <Markdown text={part.text} />;
+      return <Markdown text={part.text} streaming={streaming} />;
     case "tool":
       return (
         <div className={`tool-chip ${part.state}`} title={part.preview}>

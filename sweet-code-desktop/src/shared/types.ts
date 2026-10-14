@@ -3150,7 +3150,12 @@ export interface SweetApi {
   dispatchAgentSubmit(input: DispatchAgentInput): Promise<{ jobId: string }>;
   dispatchAgentPermission(id: string, optionId: string | null): Promise<void>;
   onDispatchEvent(cb: (event: DispatchEvent) => void): () => void;
+  /** The console list: each job without all of its progress and with long texts cut (see dispatchJob). */
   dispatchView(): Promise<DispatchView>;
+  /** One job in full, for its expanded row. Null once it has dropped out of the history. */
+  dispatchJob(jobId: string): Promise<DispatchJob | null>;
+  /** The console is on screen (true) or not: dispatch:changed and dispatch:event are sent only while it is. */
+  dispatchWatch(on: boolean): Promise<void>;
   /** Cancel a job and everything it started. */
   dispatchCancel(jobId: string): Promise<void>;
   onDispatchChanged(cb: (view: DispatchView) => void): () => void;

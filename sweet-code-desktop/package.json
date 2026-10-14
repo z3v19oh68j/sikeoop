@@ -11,6 +11,7 @@
     "build": "node scripts/build-with-builtin-env.mjs",
     "start": "electron-vite preview",
     "test": "node --test --test-timeout=10000 \"test/**/*.test.ts\"",
+    "perf": "node scripts/perf/run.mjs",
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.node.json && node node_modules/typescript/bin/tsc --noEmit -p tsconfig.web.json",
     "postinstall": "node scripts/fix-node-pty.mjs",
     "dist:win": "node scripts/win-natives.mjs && npm run build && electron-builder --win --x64",

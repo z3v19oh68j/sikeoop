@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { ClusterRun, ClusterView } from "@shared/types";
 import { Icon } from "./Icon";
 import "../styles/cluster.css";
@@ -26,21 +26,23 @@ interface Props {
   hidden: boolean;
 }
 
-export function ClusterConsole({ hidden }: Props) {
+export const ClusterConsole = memo(function ClusterConsole({ hidden }: Props) {
   const [view, setView] = useState<ClusterView>(EMPTY);
   const [now, setNow] = useState(Date.now());
 
+  // Followed only while it is on screen; fetched afresh each time it comes back.
   useEffect(() => {
+    if (hidden) return;
     void window.sweet.clusterView().then(setView);
     return window.sweet.onClusterChanged(setView);
-  }, []);
+  }, [hidden]);
 
   // The elapsed time of running cards ticks once a second; nothing else needs the clock.
   useEffect(() => {
-    if (view.running === 0) return;
+    if (view.running === 0 || hidden) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [view.running]);
+  }, [view.running, hidden]);
 
   const finished = view.runs.filter((r) => r.status !== "running").length;
 
@@ -93,4 +95,4 @@ export function ClusterConsole({ hidden }: Props) {
       )}
     </main>
   );
-}
+});
