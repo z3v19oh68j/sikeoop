@@ -42,7 +42,7 @@ import { providerWideFailure } from "../providers/model-routing.ts";
 import { classify, autoPurpose, effortPurpose, selectEffort, type Difficulty } from "./route.ts";
 import { supportsClaudeEffort, isEffort } from "../providers/effort.ts";
 import { wrapPastedContent } from "./pasted-content.ts";
-import { createAutoResumeState, claimAutoResume, normalizeAutoResumeState, AUTO_RESUME_REVIEW_REASON, type AutoResumeState } from "./auto-resume.ts";
+import { createAutoResumeState, claimAutoResume, normalizeAutoResumeState, AUTO_RESUME_REVIEW_REASON, GOAL_AUTO_RESUMES, MAX_AUTO_RESUMES, type AutoResumeState } from "./auto-resume.ts";
 import path from "node:path";
 import type { LessonInput, SavedLesson } from "./lessons";
 
@@ -50,6 +50,12 @@ import type { LessonInput, SavedLesson } from "./lessons";
 const MAX_STEPS = 40;
 /** The same limit in long-task mode, where the agent is expected to keep going on its own. */
 const AUTOPILOT_STEPS = 200;
+/**
+ * And in super-dispatch mode, which only hands work out and waits for it: one step may be an hour
+ * of other AIs working, and a whole goal takes many rounds. High enough not to cut a real task
+ * short, and still a stop for one that goes in circles.
+ */
+const GOAL_STEPS = 2000;
 /** What the agent does not do itself in super-dispatch mode. */
 const HANDS_ON = new Set(["edit_file", "create_file", "run_command"]);
 /** Failures kept per turn for the lessons of an autonomous run, and the length of each. */
@@ -111,8 +117,8 @@ export interface MadeAdapter {
   registry: ToolRegistry;
   /** The tool definitions sent to the model. Fixed for the conversation, and saved with it. */
   toolDefs: ToolDef[];
-  /** Installed skills to list at the start of the conversation. */
-  skills: { name: string; description: string }[];
+  /** Installed skills to list at the start of the conversation. Forced hack-preset skills carry forced: true. */
+  skills: { name: string; description: string; forced?: boolean }[];
   /** Tokens the conversation may fill before it is compressed (presets.contextBudget). */
   contextBudget: number;
   /** The model's context window, and the system prompt (both for the usage breakdown). */
@@ -255,7 +261,7 @@ export class AgentSession {
   /** Set together with the adapter, when the conversation starts. */
   private registry: ToolRegistry | null = null;
   private toolDefs: ToolDef[] = [];
-  private skills: { name: string; description: string }[] = [];
+  private skills: { name: string; description: string; forced?: boolean }[] = [];
   private id: string = randomUUID();
   private title = "";
   private createdAt = Date.now();
@@ -328,21 +334,26 @@ export class AgentSession {
   autoResumeState(): AutoResumeState { return { ...this.resumeBudget }; }
 
   async claimAutoResume(): Promise<boolean> {
-    const claimed = claimAutoResume(this.resumeBudget);
+    const claimed = claimAutoResume(this.resumeBudget, this.orchestrate ? GOAL_AUTO_RESUMES : MAX_AUTO_RESUMES);
     if (!claimed) this.markNeedsReview();
     // Persist before another model call; reload cannot silently reset the task budget.
     await this.save(true);
     return claimed;
   }
 
+  /** A super-dispatch turn is running: nobody is there to approve anything. */
+  get unattendedGoal(): boolean {
+    return this.orchestrate && this.busy;
+  }
+
   private markNeedsReview(): void {
     this.resumeBudget.needsReview = true;
-    this.emit({ type: "error", message: AUTO_RESUME_REVIEW_REASON });
+    this.emit({ type: "error", message: this.orchestrate ? `同一任务已自动续跑 ${GOAL_AUTO_RESUMES} 次，已停止，需人工查看` : AUTO_RESUME_REVIEW_REASON });
     this.deps.onNeedsReview?.(AUTO_RESUME_REVIEW_REASON, this.resumeBudget.count, this.id, this.dispatchJobId);
   }
 
   automaticResumeRequest(text: string): ChatRequest {
-    return { text, editor: {}, effort: "medium", autopilot: this.autopilot, lazy: this.lazy, orchestrate: this.orchestrate };
+    return { text, editor: {}, effort: "low", autopilot: this.autopilot, lazy: this.lazy, orchestrate: this.orchestrate };
   }
 
   get sessionId(): string {
@@ -961,7 +972,7 @@ export class AgentSession {
     this.plan = file.plan ?? [];
     const savedEffort = file.topEffort ?? (file.adapterState as { topEffort?: unknown } | null)?.topEffort;
     this.topEffort = isEffort(savedEffort) ? savedEffort : null;
-    this.resumeBudget = normalizeAutoResumeState(file.autoResume, file.id);
+    this.resumeBudget = normalizeAutoResumeState(file.autoResume, file.id, file.taskMode?.orchestrate ? GOAL_AUTO_RESUMES : MAX_AUTO_RESUMES);
     this.originalTask = file.originalTask ?? "";
     this.autopilot = !!file.taskMode?.autopilot;
     this.lazy = !!file.taskMode?.lazy;
@@ -1022,7 +1033,7 @@ export class AgentSession {
     rollback: () => void,
   ) {
     let stopContinues = 0;
-    const maxSteps = this.autopilot ? AUTOPILOT_STEPS : MAX_STEPS;
+    const maxSteps = this.orchestrate ? GOAL_STEPS : this.autopilot ? AUTOPILOT_STEPS : MAX_STEPS;
     // Models this turn has run on: a failover never goes back to one of them.
     const unavailableAutoProviders = new Set<string>();
     const tried = new Set(this.provider ? [`${this.provider.id}:${this.provider.model}`] : []);
@@ -1114,8 +1125,11 @@ export class AgentSession {
             this.noteFailure(`收工时计划里还有没做完的步骤：${open.map((i) => i.text).join("；")}`);
             adapter.addUserText(
               [
-                `<note>\n计划里还有没做完的步骤：${open.map((i) => i.text).join("；")}。用户开了长任务模式，不在电脑前，` +
-                  "继续处理剩余步骤；卡住时说明具体阻碍，并用 update_plan 标成 skipped。\n</note>",
+                `<note>\n计划里还有没做完的步骤：${open.map((i) => i.text).join("；")}。` +
+                  (this.orchestrate
+                    ? "用户开了超级调度模式，要的是整个目标做完：接着派活、等结果、验收，不要停下来等用户。某一步确实做不成（返工后仍不过、没有人能接），写明原因并用 update_plan 标成 skipped，再继续其余的。"
+                    : "用户开了长任务模式，不在电脑前，继续处理剩余步骤；卡住时说明具体阻碍，并用 update_plan 标成 skipped。") +
+                  "\n</note>",
               ],
               this.applyEffort(adapter, req.effort),
             );
@@ -1339,6 +1353,7 @@ export class AgentSession {
 
   private async runTools(calls: ToolCall[], turnId: number, signal: AbortSignal): Promise<ToolResult[]> {
     const runOne = async (call: ToolCall): Promise<ToolResult> => {
+      fileLocks.touch(`app:${this.id}`);
       const tool = this.registry?.get(call.name);
       const fail = (message: string): ToolResult => {
         this.emit({ type: "tool_end", id: call.id, ok: false, preview: message });

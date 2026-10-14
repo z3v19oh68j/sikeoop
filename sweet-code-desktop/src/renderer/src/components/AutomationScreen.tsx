@@ -72,7 +72,7 @@ const TEMPLATES: { title: string; detail: string; make(): AutomationInput }[] = 
         enabled: false,
         schedule: { kind: "daily", time: "09:00", days: [1, 2, 3, 4, 5] },
         start: test,
-        effort: "medium",
+        effort: "low",
         states: [
           { id: test, name: "跑测试", kind: "command", text: "npm test", next: [{ on: AUTOMATION_FAIL, to: fix }] },
           {
@@ -97,7 +97,7 @@ const TEMPLATES: { title: string; detail: string; make(): AutomationInput }[] = 
         enabled: false,
         schedule: { kind: "daily", time: "18:00", days: [] },
         start: check,
-        effort: "medium",
+        effort: "low",
         states: [
           {
             id: check,
@@ -126,7 +126,7 @@ function blank(): AutomationInput {
     enabled: false,
     schedule: { kind: "daily", time: "09:00", days: [] },
     start: id,
-    effort: "medium",
+    effort: "low",
     states: [{ id, name: "第一步", kind: "agent", text: "", next: [] }],
   };
 }

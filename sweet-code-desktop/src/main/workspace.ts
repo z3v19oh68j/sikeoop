@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { FileNode } from "@shared/types";
@@ -10,10 +11,21 @@ export const IGNORED_DIRS = new Set([
 const MAX_TREE_ENTRIES = 2000;
 
 let root: string | null = null;
+/**
+ * A root for the work going on in one async task, instead of the open project: a sub-agent whose
+ * task runs in a sandbox copy (dispatch/sandbox.ts). Everything it calls sees the copy as the project.
+ */
+const scoped = new AsyncLocalStorage<string>();
 
 export function getRoot(): string {
-  if (!root) throw new Error("还没有打开项目文件夹");
-  return root;
+  const here = scoped.getStore() ?? root;
+  if (!here) throw new Error("还没有打开项目文件夹");
+  return here;
+}
+
+/** Runs `fn` with `dir` as the project folder for everything it does, awaited work included. */
+export function withRoot<T>(dir: string, fn: () => Promise<T>): Promise<T> {
+  return scoped.run(dir, fn);
 }
 
 export async function setRoot(dir: string): Promise<void> {
@@ -21,7 +33,7 @@ export async function setRoot(dir: string): Promise<void> {
 }
 
 export function hasRoot(): boolean {
-  return root !== null;
+  return (scoped.getStore() ?? root) !== null;
 }
 
 /**

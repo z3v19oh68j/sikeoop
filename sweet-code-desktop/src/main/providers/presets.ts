@@ -46,6 +46,10 @@ export interface ProviderPreset {
 }
 
 // Every non-Claude provider here accepts the OpenAI Chat Completions format at its baseURL.
+/** Providers with an account login beside the API key: Claude itself and OpenAI itself, never a compatible service. */
+export const supportsLogin = (p: Pick<ProviderPreset, "id" | "kind" | "compat">): boolean =>
+  (p.kind === "anthropic" && !p.compat) || (p.kind === "openai" && p.id === "openai");
+
 export const PRESETS: ProviderPreset[] = [
   {
     id: "anthropic",
@@ -202,6 +206,22 @@ export const PRESETS: ProviderPreset[] = [
       "注册：https://www.jiji.cc/register?aff=S5UCBVKAH62B ，在控制台创建令牌。网络不好可以把接口地址换成 https://api-slb.jiji.cc/v1 或 https://www.jiji.cc/v1",
     envKey: "JIJI_API_KEY",
     needsKey: true,
+    responses: true,
+    contextWindow: 200_000,
+  },
+  {
+    // Same relay, set up for GPT-5.5 over the Responses API (mirrors the Codex config).
+    id: "jiji-gpt",
+    name: "jiji GPT-5.5（Responses）",
+    kind: "openai",
+    baseURL: "https://www.jiji.cc/v1",
+    defaultModel: "gpt-5.5",
+    suggestedModels: ["gpt-5.5"],
+    keyHint:
+      "和 jiji 中转站用同一个令牌：https://www.jiji.cc/register?aff=S5UCBVKAH62B 。网络不好可以把接口地址换成 https://api.jiji.cc/v1 或 https://api-slb.jiji.cc/v1",
+    envKey: "JIJI_API_KEY",
+    needsKey: true,
+    discoverModels: true,
     responses: true,
     contextWindow: 200_000,
   },

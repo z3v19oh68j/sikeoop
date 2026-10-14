@@ -77,7 +77,8 @@ interface Props {
   /** Save unsaved editor tabs, so the AI reads and edits what the user sees. */
   beforeSend(): Promise<void>;
   /** A message another part of the app wants sent, e.g. from "帮我看看". New nonce = send again. */
-  injected?: { text: string; nonce: number };
+  /** dispatch: a settled division of work from a group chat, sent in super-dispatch mode whatever mode is on. */
+  injected?: { text: string; nonce: number; dispatch?: boolean };
   /** A saved conversation to show; the panel is remounted for each one. */
   loaded?: LoadedSession;
   onLoadSession(id: string): void;
@@ -125,7 +126,7 @@ export function ChatPanel(props: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState<"thinking" | "running_tools" | "compacting" | "idle">("idle");
-  const [effort, setEffort] = useState<Effort>("medium");
+  const [effort, setEffort] = useState<Effort>("low");
   const [mode, setModeState] = useState<ChatMode>(() => {
     try {
       const saved = localStorage.getItem(MODE_KEY);
@@ -162,9 +163,32 @@ export function ChatPanel(props: Props) {
   const onUsageRef = useRef(onUsage);
   onUsageRef.current = onUsage;
 
-  useEffect(
-    () =>
-      window.sweet.onAgentEvent((e) => {
+  useEffect(() => {
+    // Streamed pieces (a few characters each) arrive many times a frame. Re-rendering the panel
+    // and re-parsing the growing Markdown for every one gets slow on long replies, so they are
+    // collected and applied together once per frame. Any other event flushes them first, so the
+    // order never changes.
+    let pending: AgentEvent[] = [];
+    let frame = 0;
+    const flush = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      if (!pending.length) return;
+      const batch = pending;
+      pending = [];
+      setTurns((ts) => {
+        const last = ts[ts.length - 1];
+        if (!last || last.role !== "ai") return ts;
+        return [...ts.slice(0, -1), { role: "ai", parts: batch.reduce(applyEvent, last.parts) }];
+      });
+    };
+    const off = window.sweet.onAgentEvent((e) => {
+        if (e.type === "text_delta" || e.type === "thinking_delta" || e.type === "tool_preview") {
+          pending.push(e);
+          frame ||= requestAnimationFrame(flush);
+          return;
+        }
+        flush();
         if (e.type === "status") {
           setPhase(e.state);
           if (e.state === "idle") setBusy(false);
@@ -188,9 +212,12 @@ export function ChatPanel(props: Props) {
           if (!last || last.role !== "ai") return ts;
           return [...ts.slice(0, -1), { role: "ai", parts: applyEvent(last.parts, e) }];
         });
-      }),
-    [],
-  );
+      });
+    return () => {
+      off();
+      flush();
+    };
+  }, []);
 
   useEffect(() => {
     const el = listRef.current;
@@ -198,7 +225,7 @@ export function ChatPanel(props: Props) {
   }, [turns, shareCards]);
 
   useEffect(() => {
-    if (injected) void send(injected.text);
+    if (injected) void send(injected.text, injected.dispatch);
     // Only a new nonce should send; send itself changes every render.
   }, [injected?.nonce]);
 
@@ -233,7 +260,7 @@ export function ChatPanel(props: Props) {
     }
   }
 
-  async function send(text: string) {
+  async function send(text: string, dispatch = false) {
     const t = text.trim();
     const imgs = attachments;
     // Typed messages wait for files still being read; an injected one ("帮我看看") goes alone.
@@ -254,9 +281,9 @@ export function ChatPanel(props: Props) {
         text: t,
         editor,
         effort,
-        ...(autopilot ? { autopilot: true } : {}),
-        ...(lazy || superMode ? { lazy: true } : {}),
-        ...(superMode ? { orchestrate: true } : {}),
+        ...(autopilot || dispatch ? { autopilot: true } : {}),
+        ...(lazy || superMode || dispatch ? { lazy: true } : {}),
+        ...(superMode || dispatch ? { orchestrate: true } : {}),
         ...(imgs.length ? { images: imgs.map((a) => a.image), thumbs } : {}),
         ...(files.length ? { files } : {}),
       });

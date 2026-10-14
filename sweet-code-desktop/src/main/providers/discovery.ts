@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import { validOAuthToken } from "./claude-oauth.ts";
+import { DefaultUserAgent, FullClaudeCodeMimicryBetas } from "./claude-mimic.ts";
+import { validOAuthToken as validOpenAIToken } from "./openai-oauth.ts";
+import { codexModelsRequest, parseCodexModels } from "./openai-codex.ts";
 
 export const MODEL_CACHE_TTL = 6 * 60 * 60 * 1000;
 export const MODEL_DISCOVERY_TIMEOUT = 10_000;
@@ -8,6 +12,8 @@ export interface DiscoveryProvider {
   baseURL: string;
   apiKey: string;
   fallback: readonly string[];
+  /** Login mode: fetch the live subscription model list with the OAuth bearer (Claude, or ChatGPT for kind "openai"). */
+  login?: boolean;
 }
 
 /** Preserve provider order; never treat the routing sentinel as a runnable model. */
@@ -43,7 +49,7 @@ export class ModelDiscovery {
   }
   private fingerprint(p: DiscoveryProvider): string {
     // Keys are neither persisted nor returned/logged; credential changes invalidate cached ids.
-    return createHash("sha256").update(JSON.stringify([p.kind, p.baseURL, p.apiKey, p.fallback])).digest("hex");
+    return createHash("sha256").update(JSON.stringify([p.kind, p.baseURL, p.apiKey, p.fallback, !!p.login])).digest("hex");
   }
   cached(p: DiscoveryProvider): string[] | undefined {
     const entry = this.cache.get(p.id);
@@ -82,11 +88,33 @@ export class ModelDiscovery {
       this.cache.set(p.id, { fingerprint, ids, expires: this.now() + (success ? MODEL_CACHE_TTL : 60_000) });
     return ids;
   }
+  /** ChatGPT subscription: one unpaged list from the Codex endpoint, whatever the provider's API address is. */
+  private async codexModels(signal: AbortSignal): Promise<string[]> {
+    const token = await validOpenAIToken();
+    if (!token) throw new Error("OpenAI OAuth 未登录");
+    const { url, headers } = codexModelsRequest(token);
+    const response = await this.request(url, { method: "GET", headers, signal, redirect: "error" });
+    if (!response.ok) throw new Error("模型列表请求失败");
+    return modelIds(parseCodexModels(await response.json()));
+  }
   private async pages(p: DiscoveryProvider, signal: AbortSignal): Promise<string[]> {
+    if (p.kind === "openai" && p.login) return this.codexModels(signal);
     const url = new URL(modelsURL(p.baseURL));
-    const headers: Record<string, string> = p.kind === "anthropic"
-      ? { "x-api-key": p.apiKey, "anthropic-version": "2023-06-01" }
-      : { Authorization: `Bearer ${p.apiKey}` };
+    let headers: Record<string, string>;
+    if (p.kind === "anthropic" && p.login) {
+      const token = await validOAuthToken();
+      if (!token) throw new Error("Claude OAuth 未登录");
+      headers = {
+        Authorization: `Bearer ${token.access_token}`,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": FullClaudeCodeMimicryBetas().join(","),
+        "User-Agent": DefaultUserAgent(),
+      };
+    } else if (p.kind === "anthropic") {
+      headers = { "x-api-key": p.apiKey, "anthropic-version": "2023-06-01" };
+    } else {
+      headers = { Authorization: `Bearer ${p.apiKey}` };
+    }
     const ids: string[] = [];
     const cursors = new Set<string>();
     for (let page = 0; page < 100; page++) {

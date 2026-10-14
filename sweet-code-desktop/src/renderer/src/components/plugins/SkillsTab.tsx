@@ -60,7 +60,9 @@ export function SkillsTab() {
       off={!s.enabled}
       tags={
         <>
-          {s.builtin ? (
+          {s.forced ? (
+            <Tag tone="warn" title="强制预设 · hack 专用模块，不能关闭也不能删除">强制预设</Tag>
+          ) : s.builtin ? (
             <Tag tone="accent">内置</Tag>
           ) : (
             <Tag tone={s.format === "standard" ? "ok" : "neutral"}>{s.format === "standard" ? "标准 Skill" : `由${s.origin}转换`}</Tag>
@@ -74,8 +76,8 @@ export function SkillsTab() {
       }
       desc={s.description || "（没有说明）"}
       meta={!s.builtin && s.source ? `来自 ${s.source}` : undefined}
-      control={<Switch checked={s.enabled} onChange={(v) => void window.sweet.setSkillEnabled(s.name, v).then(setSkills)} label={`启用 ${s.name}`} />}
-      menu={[{ label: "删除", icon: "trash", danger: true, onClick: () => void window.sweet.removeSkill(s.name).then(setSkills) }]}
+      control={<Switch checked={s.enabled} disabled={s.forced} onChange={(v) => void window.sweet.setSkillEnabled(s.name, v).then(setSkills)} label={s.forced ? `${s.name}（强制启用）` : `启用 ${s.name}`} />}
+      menu={s.forced ? [] : [{ label: "删除", icon: "trash", danger: true, onClick: () => void window.sweet.removeSkill(s.name).then(setSkills) }]}
     />
   );
 

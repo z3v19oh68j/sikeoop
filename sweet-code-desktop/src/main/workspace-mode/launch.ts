@@ -173,7 +173,9 @@ export async function buildLaunch(root: string, cacheDir: string, peer?: PeerLin
 
   if (peer) banner.push(peerBanner(peer.name));
   banner.push(
-    `工作区模式：Claude Code 只能直接读写这个文件夹；它要运行的命令会先问你，批准前请看清楚。` +
+    (config.permissionMode === "auto"
+      ? `工作区模式（auto）：Claude Code 只能直接读写这个文件夹，由它自己判断能不能做，不再逐条问你；deny / ask 规则照旧生效。`
+      : `工作区模式：Claude Code 只能直接读写这个文件夹；它要运行的命令会先问你，批准前请看清楚。`) +
       (agents.length ? `团队：${agents.map((a) => a.name).join("、")}。` : ""),
   );
   return {
@@ -184,7 +186,7 @@ export async function buildLaunch(root: string, cacheDir: string, peer?: PeerLin
   };
 }
 
-/** The --settings content: the workspace rules, with the modes that skip review switched off. */
+/** The --settings content: the workspace rules, with bypass switched off; auto stays off unless the project chose it. */
 export function settingsFor(config: WorkspaceConfig) {
   return {
     permissions: {
@@ -192,7 +194,7 @@ export function settingsFor(config: WorkspaceConfig) {
       ask: config.ask,
       allow: config.allow,
       disableBypassPermissionsMode: "disable",
-      disableAutoMode: "disable",
+      ...(config.permissionMode === "auto" ? {} : { disableAutoMode: "disable" }),
       blockReadsOutsideWorkingDirectories: true,
     },
   };

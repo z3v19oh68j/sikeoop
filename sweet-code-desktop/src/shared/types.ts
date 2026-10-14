@@ -337,6 +337,57 @@ export interface QuotaSettings {
   message: string;
 }
 
+// ---- Super-resident mode (resident/) -------------------------------------------------------
+
+/** A subscription account a resident round runs on: the Claude login or the ChatGPT (Codex) login. */
+export type ResidentAccount = "claude" | "codex";
+
+export interface ResidentSettings {
+  /** What to learn, in order; when the list is used up (or empty) the agent picks by itself if selfDirected. */
+  topics: string[];
+  selfDirected: boolean;
+  /** What a round may change. knowledge: memories and skills. project: the open project. self: sikeoop's own source. */
+  targets: { knowledge: boolean; project: boolean; self: boolean };
+  /** Accounts in the order they are tried; when one hits its limit the next takes over. */
+  accounts: ResidentAccount[];
+  /** Rounds per local day; 0 means no cap. */
+  dailyRounds: number;
+  /** Wait this long when every account is out of quota and no reset time can be read. */
+  defaultDelayHours: number;
+}
+
+export interface ResidentRound {
+  id: string;
+  startedAt: number;
+  endedAt?: number;
+  account: ResidentAccount;
+  topic: string;
+  /** quota: stopped on a usage limit, to be continued. */
+  status: "running" | "ok" | "failed" | "quota" | "stopped";
+  /** What was learned, in the agent's words. */
+  summary: string;
+  /** What it left behind: memories, skill files, branches. */
+  outputs: string[];
+}
+
+export interface ResidentView {
+  /** The user's switch. It survives a restart: the loop picks up where it was. */
+  on: boolean;
+  /** cooldown: between two rounds. waiting_quota: every account is used up, resumeAt says when it goes on. paused: stopped itself, note says why. */
+  phase: "off" | "running" | "cooldown" | "waiting_quota" | "paused";
+  note?: string;
+  resumeAt?: number;
+  /** When the switch was last turned on. */
+  startedAt?: number;
+  roundsToday: number;
+  current?: ResidentRound;
+  /** Finished rounds, newest first. */
+  rounds: ResidentRound[];
+  settings: ResidentSettings;
+  /** Which accounts are logged in, and when a used-up one resets. */
+  accounts: { id: ResidentAccount; ready: boolean; limitedUntil?: number }[];
+}
+
 // ---- Paper workshop (docs/方案-论文工坊.md) -------------------------------------------------
 
 export interface ArxivEntry {
@@ -1098,7 +1149,7 @@ export interface DispatchJob {
    * Where it may write. owns: the files it is responsible for (paths relative to the first root;
    * "dir/" for a folder, * and ** globs). Set = writes elsewhere are refused (or flagged, for Codex).
    */
-  scope?: { roots: string[]; owns?: string[] };
+  scope?: { roots: string[]; owns?: string[]; readOnly?: boolean };
   /** What it needs to run; checked before it starts. deps: folders whose node_modules must exist. */
   needs?: { network?: boolean; deps?: string[] };
   /** Acceptance run when it ends. typecheck: a command whose new errors (vs. before) are reported. */
@@ -1119,6 +1170,14 @@ export interface DispatchJob {
   reply?: boolean;
   /** Times it was sent back to the same executor to fix what the acceptance found (at most once). */
   reworks?: number;
+  /**
+   * Why a queued job hasn't started. executor: the executor itself isn't available (only this
+   * counts toward the queue timeout); own: the executor is running another dispatched job;
+   * lane: its lane is busy; conflict: overlapping write scope; cap: no free slot; paused.
+   */
+  waiting?: { reason: "executor" | "own" | "lane" | "conflict" | "cap" | "paused"; detail?: string };
+  /** It was let past a full cap because its parent is active (at most one per parent). */
+  overCap?: boolean;
 }
 
 /** Locally measured, relative to the first scope root. Never taken from agent prose. */
@@ -1511,6 +1570,8 @@ export interface SkillInfo {
   enabled: boolean;
   /** Ships with the app (installed automatically, can be restored after deleting). */
   builtin: boolean;
+  /** 强制预设 · hack专用：永远启用，不能关闭、不能删除，对话开头置顶。 */
+  forced: boolean;
   files: number;
   hasScripts: boolean;
 }
@@ -1798,7 +1859,22 @@ export type ProviderKind = "anthropic" | "openai";
 /** Which OpenAI format a provider is called with, for providers that offer both. */
 export type OpenAIApi = "responses" | "chat";
 
-/** State of "log in with an Anthropic account" (the official `ant` CLI's OAuth profile). */
+/** State of "log in with an Anthropic account" (the official `ant` CLI's OAuth profile, or the app's built-in OAuth). */
+export interface ClaudeOAuthGenerateResult { auth_url: string; session_id: string }
+export interface ClaudeOAuthExchangeInput { session_id: string; code: string }
+
+/** Built-in ChatGPT subscription OAuth. Tokens remain encrypted in the main process. */
+export interface OpenAIOAuthGenerateResult { auth_url: string; session_id: string }
+export interface OpenAIOAuthExchangeInput { session_id: string; code: string }
+export interface OpenAILogin {
+  loggedIn: boolean;
+  expired?: boolean;
+  email?: string;
+  chatgpt_account_id?: string;
+  plan_type?: string;
+  error?: string;
+}
+
 export interface AnthropicLogin {
   loggedIn: boolean;
   /** Logged in once, but the token ran out and can't be refreshed: log in again. */
@@ -1809,6 +1885,98 @@ export interface AnthropicLogin {
   account?: string;
   email?: string;
   error?: string;
+}
+
+/** Scope preset for the app's built-in Claude OAuth. "full" serves login mode; "inference" is the setup-token variant. */
+export type ClaudeOAuthScope = "full" | "inference";
+
+/** Authorization link generated by the main process for the built-in Claude OAuth flow. */
+export interface ClaudeOAuthAuthUrl {
+  auth_url: string;
+  session_id: string;
+}
+
+/** Single subscription usage window: percent used and the ISO reset timestamp. */
+export interface ClaudeUsageWindow {
+  utilization: number;
+  resets_at: string;
+}
+
+/** The four windows the Claude subscription usage endpoint reports. */
+export interface ClaudeUsage {
+  five_hour: ClaudeUsageWindow;
+  seven_day: ClaudeUsageWindow;
+  seven_day_sonnet: ClaudeUsageWindow;
+  seven_day_overage_included: ClaudeUsageWindow;
+}
+
+/** IPC return shape for subscription usage: either the four windows, or a short error message. */
+export type ClaudeUsageResult = ClaudeUsage | { error: string };
+
+/** One logged-in Claude subscription account. Several can be kept; one is in use. Never includes a token. */
+export interface ClaudeAccount {
+  /** The account's uuid from the login. */
+  id: string;
+  email?: string;
+  /** The account requests are sent with right now. */
+  active: boolean;
+  /** Its usage windows, read just now; `{ error }` when that account's query failed. */
+  usage: ClaudeUsageResult;
+}
+
+/** Usage-limit resets the subscription can still redeem (mirrors main/providers/claude-usage.ts). */
+export interface ClaudeResetCredit {
+  label: string;
+  resets_left: number;
+  starts_at?: string;
+  expires_at?: string;
+  /** The usage windows one reset clears. */
+  clears: string[];
+  percent_used: Record<string, number>;
+  blocking: string[] | null;
+  use_requires_limit: boolean;
+  redeemable: boolean;
+}
+export interface ClaudeResetCredits {
+  eligible: boolean;
+  available_count: number;
+  credits: ClaudeResetCredit[];
+  cooldown_until?: string;
+  weekly_resets_at?: string;
+  fetched_at: string;
+}
+export type ClaudeResetCreditsResult = ClaudeResetCredits | { error: string };
+
+/** ChatGPT subscription quota (mirrors main/providers/openai-codex.ts). */
+export interface CodexQuotaWindow {
+  /** 0–100. */
+  used_percent: number;
+  resets_at?: string;
+  /** Length of the window in seconds (18000 = 5 hours, 604800 = 7 days). */
+  window_seconds?: number;
+}
+export interface CodexQuotaLimit {
+  limit_reached: boolean;
+  primary?: CodexQuotaWindow;
+  secondary?: CodexQuotaWindow;
+}
+export interface CodexQuota extends CodexQuotaLimit {
+  plan_type?: string;
+  additional: ({ name: string } & CodexQuotaLimit)[];
+  fetched_at: string;
+}
+export type CodexQuotaResult = CodexQuota | { error: string };
+
+/** One logged-in ChatGPT subscription account. Several can be kept; one is in use. Never includes a token. */
+export interface OpenAIAccount {
+  /** The ChatGPT account id from the login. */
+  id: string;
+  email?: string;
+  plan_type?: string;
+  /** The account requests are sent with right now. */
+  active: boolean;
+  /** Its quota, read just now; `{ error }` when that account's query failed. */
+  usage: CodexQuotaResult;
 }
 
 /** How a provider authenticates. "login" exists for Claude only. */
@@ -1851,6 +2019,8 @@ export interface ProviderView {
   hasBalance: boolean;
   /** Claude only: whether an Anthropic account login is available. */
   login?: AnthropicLogin;
+  /** ChatGPT subscription sign-in status; independent of API-key inference readiness. */
+  openaiLogin?: OpenAILogin;
   /** More models this key can use, offered as group-chat members. */
   models: string[];
   /** Added by the user (can be renamed and removed). */
@@ -2281,7 +2451,7 @@ export type IslandState = (
   /** Claude Code / Codex sessions running in the terminal tabs. */
   | { kind: "cli"; providerId: string; sessions: AgentSessionView[] }
   /** A screenshot was taken: thumbnail (data URL) and a box for the question. */
-  | { kind: "shot"; providerId: string; image: string }
+  | { kind: "shot"; providerId: string; image: string; /** The image is also on the clipboard. */ copied?: boolean }
   /** The vision model is reading the screenshot. */
   | { kind: "shotThinking"; providerId: string; image: string; question: string }
   /** Its answer. */
@@ -2404,6 +2574,41 @@ export interface GroupSummary {
 
 export interface GroupChat extends GroupSummary {
   messages: GroupMessage[];
+  /** The division of work the group last settled on (main/group/plan.ts). */
+  plan?: GroupPlan;
+}
+
+/** One piece of a group's plan: who does what. */
+export interface GroupPlanTask {
+  id: string;
+  title: string;
+  /** Who does it, as send_to_agent names them: a model ("provider/model") or a terminal session (Claude-1). */
+  assignee: string;
+  /** What to do, written for someone who has not read the discussion. */
+  what: string;
+  /** Files or folders it may change (relative to the project); empty for read-only work. */
+  owns: string[];
+  /** Ids of the tasks that must finish first. */
+  after: string[];
+  /** How to tell it is done. */
+  accept: string;
+}
+
+/**
+ * What a group discussion settled: whether the idea works, and the division of work. Handed to the
+ * main conversation, which only hands the tasks out as written.
+ */
+export interface GroupPlan {
+  goal: string;
+  feasible: boolean;
+  /** The conclusion in a few sentences, with the reason when it is not feasible. */
+  summary: string;
+  tasks: GroupPlanTask[];
+  /** What the group did not agree on: the user decides these before any work starts. */
+  open: string[];
+  /** The member who wrote it up. */
+  by: string;
+  at: number;
 }
 
 /** Live updates while members reply. */
@@ -2411,6 +2616,7 @@ export type GroupEvent =
   | { type: "speaking"; groupId: string; memberId: string; messageId: string }
   | { type: "delta"; groupId: string; messageId: string; text: string }
   | { type: "message"; groupId: string; message: GroupMessage }
+  | { type: "plan"; groupId: string; plan: GroupPlan }
   | { type: "idle"; groupId: string };
 
 // ---- Automations: a state machine of steps, started by a schedule ----
@@ -2696,13 +2902,23 @@ export type BrowserEvent =
 export type PvKind = "promo" | "music";
 export type PvStep = "brief" | "script" | "storyboard" | "beats" | "assets" | "compose" | "render";
 export interface PvShot { id: string; seconds: number; framing: string; camera: string; visual: string; caption?: string; transition?: string; source: "code" | "file" | "screen" | "ai"; asset?: string }
-export interface PvProject { id: string; name: string; kind: PvKind; ratio: "16:9" | "9:16" | "1:1"; seconds: number; dir: string; steps: Record<PvStep, "todo" | "running" | "done" | "error">; updatedAt: number }
+export interface PvProject { id: string; name: string; kind: PvKind; ratio: "16:9" | "9:16" | "1:1"; seconds: number; dir: string; steps: Record<PvStep, "todo" | "running" | "done" | "error">; updatedAt: number; music?: string }
+export interface PvAsset { file: string; kind: "image" | "video" | "audio"; bytes: number; seconds?: number }
+export interface PvBeats { file: string; bpm: number; offset: number; beatsPerBar: number; duration: number; beats: number[]; bars: number[]; confidence: number }
 export interface PvStoryboard { shots: PvShot[] }
 export interface PvPack { id: string; name: string; kind: PvKind | "common"; entries: { id: string; title: string; body: string; steps: PvStep[] }[] }
 export interface PvFfmpegState { hint?: string; status: "missing" | "downloading" | "ready" | "error"; progress?: number; path?: string; error?: string }
 
 export interface SweetApi {
   pvList(root: string): Promise<PvProject[]>;
+  pvAssets(root: string, id: string): Promise<PvAsset[]>;
+  pvImportAssets(root: string, id: string): Promise<PvAsset[]>;
+  pvRemoveAsset(root: string, id: string, file: string): Promise<void>;
+  pvAssetUrl(root: string, id: string, file: string): Promise<string>;
+  pvSetMusic(root: string, id: string, file: string | null): Promise<PvProject>;
+  pvBeats(root: string, id: string): Promise<PvBeats | null>;
+  pvSetBeatGrid(root: string, id: string, grid: { bpm: number; offset: number; beatsPerBar: number }): Promise<PvBeats>;
+  pvSnapStoryboard(root: string, id: string, unit: "bar" | "beat"): Promise<PvStoryboard>;
   pvCreate(root: string, input: Pick<PvProject, "name" | "kind" | "ratio" | "seconds">): Promise<PvProject>;
   pvGet(root: string, id: string): Promise<PvProject | null>;
   pvRunStep(root: string, id: string, step: PvStep, note?: string): Promise<string>;
@@ -2739,6 +2955,39 @@ export interface SweetApi {
   listModels(id: string): Promise<string[]>;
   /** Cached generic discovery, falling back to static preset ids on failure. */
   providerDiscoverModels(providerId: string): Promise<string[]>;
+  /** Built-in Claude OAuth: build the browser authorization link (PKCE, 30min session). */
+  claudeOAuthGenerate(scope: ClaudeOAuthScope): Promise<ClaudeOAuthAuthUrl>;
+  /** Built-in Claude OAuth: exchange the pasted code for tokens and persist them. */
+  claudeOAuthExchange(input: { session_id: string; code: string }): Promise<ProvidersState>;
+  /** Built-in Claude OAuth: drop the stored OAuth token. */
+  claudeOAuthLogout(): Promise<ProvidersState>;
+  /** ChatGPT OAuth: PKCE browser link, manual paste only; no local callback listener. */
+  openaiOAuthGenerate(): Promise<OpenAIOAuthGenerateResult>;
+  /** Paste a code, code#state or the complete localhost callback URL. */
+  openaiOAuthExchange(input: OpenAIOAuthExchangeInput): Promise<ProvidersState>;
+  openaiOAuthLogout(): Promise<ProvidersState>;
+  /** Query the Claude subscription usage (four windows). Returns `{ error }` on failure, never throws. */
+  claudeUsage(): Promise<ClaudeUsageResult>;
+  /**
+   * Every logged-in Claude account with its usage. Adding one is the normal login
+   * (claudeOAuthGenerate / claudeOAuthExchange): the new account is kept beside the others and becomes active.
+   */
+  claudeAccounts(): Promise<ClaudeAccount[]>;
+  /** Use this account from now on. Throws while a chat turn is running. */
+  claudeAccountSwitch(id: string): Promise<ClaudeAccount[]>;
+  /** Log one account out. Removing the active one makes another active, if any is left. */
+  claudeAccountRemove(id: string): Promise<ClaudeAccount[]>;
+  claudeResetCredits(): Promise<ClaudeResetCreditsResult>;
+  openaiUsage(): Promise<CodexQuotaResult>;
+  /**
+   * Every logged-in ChatGPT account with its quota. Adding one is the normal login
+   * (openaiOAuthGenerate / openaiOAuthExchange): the new account is kept beside the others and becomes active.
+   */
+  openaiAccounts(): Promise<OpenAIAccount[]>;
+  /** Use this account from now on. Throws while a chat turn is running. */
+  openaiAccountSwitch(id: string): Promise<OpenAIAccount[]>;
+  /** Log one account out. Removing the active one makes another active, if any is left. */
+  openaiAccountRemove(id: string): Promise<OpenAIAccount[]>;
   /** Persist an individual built-in free provider switch. */
   setBuiltinFreeProviderEnabled(providerId: string, enabled: boolean): Promise<ProvidersState>;
   setVision(v: VisionSetting): Promise<ProvidersState>;
@@ -2967,6 +3216,15 @@ export interface SweetApi {
   resumeNow(id: string): Promise<ResumePlan[]>;
   onResumePlans(cb: (plans: ResumePlan[]) => void): () => void;
 
+  /** Super-resident mode: an endless learn-and-iterate loop on the subscription accounts. */
+  residentView(): Promise<ResidentView>;
+  setResidentSettings(s: ResidentSettings): Promise<ResidentView>;
+  residentStart(): Promise<ResidentView>;
+  residentStop(): Promise<ResidentView>;
+  /** Skip the cooldown or the quota wait and start a round now. */
+  residentRunNow(): Promise<ResidentView>;
+  onResident(cb: (v: ResidentView) => void): () => void;
+
   /** Simulated peer review (论文工坊 · 模拟审稿). Runs are kept per project. */
   reviewCandidates(): Promise<ReviewerModel[]>;
   reviewStart(req: ReviewRequest): Promise<ReviewRun>;
@@ -3147,6 +3405,10 @@ export interface SweetApi {
   groupSend(id: string, text: string, mentions: string[]): Promise<void>;
   /** Stop a group's replies; no id = every group that is talking. */
   groupStop(id?: string): Promise<void>;
+  /** A member writes up what the group settled as a plan with a division of work. */
+  groupFinalize(id: string, memberId?: string): Promise<GroupPlan>;
+  /** The settled plan as the message for the main conversation, which hands the tasks out as written. */
+  groupHandoff(id: string): Promise<{ text: string }>;
   /** The open project's automations (empty without a project). */
   automations(): Promise<AutomationView>;
   saveAutomation(a: AutomationInput): Promise<AutomationView>;
@@ -3193,6 +3455,9 @@ export interface SweetApi {
   /** The screenshot shortcut: its key combo and whether it is registered. */
   snipShortcut(): Promise<{ accelerator: string; enabled: boolean; error?: string }>;
   setSnipShortcut(enabled: boolean): Promise<{ accelerator: string; enabled: boolean; error?: string }>;
+  /** Whether a screenshot is also copied to the clipboard as an image. */
+  snipCopy(): Promise<boolean>;
+  setSnipCopy(on: boolean): Promise<boolean>;
   /** Which engine the AI's web search uses, and its keys (write-only). */
   webSearch(): Promise<WebSearchState>;
   setWebSearch(u: { engine?: WebSearchState["engine"]; tavilyKey?: string; braveKey?: string; clear?: "tavily" | "brave" }): Promise<WebSearchState>;
@@ -3258,4 +3523,138 @@ export interface SweetApi {
   toolboxPrefs(): Promise<AiToolboxPrefs>;
   toolboxSavePrefs(p: AiToolboxPrefs): Promise<void>;
   toolboxOpenUrl(siteId: string, q?: string): Promise<{ url: string; copied: boolean }>;
+}
+
+// ---- 图片提示词精选库 (main: image-prompts/service.ts) ----
+export type ImagePromptCategory = "portrait" | "poster" | "product" | "ui" | "infographic" | "illustration" | "character" | "photo" | "brand" | "space" | "edit" | "fun" | "other";
+export type ImagePromptLang = "zh" | "en" | "other";
+export type ImagePromptModel = "gpt-image-2" | "gpt-image-2.5" | "other";
+/** none: 来源库没有许可证；unclear: 许可声明自相矛盾；reserved: 来源明确不授权正文。 */
+export type ImagePromptLicense = "MIT" | "CC-BY-4.0" | "none" | "unclear" | "reserved";
+export type ImagePromptFlag = "real-person" | "ip" | "brand" | "suggestive";
+export interface ImagePromptStep { label?: string; text: string }
+/** 单步提示词就是 steps 长度为 1。 */
+export interface ImagePromptVariant { lang: ImagePromptLang; steps: ImagePromptStep[] }
+export interface ImagePromptCard {
+  id: string;
+  /** 展示标题：有中文用中文，否则英文。 */
+  title: string;
+  titleEn?: string;
+  /** 正文前 140 字，纯文本。 */
+  excerpt: string;
+  category: ImagePromptCategory;
+  tags: string[];
+  langs: ImagePromptLang[];
+  models: ImagePromptModel[];
+  /** 如 "3:4"。 */
+  ratio?: string;
+  needsReference: boolean;
+  multiStep: boolean;
+  author?: string;
+  /** ImagePromptSource.id */
+  source: string;
+  license: ImagePromptLicense;
+  /** 来源库转载或聚合的他人内容。 */
+  thirdParty: boolean;
+  flags: ImagePromptFlag[];
+  featured: boolean;
+  hasThumb: boolean;
+  thumbW?: number;
+  thumbH?: number;
+  favorite: boolean;
+}
+export interface ImagePromptDetail extends ImagePromptCard {
+  variants: ImagePromptVariant[];
+  /** 来源给出的精确模型名，如 "gpt-image-2.5-flare"。 */
+  modelExact?: string;
+  /** 像素尺寸，如 "1024x1536"。 */
+  size?: string;
+  /** 原帖链接，只会是 http/https。 */
+  sourceUrl?: string;
+  /** 许可要求的署名文字。 */
+  attribution?: string;
+  /** 去重时并入的其他来源 id。 */
+  alsoIn: string[];
+  /** 正文里有方括号占位内容，可以替换。 */
+  hasVars: boolean;
+}
+export interface ImagePromptSource { id: string; name: string; repoUrl: string; license: ImagePromptLicense; licenseNote?: string; attribution?: string; count: number }
+export interface ImagePromptQuery {
+  /** 搜标题、标签、作者、正文；最长 200 字。 */
+  q?: string;
+  category?: ImagePromptCategory;
+  model?: ImagePromptModel;
+  lang?: ImagePromptLang;
+  favoritesOnly?: boolean;
+  withImage?: boolean;
+  /** 默认 0。 */
+  offset?: number;
+  /** 默认 48，最大 96。 */
+  limit?: number;
+}
+export interface ImagePromptPage { items: ImagePromptCard[]; total: number; offset: number; nextOffset: number | null; dataset: string }
+export interface ImagePromptFacet<T extends string> { id: T; label: string; count: number }
+export interface ImagePromptMeta {
+  /** missing: 没有数据文件；invalid: 文件损坏、校验不过，或打包版遇到未筛选的数据集。 */
+  state: "ready" | "missing" | "invalid";
+  reason?: string;
+  dataset: string;
+  profile: "dev" | "release";
+  generatedAt: number;
+  total: number;
+  favorites: number;
+  categories: ImagePromptFacet<ImagePromptCategory>[];
+  models: ImagePromptFacet<ImagePromptModel>[];
+  langs: ImagePromptFacet<ImagePromptLang>[];
+  sources: ImagePromptSource[];
+}
+export interface ImagePromptCopyRequest { id: string; lang?: ImagePromptLang; /** 从 0 起；省略则复制全部步骤。 */ step?: number }
+export interface SweetApi {
+  imagePromptMeta(): Promise<ImagePromptMeta>;
+  imagePromptQuery(query: ImagePromptQuery): Promise<ImagePromptPage>;
+  imagePromptGet(id: string): Promise<ImagePromptDetail | null>;
+  /** 一次最多 24 个 id；返回 id → data:image/jpeg;base64,…，没有图的 id 不出现。 */
+  imagePromptThumbs(ids: string[]): Promise<Record<string, string>>;
+  imagePromptSetFavorite(id: string, on: boolean): Promise<{ id: string; favorite: boolean; count: number }>;
+  imagePromptCopy(request: ImagePromptCopyRequest): Promise<{ chars: number }>;
+}
+
+// ---- 外挂工坊 (game-cheat-workshop) ----
+// 面向游戏逆向 / 自建 lab / CTF / 学术复现的学习模板集合。
+// 主进程把 workshop 目录当只读资源：开发时读 workspace 下 `game-cheat-workshop/`，打包后读 `process.resourcesPath/cheatshop/`。
+export interface CheatshopFile {
+  /** 相对 workshop 根的 POSIX 路径，形如 "20-unity-il2cpp/hook_template.cpp"。 */
+  path: string;
+  /** basename，形如 "hook_template.cpp"。 */
+  name: string;
+  /** 扩展名小写，带点，形如 ".cpp" / ".md" / ".js"；没有扩展名时为空串。 */
+  ext: string;
+  /** 字节数。 */
+  size: number;
+}
+export interface CheatshopSection {
+  /** 相对 workshop 根的目录名，形如 "20-unity-il2cpp"。 */
+  dir: string;
+  /** 从目录名提取出的编号前缀，形如 "20"；没有编号则为空串。 */
+  order: string;
+  /** 展示标题：优先取该目录 README 的第一个 h1，缺省回落到目录名。 */
+  title: string;
+  /** 该目录（第一层）里的文件；不递归。 */
+  files: CheatshopFile[];
+}
+export interface CheatshopTree {
+  /** 开发模式下的 workshop 根绝对路径；打包后为 process.resourcesPath 子目录。给调试用，不要在界面上长期展示。 */
+  rootPath: string;
+  /** 根目录下的 README.md 相对路径，若不存在则为 null。 */
+  readme: string | null;
+  /** 根目录下的 INDEX.md 相对路径，若不存在则为 null。 */
+  index: string | null;
+  sections: CheatshopSection[];
+}
+export type CheatshopResult<T> = { ok: true; data: T } | { ok: false; message: string };
+export interface SweetApi {
+  /** 一次性拉取外挂工坊的目录结构。前端缓存首次结果即可。 */
+  cheatshopTree(): Promise<CheatshopResult<CheatshopTree>>;
+  /** 读取 workshop 根下的某个文件（文本）；拒绝越界路径。 */
+  cheatshopRead(path: string): Promise<CheatshopResult<{ text: string; ext: string; size: number }>>;
 }

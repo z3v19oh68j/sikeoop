@@ -36,7 +36,8 @@ test("路径越界和符号链接拒绝",()=>temp(async root=>{
 }));
 test("经验包按类型和步骤筛选",async()=>{
   const packs=await loadPacks(path.resolve("resources/pv-packs"));
-  assert.equal(packs.length,5);
+  assert.equal(packs.length,8);
+  assert.ok(packs.some(p=>p.kind==="music"));
   assert.match(packContext(packs,"promo","brief"),/痛点/);
   assert.doesNotMatch(packContext(packs,"music","brief"),/sikeoop/);
   assert.doesNotMatch(packContext(packs,"promo","assets"),/镜头/);
@@ -64,7 +65,7 @@ test("Remotion 模板比例、总帧数和项目依赖",()=>temp(async root=>{
  assert.match(files["src/index.tsx"],/durationInFrames=\{150\}/);
  assert.ok(JSON.parse(files["package.json"]).dependencies.remotion);
 }));
-test("模型步骤调度、产物和树归属，第二批明确拒绝",()=>temp(async root=>{
+test("模型步骤调度、产物和树归属",()=>temp(async root=>{
  const dispatcher=new Dispatcher({emit:()=>{}});
  const events:any[]=[];
  const ffmpeg=new FfmpegService({userData:root,platform:"win32",request:async()=>new Response(""),run:async()=>0,approve:async()=>false,plan:async()=>{throw Error("不用下载");}});
@@ -75,7 +76,6 @@ test("模型步骤调度、产物和树归属，第二批明确拒绝",()=>temp(
  await wait();assert.equal(await pv.store.read(root,p.id,"brief.md"),"立项说明");assert.ok(events.some(e=>e.status==="done"));
  const second=await pv.runStep(root,p.id,"script");
  assert.equal(dispatcher.jobs().find(j=>j.id===second)?.rootId,id);
- await assert.rejects(pv.runStep(root,p.id,"beats"),/第二批/);
  await pv.cancel(root,p.id);
  // Let completion persistence finish before fixture removal.
  await new Promise(r=>setTimeout(r,30));

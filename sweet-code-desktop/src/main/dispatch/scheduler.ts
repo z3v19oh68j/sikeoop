@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { mayOverlap } from "./guard.ts";
 import type { DispatchBudget, DispatchCheck, DispatchEvent, DispatchView, DispatchExecutorKind, DispatchJob, DispatchOrigin, DispatchProgress } from "@shared/types";
 
 // The dispatch core's scheduler: every "hand this to an agent" goes through here.
 // - one queue: a job waits until its executor is free (never typed into a busy session)
-// - a global cap on jobs running at once (a job started by a running job is exempt: its tree is
-//   already admitted, and holding it back could leave the parent waiting forever)
+// - a global cap, with at most one overflow child per active parent to avoid tree deadlocks
 // - jobs form trees; each tree has a budget, so two agents can't ping-pong forever
 // - cancelling a job cancels everything it started
 // - jobs may share a lane (a cross-project session's timeline): a lane runs one job at a time
@@ -68,8 +68,10 @@ export interface DispatcherOptions {
   /** Finished jobs kept for the console. */
   keep?: number;
   defaultTimeoutMs?: number;
-  /** How long a job may wait in the queue before it is given up as timed out (default an hour). */
+  /** How long its executor may continuously be unavailable (default an hour); scheduler backlog does not count. */
   queueTimeoutMs?: number;
+  /** Admission ownership policy; defaults to strict. */
+  conflict?: "strict" | "declared" | "off";
   /** Before a job runs. A "fail" check refuses it. */
   preflight?(job: DispatchJob, executor: Executor): Promise<DispatchCheck | null>;
   /** Acceptance around a run: `before` right before it starts, `after` once it has a result. */
@@ -81,6 +83,7 @@ export interface DispatcherOptions {
   };
 }
 
+const ACTIVE = new Set<DispatchJob["status"]>(["starting", "running", "waiting_approval"]);
 const FINISHED = new Set<DispatchJob["status"]>(["done", "failed", "cancelled", "timeout", "exited"]);
 /** An agent chain the user didn't start stays short; the user's own requests get room to fan out. */
 const DEFAULT_BUDGET: Record<DispatchOrigin, number> = {
@@ -100,6 +103,9 @@ interface Entry {
   /** Why it was aborted, once it was. */
   abortedFor?: "cancelled" | "timeout";
   lane?: string;
+  stuckSince?: number;
+  conflictWith?: string;
+  overCap?: boolean;
   resolve(job: DispatchJob): void;
 }
 
@@ -177,10 +183,11 @@ export class Dispatcher {
     const entry = this.entries.get(jobId);
     if (!entry || this.isQueued(entry) || entry.abortedFor) return;
     entry.job.progress = [...(entry.job.progress ?? []), progress].slice(-100);
+    const previous = entry.job.status;
     if (progress.type === "permission") entry.job.status = "waiting_approval";
     else if (progress.type === "status" && progress.text === "running") entry.job.status = "running";
     this.opts.emit({ type: "progress", jobId, progress });
-    this.changed(entry.job);
+    if (entry.job.status !== previous) this.changed(entry.job);
   }
 
   /** Cancel a job and every job it started, queued or running. */
@@ -210,7 +217,7 @@ export class Dispatcher {
     const live = [...this.entries.values()].filter((e) => e.job.executor.ref === ref);
     const e = live.find((x) => !this.isQueued(x)) ?? live.at(-1);
     if (!e) return undefined;
-    return { job: { ...e.job }, done: new Promise((r) => this.whenDone(e.job.id, r)) };
+    return { job: { ...e.job }, done: this.wait(e.job.id)! };
   }
 
   jobs(): DispatchJob[] {
@@ -275,22 +282,46 @@ export class Dispatcher {
     let running = [...this.entries.values()].filter((e) => !this.isQueued(e)).length;
     for (const id of [...this.queue]) {
       const e = this.entries.get(id)!;
-      // Its executor never came free (stuck waiting for the user, say): it doesn't wait for ever.
-      const waited = Date.now() - e.job.createdAt;
-      if (waited >= this.queueTimeoutMs) {
-        this.queue = this.queue.filter((q) => q !== id);
-        this.finish(e, "timeout", `排了 ${Math.round(waited / 60_000)} 分钟的队，一直没轮到 ${e.executor.name}`);
-        continue;
-      }
-      const parentRunning = !!e.job.parentId && this.entries.get(e.job.parentId)?.job.status === "running";
-      if (running >= this.maxRunning && !parentRunning) continue;
       if (!e.executor.alive()) {
         this.queue = this.queue.filter((q) => q !== id);
         this.finish(e, "exited", `${e.executor.name} 已经退出`);
         continue;
       }
-      if (this.current(e.executor.ref) || !e.executor.ready()) continue;
-      if (e.lane !== undefined && this.laneBusy(e.lane)) continue;
+      if (this.current(e.executor.ref)) {
+        e.stuckSince = undefined;
+        this.waiting(e, { reason: "own", detail: e.executor.name });
+        continue;
+      }
+      if (e.lane !== undefined && this.laneBusy(e.lane)) {
+        e.stuckSince = undefined;
+        this.waiting(e, { reason: "lane", detail: e.lane });
+        continue;
+      }
+      const conflict = this.conflicting(e);
+      if (conflict) {
+        e.stuckSince = undefined;
+        e.conflictWith ??= conflict.job.executor.name;
+        this.waiting(e, { reason: "conflict", detail: conflict.job.executor.name });
+        continue;
+      }
+      if (!e.executor.ready()) {
+        e.stuckSince ??= Date.now();
+        const waited = Date.now() - e.stuckSince;
+        if (waited >= this.queueTimeoutMs) {
+          this.queue = this.queue.filter((q) => q !== id);
+          this.finish(e, "timeout", `排了 ${Math.round(waited / 60_000)} 分钟的队，${e.executor.name} 一直没空出来，任务没有派出去`);
+        } else this.waiting(e, { reason: "executor", detail: e.executor.name });
+        continue;
+      }
+      e.stuckSince = undefined;
+      const parent = e.job.parentId ? this.entries.get(e.job.parentId) : undefined;
+      const mayOverflow = !!parent && ACTIVE.has(parent.job.status) && !this.siblingOverCap(parent.job.id);
+      if (running >= this.maxRunning && !mayOverflow) {
+        this.waiting(e, { reason: "cap" });
+        continue;
+      }
+      e.overCap = e.job.overCap = running >= this.maxRunning;
+      e.job.waiting = undefined;
       this.queue = this.queue.filter((q) => q !== id);
       running++;
       void this.start(e);
@@ -449,9 +480,13 @@ export class Dispatcher {
   private finish(e: Entry, status: DispatchJob["status"], error?: string, result?: DispatchJob["result"]): void {
     if (FINISHED.has(e.job.status)) return;
     e.job.status = status;
+    e.job.waiting = undefined;
     e.job.endedAt = Date.now();
     if (error) e.job.error = error;
     if (result) e.job.result = result;
+    if (e.conflictWith && e.job.result) {
+      e.job.result = { ...e.job.result, text: [e.job.result.text, `说明：因文件归属冲突，曾等待 ${e.conflictWith} 结束后再派发。`].filter(Boolean).join("\n") };
+    }
     this.entries.delete(e.job.id);
     this.finished.unshift({ ...e.job });
     this.finished.length = Math.min(this.finished.length, this.keep);
@@ -464,10 +499,48 @@ export class Dispatcher {
   }
 
   private readonly waiters = new Map<string, Set<(job: DispatchJob) => void>>();
-  private whenDone(id: string, cb: (job: DispatchJob) => void): void {
-    let set = this.waiters.get(id);
-    if (!set) this.waiters.set(id, (set = new Set()));
-    set.add(cb);
+  /** Await an active job or retrieve retained history; unknown ids are not waitable. */
+  wait(jobId: string): Promise<DispatchJob> | undefined {
+    const job = this.find(jobId);
+    if (!job) return undefined;
+    if (!this.entries.has(jobId)) return Promise.resolve({ ...job });
+    return new Promise((resolve) => {
+      let set = this.waiters.get(jobId);
+      if (!set) this.waiters.set(jobId, (set = new Set()));
+      set.add(resolve);
+    });
+  }
+
+  private waiting(e: Entry, waiting: DispatchJob["waiting"]): void {
+    if (e.job.waiting?.reason === waiting?.reason && e.job.waiting?.detail === waiting?.detail) return;
+    e.job.waiting = waiting;
+    this.changed(e.job);
+  }
+
+  private conflicting(e: Entry): Entry | undefined {
+    const mode = this.opts.conflict ?? "strict";
+    if (mode === "off") return undefined;
+    return [...this.entries.values()].find(o => {
+      if (this.isQueued(o) || o === e) return false;
+      if (mode === "declared" && (!e.job.scope?.owns?.length || !o.job.scope?.owns?.length)) return false;
+      if (this.isAncestor(o.job.id, e.job) || this.isAncestor(e.job.id, o.job)) return false;
+      return mayOverlap(e.job, o.job);
+    });
+  }
+
+  private isAncestor(id: string, job: DispatchJob): boolean {
+    const seen = new Set<string>();
+    let parentId = job.parentId;
+    while (parentId && !seen.has(parentId)) {
+      if (parentId === id) return true;
+      seen.add(parentId);
+      parentId = this.find(parentId)?.parentId;
+    }
+    return false;
+  }
+
+  private siblingOverCap(parentId: string): boolean {
+    return [...this.entries.values()].some(e => e.job.parentId === parentId && !this.isQueued(e) && e.overCap);
   }
 
   /** Every job started from this one, directly or not. Followed through jobs that have already finished. */

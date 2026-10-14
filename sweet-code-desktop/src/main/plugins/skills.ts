@@ -49,6 +49,35 @@ export const BUILTIN_SOURCE = "sikeoop 内置";
 const LEGACY_BUILTIN_SOURCE = "甜心代码屋内置";
 const isBuiltin = (source: string) => source === BUILTIN_SOURCE || source === LEGACY_BUILTIN_SOURCE;
 
+/**
+ * 强制预设 · hack 专用模块。名单里的技能：
+ * - 随 App 内置（hack-preset 总入口）或开机从 opencode 技能目录自动导入（zhenxin-* 链）；
+ * - 永远启用：不能关闭、不能删除，syncBuiltin 总是重装并启用；
+ * - 在对话开头的 skills 列表里单独置顶。
+ */
+export const FORCED_SOURCE = "强制预设 · hack专用";
+export const FORCED_SKILL_NAMES = [
+  "hack-preset",
+  "zhenxin-recon",
+  "zhenxin-web-attack",
+  "zhenxin-exploit-dev",
+  "zhenxin-windows-ad",
+  "zhenxin-linux-privesc",
+  "zhenxin-mobile-attack",
+  "zhenxin-reverse",
+  "zhenxin-evasion",
+  "zhenxin-phishing",
+  "zhenxin-mitm",
+  "zhenxin-brute-crack",
+  "zhenxin-cloud-attack",
+  "zhenxin-exfiltration",
+  "zhenxin-framework",
+  "zhenxin-lab-env",
+  "zhenxin-methodology",
+  "zhenxin-vuln-db",
+];
+export const isForcedSkill = (name: string) => FORCED_SKILL_NAMES.includes(name);
+
 type Files = Map<string, Uint8Array>;
 
 interface Meta {
@@ -57,6 +86,8 @@ interface Meta {
   source: string;
   enabled: boolean;
   installedAt: number;
+  /** 强制预设标记：为 true 时拒绝关闭与删除。 */
+  forced?: boolean;
 }
 
 interface Prepared extends Omit<SkillCandidate, "audit"> {
@@ -97,14 +128,16 @@ export class SkillStore {
         const { data } = splitFrontmatter(md);
         const meta = await this.meta(name);
         const files = await walk(dir);
+        const forced = meta.forced === true || isForcedSkill(name);
         out.push({
           name,
           description: String(data.description ?? ""),
           format: meta.format,
           origin: meta.origin,
           source: meta.source,
-          enabled: meta.enabled,
+          enabled: forced ? true : meta.enabled,
           builtin: isBuiltin(meta.source),
+          forced,
           files: files.filter((f) => f !== META).length,
           hasScripts: files.some(isScript),
         });
@@ -116,31 +149,82 @@ export class SkillStore {
   }
 
   /** Enabled skills for the agent: what to list in the conversation and where each one lives. */
-  async enabled(): Promise<{ name: string; description: string; dir: string }[]> {
-    return (await this.list()).filter((s) => s.enabled).map((s) => ({ ...s, dir: path.join(this.root, s.name) }));
+  async enabled(): Promise<{ name: string; description: string; dir: string; forced: boolean }[]> {
+    return (await this.list()).filter((s) => s.enabled).map((s) => ({ name: s.name, description: s.description, dir: path.join(this.root, s.name), forced: s.forced }));
   }
 
   dirOf(name: string): string {
-    if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new Error(`Unknown skill: ${name}`);
-    return path.join(this.root, name);
+    // Installed folders may have Unicode names; only accept a single, non-hidden component.
+    if (typeof name !== "string" || !name || name.startsWith(".") || /[/\\\p{Cc}]/u.test(name))
+      throw new Error(`Unknown skill: ${name}`);
+    const root = path.resolve(this.root);
+    const dir = path.resolve(path.join(root, name));
+    const relative = path.relative(root, dir);
+    if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative))
+      throw new Error(`Unknown skill: ${name}`);
+    return dir;
   }
 
   private async meta(name: string): Promise<Meta> {
     try {
       return JSON.parse(await fs.readFile(path.join(this.root, name, META), "utf8")) as Meta;
     } catch {
-      // Skills copied in by hand: treat as standard and enabled.
-      return { format: "standard", origin: "标准 Skill", source: "本地", enabled: true, installedAt: 0 };
+      // Skills copied in by hand were never reviewed: standard, and off until the user turns them on.
+      // (Built-in and installed skills always have a meta file, so this is never one of them.)
+      return { format: "standard", origin: "标准 Skill", source: "本地", enabled: false, installedAt: 0 };
     }
   }
 
   async setEnabled(name: string, enabled: boolean): Promise<void> {
+    if (!enabled && (isForcedSkill(name) || (await this.meta(name)).forced === true)) {
+      throw new Error(`「${name}」是强制预设 · hack专用模块，不能关闭`);
+    }
     const meta = { ...(await this.meta(name)), enabled };
     await fs.writeFile(path.join(this.dirOf(name), META), JSON.stringify(meta, null, 2));
   }
 
   async remove(name: string): Promise<void> {
+    if (isForcedSkill(name) || (await this.meta(name)).forced === true) {
+      throw new Error(`「${name}」是强制预设 · hack专用模块，不能删除`);
+    }
     await fs.rm(this.dirOf(name), { recursive: true, force: true });
+  }
+
+  /**
+   * 把外部目录（如 ~/.config/opencode/skills/zhenxin-*）原样导入为强制预设技能。
+   * 只读外部目录、不写外部；安装时跳过安全审核（用户已明确把该系列设为强制预设）。
+   * 已存在的同名强制技能会被覆盖为外部最新内容；用户自改的同名非强制技能不会被碰。
+   */
+  async importForced(externalDir: string, name: string): Promise<boolean> {
+    const mdPath = path.join(externalDir, "SKILL.md");
+    let md: string;
+    try {
+      md = await fs.readFile(mdPath, "utf8");
+    } catch {
+      return false;
+    }
+    const { data } = splitFrontmatter(md);
+    if (typeof data.name === "string" && data.name !== name) return false;
+    const dir = this.dirOf(name);
+    const exists = await fs.stat(path.join(dir, "SKILL.md")).then(() => true, () => false);
+    if (exists) {
+      const meta = await this.meta(name);
+      if (!isForcedSkill(name) && meta.forced !== true && !isBuiltin(meta.source)) return false;
+    }
+    const files = await walk(externalDir);
+    await fs.rm(dir, { recursive: true, force: true });
+    for (const rel of files) {
+      if (/(^|\/)(\.git|node_modules)\//.test(rel)) continue;
+      const abs = path.join(externalDir, rel);
+      if ((await fs.stat(abs)).size > MAX_FILE_BYTES) continue;
+      const target = path.join(dir, rel);
+      if (!target.startsWith(dir + path.sep)) continue;
+      await fs.mkdir(path.dirname(target), { recursive: true });
+      await fs.writeFile(target, await fs.readFile(abs));
+    }
+    const meta: Meta = { format: "standard", origin: "标准 Skill", source: FORCED_SOURCE, enabled: true, installedAt: Date.now(), forced: true };
+    await fs.writeFile(path.join(dir, META), JSON.stringify(meta, null, 2));
+    return true;
   }
 
   // ---- built-in skills -------------------------------------------------------
@@ -163,16 +247,18 @@ export class SkillStore {
       const dir = this.dirOf(skill.name);
       const hash = hashFiles(skill.files);
       const exists = await fs.stat(path.join(dir, "SKILL.md")).then(() => true, () => false);
+      const forced = isForcedSkill(skill.name);
       let enabled = true;
       if (!exists) {
-        if (record[skill.name] && !restore) continue; // the user removed it
+        // 强制预设被删掉也会重装；普通内置技能默认不打扰用户。
+        if (record[skill.name] && !restore && !forced) continue;
       } else {
         const meta = await this.meta(skill.name);
         if (!isBuiltin(meta.source) || record[skill.name] === hash) continue;
         const current = new Map<string, Uint8Array>();
         for (const rel of await walk(dir)) if (rel !== META) current.set(rel, await fs.readFile(path.join(dir, rel)));
         if (hashFiles(current) !== record[skill.name]) continue; // the user edited it
-        enabled = meta.enabled;
+        enabled = forced ? true : meta.enabled;
       }
       await fs.rm(dir, { recursive: true, force: true });
       for (const [rel, bytes] of skill.files) {
@@ -180,7 +266,7 @@ export class SkillStore {
         await fs.mkdir(path.dirname(target), { recursive: true });
         await fs.writeFile(target, bytes);
       }
-      const meta: Meta = { format: "standard", origin: "内置技能", source: BUILTIN_SOURCE, enabled, installedAt: Date.now() };
+      const meta: Meta = { format: "standard", origin: "内置技能", source: forced ? FORCED_SOURCE : BUILTIN_SOURCE, enabled, installedAt: Date.now(), ...(forced ? { forced: true as const } : {}) };
       await fs.writeFile(path.join(dir, META), JSON.stringify(meta, null, 2));
       record[skill.name] = hash;
     }

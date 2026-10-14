@@ -1,0 +1,123 @@
+{
+  "301b91b77da8f7a1": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "658307a812e38d48": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "99ea332f94692cfd": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "a4aa6b89e7f26dd2": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "b3e9f40c0cd52460": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "6b6b53d0abf16e12": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "28434b65d9789611": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "e0676a77b829f1d2": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "0c64c604c007dcc9": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "58d142c0b52eb549": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "d1a6f011c053e4df": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "620b8814a2138509": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "bafbf6af17afd80a": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "abeff6b684e30afd": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "22d3dcf9c8b3b706": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "af29f96e4b0a232a": {
+    "flags": [
+      "suggestive"
+    ]
+  },
+  "7ebda8345287b565": {
+    "exclude": true
+  },
+  "6ed27973ce84f121": {
+    "exclude": true
+  },
+  "9bab338aa68c4104": {
+    "exclude": true
+  },
+  "d11662e21ba29fcb": {
+    "exclude": true
+  },
+  "d3def95ae321b8d3": {
+    "exclude": true
+  },
+  "ae9eacb86de4a9a3": {
+    "removeFlags": [
+      "brand"
+    ]
+  },
+  "4a318f04aeff1dc0": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "0b7b7333f3525d4e": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "525771f4a078cf0f": {
+    "flags": [
+      "real-person"
+    ]
+  },
+  "50493f851cbbf20c": {
+    "exclude": true
+  },
+  "e600ee81be448523": {
+    "exclude": true
+  }
+}

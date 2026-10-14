@@ -1,27 +1,163 @@
+import { FullClaudeCodeMimicryBetas, NormalizeModelID } from "./claude-mimic.ts";
 import Anthropic from "@anthropic-ai/sdk";
+import type { BetaMessageStreamParams } from "@anthropic-ai/sdk/resources/beta/messages/messages";
 import type { Effort } from "@shared/types";
 import type { HistoryEntry, ModelAdapter, StepHandlers, StepOptions, StepResult, ToolDef, ToolResult, Trimmed } from "./types";
 import { supportsClaudeEffort, supportsMessageEffort } from "./effort.ts";
 
 const MAX_TOKENS = 64000;
+const CLAUDE55_LOGIN_MAX_TOKENS = 128000;
 
-/** Models that take an effort change as a system message, which keeps the prompt cache. */
+type WireObject = Record<string, unknown>;
+const isWireObject = (value: unknown): value is WireObject => value !== null && typeof value === "object" && !Array.isArray(value);
+
+type ThinkingProtocol = "strict" | "passback" | "unknown";
+export function resolveThinkingProtocol(model: string): ThinkingProtocol {
+  const id = model.toLowerCase();
+  if (/^(deepseek-|kimi-|moonshot-|glm-|minimax-m)/.test(id) || id === "k3" || id === "k3-256k" ||
+      (/^qwen[234]?-/.test(id) && id.includes("-thinking"))) return "passback";
+  return /^(claude-|opus-|sonnet-|haiku-)/.test(id) ? "strict" : "unknown";
+}
+
+function isClaude55SignedThinkingModel(model: string): boolean {
+  let id = model.trim().toLowerCase().replace(/^models\//, "");
+  const slash = id.indexOf("/");
+  if (slash >= 0) id = id.slice(slash + 1).trim().replace(/^models\//, "");
+  for (const prefix of ["us.", "eu.", "apac.", "jp.", "au.", "us-gov.", "global."])
+    if (id.startsWith(prefix)) id = id.slice(prefix.length);
+  id = id.replace(/^anthropic\./, "").replace(/-thinking$/, "");
+  id = id.replace(/^claude-(opus|sonnet)-5\.5$/, "claude-$1-5-5").replace(/-\p{Nd}{8}$/u, "");
+  return id === "claude-opus-5-5" || id === "claude-sonnet-5-5";
+}
+
+function mapMessageContent<T extends object>(params: T, transform: (content: unknown[], role: unknown) => unknown[]): T {
+  const body = params as WireObject;
+  if (!Array.isArray(body.messages)) return params;
+  let changed = false;
+  const messages = body.messages.map(message => {
+    if (!isWireObject(message) || !Array.isArray(message.content)) return message;
+    const content = transform(message.content, message.role);
+    if (content === message.content) return message;
+    changed = true;
+    return { ...message, content };
+  });
+  return changed ? { ...params, messages } as T : params;
+}
+
+function stripEmptyTextBlocksFromSlice(blocks: unknown[]): unknown[] {
+  let changed = false;
+  const cleaned = blocks.flatMap(block => {
+    if (!isWireObject(block)) return [block];
+    if (block.type === "text" && (typeof block.text !== "string" || block.text === "")) {
+      changed = true;
+      return [];
+    }
+    if (block.type === "tool_result" && Array.isArray(block.content)) {
+      const content = stripEmptyTextBlocksFromSlice(block.content);
+      if (content !== block.content) {
+        changed = true;
+        return [{ ...block, content }];
+      }
+    }
+    return [block];
+  });
+  return changed ? cleaned : blocks;
+}
+
+export function stripEmptyTextBlocks<T extends object>(params: T): T {
+  return mapMessageContent(params, stripEmptyTextBlocksFromSlice);
+}
+
+const removedContent = (role: unknown): unknown[] => [{ type: "text", text: role === "assistant" ? "(assistant content removed)" : "(content removed)" }];
+
+export function filterWebSearchHistoryBlocks<T extends object>(params: T, model: string): T {
+  const stripAll = resolveThinkingProtocol(model) === "passback";
+  return mapMessageContent(params, (content, role) => {
+    const cleaned = content.filter(block => {
+      if (!isWireObject(block)) return true;
+      const id = block.type === "server_tool_use" ? block.id : block.type === "web_search_tool_result" ? block.tool_use_id : undefined;
+      if (block.type !== "server_tool_use" && block.type !== "web_search_tool_result") return true;
+      return !stripAll && !(typeof id === "string" && id.startsWith("srvtoolu_ws_"));
+    });
+    return cleaned.length === content.length ? content : cleaned.length ? cleaned : removedContent(role);
+  });
+}
+
+function isThinkingBlock(block: unknown): block is WireObject {
+  if (!isWireObject(block)) return false;
+  const type = typeof block.type === "string" ? block.type : "";
+  return type === "thinking" || type === "redacted_thinking" || (type === "" && Object.hasOwn(block, "thinking"));
+}
+
+export function filterThinkingBlocks<T extends object>(params: T, model: string): T {
+  if (resolveThinkingProtocol(model) !== "strict") return params;
+  const alwaysThinking = isClaude55SignedThinkingModel(model);
+  const thinking = (params as WireObject).thinking;
+  const enabled = alwaysThinking || (isWireObject(thinking) && (thinking.type === "enabled" || thinking.type === "adaptive"));
+  const filtered = mapMessageContent(params, (content, role) => {
+    const cleaned = content.filter(block => {
+      if (!isThinkingBlock(block)) return true;
+      if (!enabled || role !== "assistant") return false;
+      if (alwaysThinking && block.type === "redacted_thinking" && typeof block.data === "string" && block.data !== "") return true;
+      return (block.type === "thinking" || block.type === "redacted_thinking") && typeof block.signature === "string" &&
+        block.signature !== "" && block.signature !== "skip_thought_signature_validator";
+    });
+    return cleaned.length === content.length ? content : cleaned;
+  });
+  if (!alwaysThinking || filtered === params) return filtered;
+  // 5.5 requires a complete signed history: one invalid block invalidates all thinking in all turns.
+  return mapMessageContent(filtered, (content, role) => {
+    const cleaned = content.filter(block => !isThinkingBlock(block));
+    return !cleaned.length ? removedContent(role) : cleaned.length === content.length ? content : cleaned;
+  });
+}
+
+/** Forward's ordering, before beta/body symmetry. All transformations are copy-on-write. */
+export function prefilterAnthropicParams<T extends object>(params: T, model: string): T {
+  return filterThinkingBlocks(filterWebSearchHistoryBlocks(stripEmptyTextBlocks(params), model), model);
+}
+
+function messageHasBody(content: unknown): boolean {
+  if (content == null || content === "") return false;
+  if (!Array.isArray(content)) return true;
+  return content.some(block => !isWireObject(block) || block.type !== "text" || (typeof block.text === "string" && block.text !== ""));
+}
+
+/** sub2api's beta/body symmetry, on SDK objects. Top-level thinking and effort are not beta-gated. */
+export function sanitizeAnthropicBodyForBetaTokens<T extends object>(params: T, finalBetas: readonly string[]): T {
+  const betas = new Set(finalBetas.flatMap(beta => beta.split(",").map(token => token.trim())));
+  const body = { ...params } as WireObject;
+  if (!betas.has("context-management-2025-06-27")) delete body.context_management;
+  if (!betas.has("thinking-binding-controls-2026-08-01") && isWireObject(body.thinking) && Object.hasOwn(body.thinking, "block_binding")) {
+    body.thinking = { ...body.thinking };
+    delete (body.thinking as WireObject).block_binding;
+  }
+  if (!betas.has("server-side-fallback-2026-07-01")) delete body.fallbacks;
+  if (!["server-side-fallback-2026-07-01", "fallback-credit-2026-07-01", "fallback-credit-2026-06-01"].some(beta => betas.has(beta)))
+    delete body.fallback_credit_token;
+  if (!betas.has("mid-conversation-output-config-2026-07-01") && Array.isArray(body.messages)) {
+    body.messages = body.messages.flatMap(message => {
+      if (!isWireObject(message) || !Object.hasOwn(message, "output_config")) return [message];
+      if (message.role === "system" && !messageHasBody(message.content)) return [];
+      const cleaned = { ...message };
+      delete cleaned.output_config;
+      return [cleaned];
+    });
+  }
+  return body as T;
+}
 
 /**
- * Long conversations stay within the context window through two server-side
- * edits. Neither counts as editing the history, so the cached prefix and
- * Claude's thinking blocks stay valid:
- *  - clear old tool results (file contents, command output) once the input is large,
- *    keeping the most recent ones, and only when enough can be cleared to be worth
- *    the cache reset;
- *  - if it still grows, summarize everything so far into a compaction block.
+ * Long conversations stay within the context window through a server-side
+ * edit. It does not count as editing the history, so the cached prefix and
+ * Claude's thinking blocks stay valid: clear old tool results (file contents,
+ * command output) once the input is large, keeping the most recent ones, and
+ * only when enough can be cleared to be worth the cache reset.
+ * (Server-side auto-compaction is intentionally not configured: the OAuth
+ * endpoint only accepts clear_thinking/clear_tool_uses edits and rejects
+ * compact_20260112 with a 400. Overflow past the working window falls back
+ * to the local compression sub-agent in loop.ts compactNow.)
  */
-const COMPACTION_INSTRUCTIONS =
-  "Write the summary in the same language the user writes in. Keep: what the user is trying to build and their " +
-  "preferences; every file that was created or changed and what changed in it; commands that were run and what " +
-  "they showed; what was tried and did not work; decisions and open questions; and what the next step was. " +
-  "Keep file paths and exact identifiers. Write the summary as text only; do not call any tools.";
-
 const CONTEXT_MANAGEMENT: Anthropic.Beta.BetaContextManagementConfig = {
   edits: [
     {
@@ -30,9 +166,12 @@ const CONTEXT_MANAGEMENT: Anthropic.Beta.BetaContextManagementConfig = {
       keep: { type: "tool_uses", value: 5 },
       clear_at_least: { type: "input_tokens", value: 20_000 },
     },
-    // The same 200K working window as every other provider (there, the compression sub-agent does it).
-    { type: "compact_20260112", trigger: { type: "input_tokens", value: 200_000 }, instructions: COMPACTION_INSTRUCTIONS },
   ],
+};
+
+/** OAuth 5.5 wire keeps all signed thinking rather than clearing old tool uses. */
+const CLAUDE55_LOGIN_CONTEXT_MANAGEMENT: Anthropic.Beta.BetaContextManagementConfig = {
+  edits: [{ type: "clear_thinking_20251015", keep: "all" }],
 };
 
 interface SavedState {
@@ -84,6 +223,7 @@ export class AnthropicAdapter implements ModelAdapter {
   private readonly tools: Anthropic.Beta.BetaTool[];
   private readonly system: Anthropic.Beta.BetaTextBlockParam[];
   private readonly model: string;
+  private readonly upstreamModel: string;
   /** Claude Haiku 4.5 predates adaptive thinking, effort, and compaction. */
   private readonly legacy: boolean;
   private readonly perMessageEffort: boolean;
@@ -98,6 +238,8 @@ export class AnthropicAdapter implements ModelAdapter {
 
   /** Authenticated through an Anthropic account login rather than an API key. */
   private readonly login: boolean;
+  /** Capture the same mode chosen when the client is built; sanitize against its final wire betas. */
+  private readonly mimicBetas: boolean;
   /**
    * Set for Anthropic-compatible services: only the plain Messages API, thinking switched on or
    * off with {type}, and compaction done here by summarizing (no betas, no context_management).
@@ -114,7 +256,9 @@ export class AnthropicAdapter implements ModelAdapter {
     this.client = opts.client;
     this.login = opts.login;
     this.compat = opts.compat ?? null;
+    this.mimicBetas = opts.login && !this.compat && process.env.SIKEOOP_ANTHROPIC_DIRECT !== "1";
     this.model = opts.model;
+    this.upstreamModel = opts.login && !this.compat ? NormalizeModelID(opts.model) : opts.model;
     this.legacy = opts.model.startsWith("claude-haiku-4-5");
     this.supportsEffort = !this.compat && supportsClaudeEffort(opts.model);
     this.perMessageEffort = !this.compat && supportsMessageEffort(opts.model);
@@ -212,32 +356,32 @@ export class AnthropicAdapter implements ModelAdapter {
   async step(opts: StepOptions, h: StepHandlers): Promise<StepResult> {
     if (this.compat) return this.stepCompat(opts, h);
     const { signal } = opts;
-    const betas: Anthropic.Beta.AnthropicBeta[] = ["server-side-fallback-2026-07-01"];
-    if (!this.legacy) betas.push("context-management-2025-06-27", "compact-2026-01-12");
-    if (this.perMessageEffort) betas.push("mid-conversation-output-config-2026-07-01");
+    const login55 = this.login && isClaude55SignedThinkingModel(this.upstreamModel);
+    const requestedBetas: Anthropic.Beta.AnthropicBeta[] = ["server-side-fallback-2026-07-01"];
+    if (!this.legacy) requestedBetas.push("context-management-2025-06-27");
+    if (this.perMessageEffort) requestedBetas.push("mid-conversation-output-config-2026-07-01");
+    const betas = this.mimicBetas ? FullClaudeCodeMimicryBetas() : requestedBetas;
 
-    const stream = this.client.beta.messages.stream(
-      {
-        model: this.model,
-        max_tokens: MAX_TOKENS,
+    const params: BetaMessageStreamParams = {
+        model: this.upstreamModel,
+        max_tokens: login55 ? CLAUDE55_LOGIN_MAX_TOKENS : MAX_TOKENS,
         ...(this.legacy
           ? {}
           : {
-              thinking: { type: "adaptive", display: "summarized" } as const,
+              thinking: { type: "adaptive", display: login55 ? "omitted" : "summarized" } as const,
               ...(this.supportsEffort ? { output_config: { effort: this.topEffort ?? opts.effort } } : {}),
-              context_management: CONTEXT_MANAGEMENT,
+              context_management: login55 ? CLAUDE55_LOGIN_CONTEXT_MANAGEMENT : CONTEXT_MANAGEMENT,
             }),
         system: this.system,
         tools: this.tools,
         messages: this.messages,
-        // Caches the growing conversation tail; the system block carries its own breakpoint.
-        cache_control: { type: "ephemeral" },
+        // OAuth 5.5 omits the top-level cache control; retain the system block breakpoint.
+        ...(login55 ? {} : { cache_control: { type: "ephemeral" } as const }),
         betas,
-        // On a safety decline, let the API retry on its recommended fallback model.
-        fallbacks: "default",
-      },
-      { signal },
-    );
+        // OAuth 5.5 has no fallback field, even when the selected betas support it.
+        ...(login55 ? {} : { fallbacks: "default" as const }),
+      };
+    const stream = this.client.beta.messages.stream(sanitizeAnthropicBodyForBetaTokens(prefilterAnthropicParams(params, this.upstreamModel), betas), { signal });
     stream.on("thinking", (d) => h.onThinking(d));
     stream.on("text", (d) => h.onText(d));
     streamToolCalls(stream, h);
@@ -271,18 +415,16 @@ export class AnthropicAdapter implements ModelAdapter {
 
   /** One request to an Anthropic-compatible service, with only the parameters it documents. */
   private async stepCompat({ signal }: StepOptions, h: StepHandlers): Promise<StepResult> {
-    const stream = this.client.messages.stream(
-      {
-        model: this.model,
+    const params = {
+        model: this.upstreamModel,
         max_tokens: compatMaxTokens(this.model),
         system: this.system as Anthropic.TextBlockParam[],
         tools: this.tools as Anthropic.Tool[],
         messages: this.messages as Anthropic.MessageParam[],
         // "快速" turns thinking off; normal and deep think. No budget: the service decides how long.
         thinking: { type: this.currentEffort === "low" ? "disabled" : "enabled" },
-      } as unknown as Anthropic.MessageStreamParams,
-      { signal },
-    );
+      } as unknown as Anthropic.MessageStreamParams;
+    const stream = this.client.messages.stream(sanitizeAnthropicBodyForBetaTokens(prefilterAnthropicParams(params, this.upstreamModel), []), { signal });
     stream.on("thinking", (d) => h.onThinking(d));
     stream.on("text", (d) => h.onText(d));
     streamToolCalls(stream, h);

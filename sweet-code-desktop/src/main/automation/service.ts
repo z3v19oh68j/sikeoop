@@ -509,7 +509,7 @@ function sanitize(input: AutomationInput): Omit<Automation, "id" | "createdAt" |
   const schedule = cleanSchedule(input.schedule);
   const problem = scheduleProblem(schedule);
   if (problem) throw new Error(problem);
-  const effort: Effort = input.effort === "low" || input.effort === "high" ? input.effort : "medium";
+  const effort: Effort = input.effort === "medium" || input.effort === "high" ? input.effort : "low";
   return { name, enabled: input.enabled === true, schedule, start, states, effort };
 }
 

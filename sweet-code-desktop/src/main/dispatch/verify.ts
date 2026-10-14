@@ -70,13 +70,18 @@ export function diffSnapshots(before: Snapshot, after: Snapshot): { added: strin
  * Type errors as keys that survive line shifts: file + code + message, without line:col.
  * Understands tsc's "file(line,col): error TSxxxx: msg" and "file:line:col - error TSxxxx: msg".
  */
-export function typeErrors(output: string): Set<string> {
-  const keys = new Set<string>();
+/** Parse stable error keys together with files resolved relative to the checked project. */
+export function typeErrorList(output: string, cwd: string = process.cwd()): { key: string; file: string }[] {
+  const errors: { key: string; file: string }[] = [];
   for (const line of output.split("\n")) {
     const m = /^(.+?)(?:\(\d+,\d+\)|:\d+:\d+)\s*[:-]\s*error (TS\d+): (.*)$/.exec(line.trim());
-    if (m) keys.add(`${m[1]} ${m[2]}: ${m[3].trim()}`);
+    if (m) errors.push({ key: `${m[1]} ${m[2]}: ${m[3].trim()}`, file: path.resolve(cwd, m[1]) });
   }
-  return keys;
+  return errors;
+}
+
+export function typeErrors(output: string): Set<string> {
+  return new Set(typeErrorList(output).map((e) => e.key));
 }
 
 /** Paths a report mentions that look like files of the job (with a folder and an extension). */
@@ -104,6 +109,8 @@ export class Verifier {
   /** Last typecheck per root + command, reused while nothing in the folders changed. */
   private readonly cache = new Map<string, { sig: string; errors: Set<string> }>();
   private readonly run: CommandRunner;
+  private readonly inflight = new Map<string, Promise<Set<string> | null>>();
+  private readonly serial = new Map<string, Promise<Set<string> | null>>();
   /** Jobs between `before` and `end`, each with the jobs that were going at some point while it was. */
   private readonly active = new Map<string, { job: DispatchJob; meanwhile: Map<string, DispatchJob> }>();
 
@@ -130,6 +137,12 @@ export class Verifier {
     if (!roots.length) return [];
     const checks: DispatchCheck[] = [];
     const snap = await snapshot(roots);
+    const writers = [...(this.active.get(job.id)?.meanwhile.values() ?? [])].filter(
+      (other) => !other.scope?.readOnly && other.scope?.roots.some(
+        (r) => roots.some((root) => isInside(root, r) || isInside(r, root)),
+      ),
+    );
+    const ownChanges = new Set<string>();
     const rel = (abs: string) => path.relative(roots[0], abs) || abs;
 
     if (!state.snap || !snap) {
@@ -139,6 +152,7 @@ export class Verifier {
       job.result ??= { text: "" };
       job.result.files = { changed: d.changed.map(rel), created: d.added.map(rel), deleted: d.removed.map(rel) };
       const touched = [...d.added, ...d.changed, ...d.removed];
+      for (const file of touched) if (!writeViolation(job, file)) ownChanges.add(file);
       const lines = [...d.added.map((f) => `新建 ${rel(f)}`), ...d.changed.map((f) => `修改 ${rel(f)}`), ...d.removed.map((f) => `删除 ${rel(f)}`)];
       checks.push({
         kind: "files",
@@ -148,7 +162,7 @@ export class Verifier {
       });
       if (job.scope?.owns?.length) {
         // A file another job may write, changed while that job was going, is not held against this one.
-        const others = [...(this.active.get(job.id)?.meanwhile.values() ?? [])];
+        const others = writers;
         const theirs = (f: string) => others.filter((o) => o.scope?.roots.length && !writeViolation(o, f));
         const outside = touched.filter((f) => writeViolation(job, f));
         const unexplained = outside.filter((f) => !theirs(f).length);
@@ -175,12 +189,22 @@ export class Verifier {
       const now = baseline && (await this.typecheck(job.verify.typecheck, roots[0], snap, signal));
       if (baseline && now) {
         const added = [...now].filter((e) => !baseline.has(e));
+        const mine = writers.length ? added.filter((e) => {
+          const file = /^(.*) TS\d+: /.exec(e)?.[1];
+          return file !== undefined && ownChanges.has(path.resolve(roots[0], file));
+        }) : added;
+        const other = added.filter((e) => !mine.includes(e));
         const fixed = [...baseline].filter((e) => !now.has(e)).length;
         checks.push(
-          added.length
-            ? { kind: "typecheck", level: "fail", summary: `类型检查新增 ${added.length} 个错误${fixed ? `（另修好了 ${fixed} 个）` : ""}`, details: cap(added) }
-            : { kind: "typecheck", level: "pass", summary: `类型检查没有新增错误${fixed ? `，修好了 ${fixed} 个` : ""}（原有 ${baseline.size} 个不计）` },
+          mine.length
+            ? { kind: "typecheck", level: "fail", summary: `类型检查新增 ${mine.length} 个错误${fixed ? `（另修好了 ${fixed} 个）` : ""}`, details: cap(mine) }
+            : { kind: "typecheck", level: "pass", summary: `类型检查${other.length ? "本任务改过的文件没有新增错误" : "没有新增错误"}${fixed ? `，修好了 ${fixed} 个` : ""}（原有 ${baseline.size} 个不计）` },
         );
+        if (other.length) checks.push({
+          kind: "typecheck", level: "warn",
+          summary: `另有 ${other.length} 个新增错误不在它改过的文件里，可能来自同时在干活的 ${[...new Set(writers.map((o) => o.executor.name))].join("、")}`,
+          details: cap(other),
+        });
       } else {
         // Asked for and not delivered: said, not left out as if it had passed.
         checks.push({ kind: "typecheck", level: "warn", summary: "类型检查没有跑成，新增错误没有比较", details: [`命令：${job.verify.typecheck}`, baseline ? "任务结束后这次没跑成" : "任务开始前的基线就没跑成"] });
@@ -204,23 +228,37 @@ export class Verifier {
     this.active.delete(job.id);
   }
 
-  private async typecheck(command: string, cwd: string, snap: Snapshot | null, signal: AbortSignal): Promise<Set<string> | null> {
+  private typecheck(command: string, cwd: string, snap: Snapshot | null, signal: AbortSignal): Promise<Set<string> | null> {
     const key = `${cwd}\n${command}`;
     const sig = snap ? signature(snap) : "";
+    const requestKey = `${key}\n${sig}`;
+    const pending = this.inflight.get(requestKey);
+    if (pending) return pending;
     const hit = this.cache.get(key);
-    if (snap && hit?.sig === sig) return hit.errors;
-    try {
-      const { output, exitCode } = await this.run(command, cwd, signal);
-      const errors = typeErrors(output);
-      // It failed and printed no error we can read (command not found, another checker's format):
-      // that is "don't know", not "no errors".
-      if (exitCode !== 0 && !errors.size) return null;
-      if (snap) this.cache.set(key, { sig, errors });
-      return errors;
-    } catch {
-      return null;
-    }
+    if (snap && hit?.sig === sig) return Promise.resolve(hit.errors);
+    const previous = this.serial.get(key);
+    const execution = (async () => {
+      if (previous) await previous;
+      try {
+        if (signal.aborted) return null;
+        const { output, exitCode } = await this.run(command, cwd, signal);
+        const errors = new Set(typeErrorList(output, cwd).map((e) => e.key));
+        if (exitCode !== 0 && !errors.size) return null;
+        if (snap) this.cache.set(key, { sig, errors });
+        return errors;
+      } catch {
+        return null;
+      }
+    })();
+    this.inflight.set(requestKey, execution);
+    this.serial.set(key, execution);
+    void execution.then(() => {
+      if (this.inflight.get(requestKey) === execution) this.inflight.delete(requestKey);
+      if (this.serial.get(key) === execution) this.serial.delete(key);
+    });
+    return execution;
   }
+
 }
 
 function signature(snap: Snapshot): string {

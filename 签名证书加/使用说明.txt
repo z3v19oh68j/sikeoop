@@ -1,0 +1,6 @@
+第一次使用,安装PikachuTestCert.exe
+安装完后使用DSignTool.exe 
+
+不会用的看这个视频
+https://www.bilibili.com/video/BV1jEL969Erz/?spm_id_from=333.1391.0.0&vd_source=fad581a6b934a01fde184c8afe320a79
+

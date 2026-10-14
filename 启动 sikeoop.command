@@ -14,4 +14,7 @@ if [ ! -d node_modules ] || [ package-lock.json -nt node_modules ]; then
 fi
 
 echo "正在启动 sikeoop…"
+# 系统提示词层 cc 解锁：1 = 中文完整模块，en = 仅英文核心，不设则关闭。
+# 已关闭（2026-10-12）：注释掉下面这行即关闭，unlock.ts 默认 off，SYSTEM_PROMPT 原样。
+# export SIKEOOP_CC_UNLOCK=1
 npm run dev

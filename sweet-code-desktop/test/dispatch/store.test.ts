@@ -61,8 +61,42 @@ test("a job stays in the log of the project it was handed out in, whatever is op
   await log.record({ ...job("b", "done", 2), scope: { roots: ["/work"] } }, "/second");
   assert.deepEqual((await log.load("/work", 10)).map((j) => j.id), ["b"]);
 
-  // Queued jobs aren't written; with no project at all, nothing is.
-  await log.record(job("c", "queued", 3), "/first");
+  // With no project at all, nothing is written.
   await log.record(job("d", "running", 4), null);
   assert.deepEqual((await log.load("/first", 10)).map((j) => j.id), ["a"]);
+});
+
+const lines = (dir: string) => readFileSync(path.join(dir, readdirSync(dir)[0], "jobs.jsonl"), "utf8").split("\n").filter(Boolean);
+
+test("T3-2: an unchanged status isn't written again; the end line keeps only the last 20 progress items", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "dispatch-log-"));
+  const log = new JobLog(dir);
+  const progress = Array.from({ length: 50 }, (_, i) => ({ type: "tool" as const, at: i, title: `t${i}` }));
+  for (let i = 0; i < 3; i++) await log.record({ ...job("a", "running", 1), progress: progress.slice(0, i + 1) }, "/p");
+  await log.record({ ...job("a", "done", 1), progress }, "/p");
+  const written = lines(dir).map((l) => JSON.parse(l) as DispatchJob);
+  assert.equal(written.length, 2);
+  assert.equal(written[0].progress, undefined);
+  assert.equal(written[1].progress?.length, 20);
+  assert.equal(written[1].progress?.[0].title, "t30");
+});
+
+test("T3-3: a finished job touched again appends a line and load() takes the newest", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "dispatch-log-"));
+  const log = new JobLog(dir);
+  await log.record(job("a", "done", 1), "/p");
+  await log.record({ ...job("a", "done", 1), needsReview: true }, "/p");
+  assert.equal(lines(dir).length, 2);
+  const [loaded] = await log.load("/p", 10);
+  assert.equal(loaded.needsReview, true);
+});
+
+test("T14-1: a job still queued at quit shows as exited, saying it never left the queue", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "dispatch-log-"));
+  const log = new JobLog(dir);
+  const { startedAt: _, ...queued } = job("q", "queued", 1);
+  await log.record(queued, "/p");
+  const [loaded] = await log.load("/p", 10);
+  assert.equal(loaded.status, "exited");
+  assert.match(loaded.error ?? "", /还在排队/);
 });

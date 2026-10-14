@@ -196,7 +196,7 @@ function body(s: IslandState): HTMLElement[] {
     }
     case "shot": {
       const head = span("shot-head");
-      head.append(thumb(s.image), textCol("截好了", "问点什么，或者直接回车让 AI 看看"));
+      head.append(thumb(s.image), textCol(s.copied ? "截好了，图片已复制" : "截好了", s.copied ? "可以直接粘贴到聊天软件；也可以在这里问 AI" : "问点什么，或者直接回车让 AI 看看"));
       const input = document.createElement("input");
       input.className = "shot-input";
       input.placeholder = "比如：这个报错是什么意思？";
@@ -209,7 +209,7 @@ function body(s: IslandState): HTMLElement[] {
       requestAnimationFrame(() => input.focus());
       const actions = span("actions");
       actions.append(
-        button("取消", "", () => window.island.shotClose()),
+        button(s.copied ? "只要图片" : "取消", "", () => window.island.shotClose()),
         button("问 AI", "pri", () => window.island.shotAsk(input.value)),
       );
       return [head, input, actions];

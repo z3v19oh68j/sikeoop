@@ -21,7 +21,7 @@ export interface DispatchDeps {
 
 const MAX_RESULT = 8000;
 export const OWNS_DESCRIPTION =
-  "它负责的文件（相对项目根；以 / 结尾表示整个文件夹，支持 * 和 **）。填了以后它只能改这些，改到别处会被拒绝或在验收里标红。";
+  "它负责的文件（相对项目根；以 / 结尾表示整个文件夹，支持 * 和 **）。填了以后它只能改这些，改到别处会被拒绝或在验收里标红。并行派活必须写 owns，范围重叠或不写的会排队。";
 export const TYPECHECK_DESCRIPTION = "做完后跑的类型检查命令（如 npm run typecheck），只报告比开始前新增的错误。";
 
 const schema = z.object({

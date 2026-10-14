@@ -1,4 +1,4 @@
-import { realFile } from "./scope";
+import { realFile } from "./scope.ts";
 
 const TTL = 10 * 60_000;
 /** Use the shared `fileLocks` below; it covers PeerBus sessions and sikeoop's own write tools alike. */
@@ -19,6 +19,12 @@ export class FileLocks {
     }
     for (const file of keys) this.held.set(file, { owner, until: Date.now() + TTL });
     return { ok: true };
+  }
+  /** Renew live locks only; an expired lock must be acquired again. */
+  touch(owner: string): void {
+    this.sweep();
+    const until = Date.now() + TTL;
+    for (const lock of this.held.values()) if (lock.owner === owner) lock.until = until;
   }
   release(owner: string): void {
     for (const [file, lock] of this.held) if (lock.owner === owner) this.held.delete(file);

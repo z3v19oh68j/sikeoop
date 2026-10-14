@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Verifier, mentionedFiles, typeErrors } from "../../src/main/dispatch/verify.ts";
+import { Verifier, mentionedFiles, typeErrors, typeErrorList } from "../../src/main/dispatch/verify.ts";
 import type { DispatchJob } from "../../src/shared/types.ts";
 
 function job(root: string, extra: Partial<DispatchJob> = {}): DispatchJob {
@@ -161,4 +161,102 @@ test("build output, caches and system files are not counted as changes", async (
   const by = Object.fromEntries((await v.after(j, state, signal)).map((c) => [c.kind, c]));
   assert.deepEqual(by.files.details, ["新建 src/b.ts"]);
   assert.equal(by.owns.level, "pass");
+});
+
+for (const scenario of [
+  { name: "T7-1: alone, errors in other files fail", concurrent: false, mine: false, fail: true },
+  { name: "T7-2: concurrent foreign errors only warn", concurrent: true, mine: false, fail: false },
+  { name: "T7-3: only errors in own changed files fail", concurrent: true, mine: true, fail: true },
+  { name: "read-only peers are not concurrent writers", concurrent: true, mine: false, fail: true, readOnly: true },
+  { name: "disjoint roots are not concurrent writers", concurrent: true, mine: false, fail: true, disjoint: true },
+]) {
+  test(scenario.name, async (t) => {
+    const root = mkdtempSync(path.join(tmpdir(), "dispatch-f7-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    mkdirSync(path.join(root, "src"));
+    for (const file of ["mine", "other"]) writeFileSync(path.join(root, `src/${file}.ts`), "1");
+    let output = "";
+    const v = new Verifier(async () => ({ output, exitCode: output ? 2 : 0 }));
+    const signal = new AbortController().signal;
+    const j = job(root, { verify: { typecheck: "tsc" } });
+    const state = await v.before(j, signal);
+    if (scenario.concurrent) {
+      const peerRoot = scenario.disjoint ? path.join(root, "../", path.basename(root) + "-peer") : root;
+      if (scenario.disjoint) {
+        mkdirSync(peerRoot);
+        t.after(() => rmSync(peerRoot, { recursive: true, force: true }));
+      }
+      await v.before(job(peerRoot, {
+        id: "peer", scope: { roots: [peerRoot], owns: ["src/other.ts"], readOnly: scenario.readOnly },
+        executor: { kind: "cli", ref: "peer", name: "Claude-2" },
+      }), signal);
+    }
+    writeFileSync(path.join(root, "src/other.ts"), "22");
+    if (scenario.mine) writeFileSync(path.join(root, "src/mine.ts"), "22");
+    output = "src/other.ts(1,1): error TS2322: other.";
+    if (scenario.mine) output += "\nsrc/mine.ts(1,1): error TS2322: mine.";
+    const checks = (await v.after(j, state, signal)).filter((c) => c.kind === "typecheck");
+    const fail = checks.find((c) => c.level === "fail");
+    assert.equal(!!fail, scenario.fail);
+    if (scenario.mine) assert.deepEqual(fail?.details, ["src/mine.ts TS2322: mine."]);
+    if (!scenario.fail || scenario.mine) {
+      const warn = checks.find((c) => c.level === "warn");
+      assert.deepEqual(warn?.details, ["src/other.ts TS2322: other."]);
+      assert.match(warn?.summary ?? "", /Claude-2/);
+    }
+  });
+}
+
+test("T7-4: concurrent before calls share one command", async (t) => {
+  const root = mkdtempSync(path.join(tmpdir(), "dispatch-f7-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  writeFileSync(path.join(root, "a.ts"), "1");
+  let calls = 0;
+  const v = new Verifier(async () => {
+    calls++;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return { output: "", exitCode: 0 };
+  });
+  const signal = new AbortController().signal;
+  await Promise.all(["one", "two"].map((id) => v.before(job(root, { id, verify: { typecheck: "tsc" } }), signal)));
+  assert.equal(calls, 1);
+});
+
+test("different snapshots serialize checks and a failed run releases the queue", async (t) => {
+  const root = mkdtempSync(path.join(tmpdir(), "dispatch-f7-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  writeFileSync(path.join(root, "a.ts"), "1");
+  let calls = 0;
+  let release!: () => void;
+  let started!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  const firstStarted = new Promise<void>((resolve) => { started = resolve; });
+  const v = new Verifier(async () => {
+    calls++;
+    if (calls === 1) {
+      started();
+      await gate;
+      throw new Error("failed");
+    }
+    return { output: "", exitCode: 0 };
+  });
+  const signal = new AbortController().signal;
+  const one = v.before(job(root, { id: "one", verify: { typecheck: "tsc" } }), signal);
+  await firstStarted;
+  writeFileSync(path.join(root, "a.ts"), "22");
+  const two = v.before(job(root, { id: "two", verify: { typecheck: "tsc" } }), signal);
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  assert.equal(calls, 1);
+  release();
+  const states = await Promise.all([one, two]);
+  assert.equal(calls, 2);
+  assert.equal(states[0].baseline, null);
+  assert.equal(states[1].baseline?.size, 0);
+});
+
+test("typeErrorList resolves both diagnostic formats against the checked root", () => {
+  assert.deepEqual(typeErrorList("src/a.ts(5,7): error TS2741: Missing.\nsrc/b.ts:3:1 - error TS2322: Bad.", "/project"), [
+    { key: "src/a.ts TS2741: Missing.", file: "/project/src/a.ts" },
+    { key: "src/b.ts TS2322: Bad.", file: "/project/src/b.ts" },
+  ]);
 });

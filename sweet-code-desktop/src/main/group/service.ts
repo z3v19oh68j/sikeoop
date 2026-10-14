@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { GroupChat, GroupEvent, GroupMember, GroupMessage, GroupSummary } from "@shared/types";
+import type { GroupChat, GroupEvent, GroupMember, GroupMessage, GroupPlan, GroupSummary } from "@shared/types";
+import { handoffText, parsePlan, planMarkdown, planPrompt, type Assignee } from "./plan.ts";
 import type { RagService } from "../rag/service";
 import { ModelExecutor } from "../dispatch/model.ts";
 import type { ModelOutcome } from "../dispatch/model.ts";
@@ -38,6 +39,8 @@ export interface GroupServiceOptions {
   call: MemberCall;
   dispatcher: Pick<Dispatcher, "submit" | "cancel">;
   emit(e: GroupEvent): void;
+  /** Who a plan's tasks can go to: the group's members that can work as sub-agents, and the terminal sessions. */
+  assignees?(members: GroupMember[]): Assignee[];
 }
 
 /** The replies to one message of the user's, while they are being written. */
@@ -160,6 +163,53 @@ export class GroupService {
       this.turns.delete(id);
       if (began) this.opts.emit({ type: "idle", groupId: id });
     }
+  }
+
+  /**
+   * A member writes up what the group settled: is it feasible, and who does what (plan.ts). The
+   * plan is checked, kept with the group and put in the chat for everyone to read. Nothing is
+   * handed out yet: handoff() does that.
+   */
+  async finalize(id: string, memberId?: string): Promise<GroupPlan> {
+    if (this.turns.has(id)) throw new Error("群里还有人在说话，等一下或者先点停下");
+    const turn: Turn = { controller: new AbortController() };
+    this.turns.set(id, turn);
+    try {
+      const g = await this.load(id);
+      if (!g.messages.some((m) => m.from === "member" && m.text)) throw new Error("群里还没有讨论，先聊出结论再整理分工。");
+      const writer = g.members.find((m) => m.id === memberId) ?? g.members[0];
+      const assignees = this.opts.assignees?.(g.members) ?? [];
+      if (!assignees.length) throw new Error("现在没有人可以接活：群成员的模型都没配置好，终端里也没有开着的 AI 会话。");
+      const { system, user } = planPrompt(transcript(g), assignees);
+      const messageId = randomUUID();
+      this.opts.emit({ type: "speaking", groupId: g.id, memberId: writer.id, messageId });
+      // Not streamed into the chat: what it writes is JSON, shown as a plan once it is checked.
+      const text = await this.opts.call(writer, system, user, () => {}, turn.controller.signal);
+      if (turn.controller.signal.aborted) throw new Error("已停下");
+      const plan = parsePlan(text, assignees, writer.name);
+      g.plan = plan;
+      const msg: GroupMessage = { id: messageId, from: "member", memberId: writer.id, text: planMarkdown(plan), at: plan.at };
+      g.messages.push(msg);
+      await this.save(g);
+      this.opts.emit({ type: "message", groupId: g.id, message: msg });
+      this.opts.emit({ type: "plan", groupId: g.id, plan });
+      return plan;
+    } finally {
+      this.turns.delete(id);
+      this.opts.emit({ type: "idle", groupId: id });
+    }
+  }
+
+  /** The settled plan as the work order for the main conversation. The discussion must not have moved on since. */
+  async handoff(id: string): Promise<{ text: string }> {
+    const g = await this.load(id);
+    if (!g.plan) throw new Error("还没有整理出分工方案，先点「整理分工」。");
+    if (g.messages.some((m) => m.at > g.plan!.at)) throw new Error("整理分工之后群里又聊了新内容，先重新整理一次再交给主对话。");
+    // Someone may have gone offline since the plan was written.
+    const online = new Set((this.opts.assignees?.(g.members) ?? []).map((a) => a.name));
+    const gone = g.plan.tasks.find((t) => !online.has(t.assignee));
+    if (gone) throw new Error(`任务「${gone.title}」分给了 ${gone.assignee}，它现在接不了活。让它上线，或重新整理分工。`);
+    return { text: handoffText(g.title, g.plan) };
   }
 
   /** One member's reply as a `model` executor: it announces itself, streams, and puts the reply in the chat. */

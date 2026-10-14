@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { UpdateState } from "@shared/types";
-import { noteRows, notesText, type NoteIcon } from "./notes";
+import { noteRows, type NoteIcon } from "./notes";
+import { ReleaseNotes } from "./ReleaseNotes";
 import "../../styles/update-card.css";
 
 // The EVA × MIKU skin's update card (design kit: design/sikeoop-eva-miku-update-card-svg-v1).
@@ -207,7 +208,7 @@ export function EvaUpdateCard({ state: s, onState }: Props) {
           </div>
           {allNotes && s.notes ? (
             <div className="euc-notes" tabIndex={0}>
-              {notesText(s.notes)}
+              <ReleaseNotes notes={s.notes} />
             </div>
           ) : (
             <ul className="euc-features">

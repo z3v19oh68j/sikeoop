@@ -1,7 +1,7 @@
 import { promises as fs, constants } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import type { PvProject, PvStoryboard, PvShot } from "../../shared/types.ts";
+import type { PvProject, PvStoryboard, PvShot, PvStep } from "../../shared/types.ts";
 
 export const steps = ["brief", "script", "storyboard", "beats", "assets", "compose", "render"] as const;
 export async function safePath(root: string, id: string, file: string): Promise<string> {
@@ -43,6 +43,9 @@ export function parseStoryboard(input: unknown): PvStoryboard {
   }) };
 }
 export class PvStore {
+  private readonly isActive: (dir: string, step: PvStep) => boolean;
+  private readonly loading = new Map<string, Promise<PvProject | null>>();
+  constructor(isActive: (dir: string, step: PvStep) => boolean = () => false) { this.isActive = isActive; }
   async read(root: string, id: string, file: string): Promise<string> {
     const p = await safePath(root,id,file);
     const handle = await fs.open(p, constants.O_RDONLY | constants.O_NOFOLLOW);
@@ -58,7 +61,27 @@ export class PvStore {
     finally { await fs.rm(tmp,{force:true}); }
   }
   async get(root: string,id: string): Promise<PvProject | null> {
-    try { const p = JSON.parse(await this.read(root,id,"project.json")) as PvProject; if (p.id !== id || !steps.every(s => ["todo","running","done","error"].includes(p.steps?.[s]))) throw new Error("项目数据损坏"); p.dir = path.dirname(await safePath(root,id,"project.json")); return p; }
+    const file = await safePath(root,id,"project.json");
+    // Concurrent first reads share recovery, so a late startup rewrite cannot clobber a new job.
+    const existing = this.loading.get(file);
+    if (existing) return structuredClone(await existing);
+    const pending = this.loadProject(root,id,file);
+    this.loading.set(file,pending);
+    try { return structuredClone(await pending); }
+    finally { if(this.loading.get(file)===pending)this.loading.delete(file); }
+  }
+  private async loadProject(root: string,id: string,file: string): Promise<PvProject | null> {
+    try {
+      const p = JSON.parse(await this.read(root,id,"project.json")) as PvProject;
+      if (p.id !== id || !steps.every(s => ["todo","running","done","error"].includes(p.steps?.[s]))) throw new Error("项目数据损坏");
+      p.dir = path.dirname(file);
+      let recovered = false;
+      for(const step of steps)if(p.steps[step]==="running" && !this.isActive(p.dir,step)){
+        p.steps[step]="todo";recovered=true;
+      }
+      if(recovered){p.updatedAt=Date.now();await this.write(root,id,"project.json",JSON.stringify(p,null,2));}
+      return p;
+    }
     catch(e) { if ((e as NodeJS.ErrnoException).code === "ENOENT") return null; throw e; }
   }
   async list(root: string): Promise<PvProject[]> {
@@ -76,6 +99,7 @@ export class PvStore {
     await this.write(root,id,"project.json",JSON.stringify(p,null,2));
     for(const [file,text] of [["brief.md",""],["script.md",""],["storyboard.json",'{"shots":[]}']]) await this.write(root,id,file,text);
     await fs.mkdir(await safePath(root,id,"out"),{recursive:true});
+    await fs.mkdir(await safePath(root,id,"assets"),{recursive:true});
     await fs.mkdir(await safePath(root,id,"remotion"),{recursive:true});
     return p;
   }

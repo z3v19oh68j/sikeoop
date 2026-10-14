@@ -639,7 +639,8 @@ function AgentProgress({ items }: { items: DispatchProgress[] }) {
   const rows: DispatchProgress[] = [];
   for (const p of items) {
     const prev = rows[rows.length - 1];
-    if (p.type === "text" && prev?.type === "text") rows[rows.length - 1] = { ...prev, text: (prev.text ?? "") + (p.text ?? "") };
+    // A message for the main conversation (status "host-message", main/peer-host.ts) stands on its own.
+    if (p.type === "text" && prev?.type === "text" && !p.status && !prev.status) rows[rows.length - 1] = { ...prev, text: (prev.text ?? "") + (p.text ?? "") };
     else rows.push(p);
   }
   return (
@@ -647,7 +648,14 @@ function AgentProgress({ items }: { items: DispatchProgress[] }) {
       {rows.map((p, i) => (
         <li key={i} className={"agent-p " + p.type}>
           <time>{clock(p.at)}</time>
-          {p.type === "text" ? <pre className="agent-text">{p.text}</pre> : <span>{progressLine(p)}</span>}
+          {p.type === "text" ? (
+            <pre className="agent-text">
+              {p.status === "host-message" && <b>{p.title ?? "它"} → 主对话：</b>}
+              {p.text}
+            </pre>
+          ) : (
+            <span>{progressLine(p)}</span>
+          )}
         </li>
       ))}
     </ol>

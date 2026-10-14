@@ -4,7 +4,7 @@ import type { PvPack, PvKind, PvStep } from "../../shared/types.ts";
 import { steps } from "./store.ts";
 export async function loadPacks(dir:string):Promise<PvPack[]> {
   const out:PvPack[]=[];
-  for(const kind of ["common","promo"] as const) for(const name of (await fs.readdir(path.join(dir,kind))).sort()) {
+  for(const kind of ["common","promo","music"] as const) for(const name of (await fs.readdir(path.join(dir,kind))).sort()) {
     if(!name.endsWith(".json")) continue;
     const p=JSON.parse(await fs.readFile(path.join(dir,kind,name),"utf8")) as PvPack;
     if(p.kind!==kind || typeof p.id!=="string" || typeof p.name!=="string" || !Array.isArray(p.entries) || p.entries.some(e=>typeof e.id!=="string" || typeof e.title!=="string" || typeof e.body!=="string" || !Array.isArray(e.steps) || e.steps.some(s=>!steps.includes(s)))) throw new Error("经验包格式错误");

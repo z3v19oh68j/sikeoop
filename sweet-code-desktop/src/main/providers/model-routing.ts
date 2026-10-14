@@ -4,6 +4,7 @@ import { selectAutoModel } from "../agent/route.ts";
 import { failoverReason, orderedFailover } from "../agent/failover.ts";
 import { ModelDiscovery, modelIds, type DiscoveryProvider } from "./discovery.ts";
 import { recordFailure, recordSuccess } from "./health.ts";
+import { CodexFallbackModels, isCodexLogin } from "./openai-codex.ts";
 
 export const modelDiscovery = new ModelDiscovery();
 interface BuiltinPoolSource {
@@ -30,7 +31,9 @@ export function builtinFreeOrder(value: unknown): RoutingSettings["builtinFreeOr
 
 function discoveryInput(p: ResolvedProvider): DiscoveryProvider {
   return { id: p.preset.id, kind: p.preset.kind, baseURL: p.baseURL, apiKey: p.apiKey,
-    fallback: modelIds([...p.preset.suggestedModels, p.preset.defaultModel]) };
+    // The OpenAI preset names no models of its own; the subscription has a known list.
+    fallback: modelIds([...p.preset.suggestedModels, p.preset.defaultModel, ...(isCodexLogin(p) ? CodexFallbackModels : [])]),
+    login: p.authMode === "login" };
 }
 export function discoverProviderModels(p: ResolvedProvider): Promise<string[]> {
   if (p.enabled === false) return Promise.resolve([]);

@@ -130,7 +130,7 @@ export class MobileRpcDispatcher {
           void this.#deps.session.send({
             text,
             editor: {},
-            effort: "medium",
+            effort: "low",
             lazy: true,
             ...(images.length ? { images } : {}),
             origin: { kind: "mobile", deviceId: this.#deps.device.id, deviceName: this.#deps.device.name },

@@ -1204,6 +1204,7 @@ body.col-resizing .splitter.dragging { pointer-events: auto; }
 .term-tab .dot.starting { background: var(--faint); }
 @keyframes term-blink { 50% { opacity: .4; } }
 @media (prefers-reduced-motion: reduce) { .term-tab .dot.working { animation: none; } }
+.new-tab .install-pop { overflow-y: auto; overscroll-behavior: contain; }
 .new-tab .install-pop hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
 .terminal-head .hint-ok { color: var(--ok); font-size: 11.5px; white-space: nowrap; margin-right: 4px; }
 .terminal-host[hidden] { display: none !important; }

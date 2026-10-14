@@ -116,7 +116,7 @@ export function browserTools(browser: BrowserService, analyze: Analyze): ToolSpe
     name: "browser_act",
     description: "Execute one action or a sequential actions array. Stops immediately on failure or approval denial and reports completed count and 1-based failedStep. Refs come from browser_snapshot. type is a legacy alias of fill. wait_for takes wait options. Upload requires project files and human approval every time. External interactions retain approval; passwords are blocked.",
     schema: actionSchema.partial().extend({ actions: z.array(actionSchema).min(1).max(100).optional() }).refine(i => !!i.actions !== !!i.action, "Give exactly one of action or actions."),
-    inputSchema: { type: "object", properties: { ...actionProperties, actions: { type: "array", minItems: 1, maxItems: 100, items: { type: "object", properties: actionProperties, required: ["action"] } } }, oneOf: [{ required: ["action"], not: { required: ["actions"] } }, { required: ["actions"], not: { required: ["action"] } }] },
+    inputSchema: { type: "object", properties: { ...actionProperties, actions: { type: "array", minItems: 1, maxItems: 100, items: { type: "object", properties: actionProperties, required: ["action"] } } } },
     permission: "auto",
     parallelSafe: false,
     summarize: i => i.actions ? `浏览器批量执行 ${i.actions.length} 步` : `浏览器执行 ${i.action}`,

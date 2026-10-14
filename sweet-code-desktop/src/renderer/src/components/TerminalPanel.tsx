@@ -416,62 +416,72 @@ export function TerminalPanel({ cwd, visible, onShow, onHide, onAskAI, maximized
               </button>
             </div>
           ))}
-          <details className="install-menu new-tab" onToggle={(e) => e.currentTarget.open && loadKinds()}>
-            <summary className="icon-btn square" title="新开一个标签页：终端、Claude Code 或 Codex" aria-label="新标签页">
-              <Icon name="plus" />
-            </summary>
-            <div className="install-pop">
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("shell"))}>
-                终端
-              </button>
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("claude"))}>
-                Claude Code
-                <span>工作区模式，可以和其他 AI 互相发消息</span>
-              </button>
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("codex"))}>
-                Codex
-                <span>工作区模式，可以和其他 AI 互相发消息</span>
-              </button>
-              {kinds?.kinds
-                .filter((k) => !k.builtin)
-                .map((k) => (
-                  <button key={k.id} type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab(k.id))}>
-                    {k.name}
-                    <span>{k.installed ? (k.description ?? "扩展 CLI，可以和其他 AI 互相发消息") : `还没有安装${k.canInstall ? "，点开后可以一键安装" : ""}`}</span>
-                  </button>
-                ))}
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void window.sweet.termOpenAgentKindsDir())}>
-                添加其他 CLI…
-                <span>打开扩展目录：放一个 JSON 定义文件，就能接入别的编程 CLI</span>
-              </button>
-              {kinds?.problems.map((x) => (
-                <button key={x.file} type="button" disabled title={x.problems.join("\n")}>
-                  {x.file} 没有加载
-                  <span>{x.problems[0]}</span>
+        </div>
+        {/* Outside .term-tabs: its overflow-x scroll would clip the menu that pops up above. */}
+        <details
+          className="install-menu new-tab"
+          onToggle={(e) => {
+            if (!e.currentTarget.open) return;
+            // It pops up above the button: never taller than the room there, the rest scrolls inside it.
+            const pop = e.currentTarget.querySelector<HTMLElement>(".install-pop");
+            if (pop) pop.style.maxHeight = `${Math.max(160, e.currentTarget.getBoundingClientRect().top - 12)}px`;
+            loadKinds();
+          }}
+        >
+          <summary className="icon-btn square" title="新开一个标签页：终端、Claude Code 或 Codex" aria-label="新标签页">
+            <Icon name="plus" />
+          </summary>
+          <div className="install-pop">
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("shell"))}>
+              终端
+            </button>
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("claude"))}>
+              Claude Code
+              <span>工作区模式，可以和其他 AI 互相发消息</span>
+            </button>
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab("codex"))}>
+              Codex
+              <span>工作区模式，可以和其他 AI 互相发消息</span>
+            </button>
+            {kinds?.kinds
+              .filter((k) => !k.builtin)
+              .map((k) => (
+                <button key={k.id} type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), addTab(k.id))}>
+                  {k.name}
+                  <span>{k.installed ? (k.description ?? "扩展 CLI，可以和其他 AI 互相发消息") : `还没有安装${k.canInstall ? "，点开后可以一键安装" : ""}`}</span>
                 </button>
               ))}
-              {SHOW_UNFINISHED && (
-                <>
-                  <div
-                    onClick={(e) => {
-                      if ((e.target as HTMLElement).closest("button")) e.currentTarget.closest("details")!.open = false;
-                    }}
-                  >
-                    <CrossSessionMenu openIds={sessions.map((x) => x.id)} onNew={() => setNewSession(true)} onOpen={openSession} />
-                  </div>
-                  <hr />
-                </>
-              )}
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void install("claude"))}>
-                安装 / 更新 Claude Code
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void window.sweet.termOpenAgentKindsDir())}>
+              添加其他 CLI…
+              <span>打开扩展目录：放一个 JSON 定义文件，就能接入别的编程 CLI</span>
+            </button>
+            {kinds?.problems.map((x) => (
+              <button key={x.file} type="button" disabled title={x.problems.join("\n")}>
+                {x.file} 没有加载
+                <span>{x.problems[0]}</span>
               </button>
-              <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void install("codex"))}>
-                安装 / 更新 Codex
-                <span>需要 Node.js</span>
-              </button>
-            </div>
-          </details>
-        </div>
+            ))}
+            {SHOW_UNFINISHED && (
+              <>
+                <div
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest("button")) e.currentTarget.closest("details")!.open = false;
+                  }}
+                >
+                  <CrossSessionMenu openIds={sessions.map((x) => x.id)} onNew={() => setNewSession(true)} onOpen={openSession} />
+                </div>
+                <hr />
+              </>
+            )}
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void install("claude"))}>
+              安装 / 更新 Claude Code
+            </button>
+            <button type="button" onClick={(e) => ((e.currentTarget.closest("details")!.open = false), void install("codex"))}>
+              安装 / 更新 Codex
+              <span>需要 Node.js</span>
+            </button>
+          </div>
+        </details>
         {cwd && (
           <span className="cwd" title={cwd}>
             {cwd.split(/[\\/]/).filter(Boolean).pop()}

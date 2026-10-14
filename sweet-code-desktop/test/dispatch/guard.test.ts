@@ -98,3 +98,24 @@ test("a symlink can't carry a write out of the job's folder or out of what it ow
   symlinkSync(path.join(base, "gone"), path.join(root, "mine/dangling"));
   assert.match((await realWriteViolation(job, path.join(root, "mine/dangling"))) ?? "", /没法确认/);
 });
+
+test("T5-1: conservative write sets and overlap truth table", async () => {
+  const { writeSet, mayOverlap } = await import("../../src/main/dispatch/guard.ts");
+  const job = (owns?: string[], roots = ["/p"], readOnly = false) => ({ scope: { roots, owns, readOnly } });
+  const a = job(["src/a/"]);
+  assert.equal(mayOverlap(a, job(["src/a/x.ts"])), true);
+  assert.equal(mayOverlap(a, job(["src/b/**"])), false);
+  assert.equal(mayOverlap(job(), a), true);
+  assert.equal(mayOverlap(job([], ["/p"], true), a), false);
+  assert.equal(mayOverlap({}, a), false);
+  assert.equal(mayOverlap(job(undefined, ["/other"]), a), false);
+  assert.equal(mayOverlap(job(["src/**/x.ts"]), job(["src/b/"])), true);
+  assert.deepEqual(writeSet(job(["src/**/x.ts", "src/a/x.ts", "*.ts"])),
+    [path.resolve("/p/src"), path.resolve("/p/src/a/x.ts"), path.resolve("/p")]);
+  assert.equal(writeSet(job()), "all");
+  assert.equal(writeSet(job([], ["/p"], true)), null);
+  assert.equal(mayOverlap(job(["Src/"], ["/P"]), job(["src/a.ts"]), true), true);
+  assert.equal(mayOverlap(job(["Src/"]), job(["src/a.ts"]), false), false);
+  assert.equal(mayOverlap(job(undefined, ["/p/sub"]), job(["sub/x.ts"])), true);
+  assert.equal(mayOverlap(job(["src/a/"]), job(["src/ab/"])), false);
+});

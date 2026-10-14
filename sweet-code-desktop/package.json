@@ -1,7 +1,7 @@
 {
   "name": "sikeoop",
   "productName": "sikeoop",
-  "version": "4.1.61",
+  "version": "4.1.68",
   "private": true,
   "description": "给新手的粉色 AI 代码编辑器",
   "main": "out/main/index.js",
@@ -92,6 +92,10 @@
       {
         "from": "resources/skills",
         "to": "skills"
+      },
+      {
+        "from": "../game-cheat-workshop",
+        "to": "cheatshop"
       }
     ],
     "asar": true,
@@ -153,7 +157,7 @@
       "title": "sikeoop ${version}"
     },
     "releaseInfo": {
-      "releaseNotesFile": "../更新公告/sikeoop-4.1.61.md"
+      "releaseNotesFile": "../更新公告/sikeoop-4.1.68.md"
     },
     "publish": [
       {

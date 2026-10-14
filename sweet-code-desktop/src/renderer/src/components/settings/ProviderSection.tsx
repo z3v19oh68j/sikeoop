@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import type { AnthropicLogin, AuthMode, Balance, ProvidersState, ProviderView } from "@shared/types";
+import type { AnthropicLogin, AuthMode, Balance, ClaudeResetCredits, OpenAILogin, ProvidersState, ProviderView } from "@shared/types";
 import { runInTerminal } from "../TerminalPanel";
 import { Icon } from "../Icon";
+import { resetIn } from "./AccountList";
+import { ClaudeAccounts, USAGE_WINDOWS } from "./ClaudeAccounts";
 import { FreeModels } from "./FreeModels";
+import { OpenAIAccounts } from "./OpenAIAccounts";
 import { Field, IS_WIN, SectionHead, StatusBadge, cleanError, isReady } from "./ui";
 
 /** What a provider still lacks, in words; "" when it is ready. */
 function missing(p: ProviderView): string {
   if (!p.baseURL) return "缺接口地址";
-  if (p.authMode === "login" ? !p.login?.loggedIn : p.needsKey && !p.hasKey) return p.authMode === "login" ? "还没登录" : "还没填 Key";
+  if (p.authMode === "login" ? !(p.login ?? p.openaiLogin)?.loggedIn : p.needsKey && !p.hasKey) return p.authMode === "login" ? "还没登录" : "还没填 Key";
   if (!p.model) return "还没选模型";
   return "";
 }
@@ -61,17 +64,19 @@ export function ProviderSection({ state, selectedId, onSelect, onClose, onChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected.id]);
 
-  // Only Claude itself has an account login (compatible services report no login status).
-  const loginMode = !!selected.login && authMode === "login";
+  // Only Claude itself and OpenAI itself have an account login (compatible services report no login status).
+  const loginMode = !!(selected.login ?? selected.openaiLogin) && authMode === "login";
+  // The 2s check below is for `ant auth login` finishing in a terminal; the ChatGPT login completes in this panel.
+  const antLoginMode = !!selected.login && authMode === "login";
 
   // While the login panel is open, check every 2s so it turns green as soon as `ant auth login` finishes.
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   useEffect(() => {
-    if (!loginMode) return;
+    if (!antLoginMode) return;
     const t = setInterval(() => void window.sweet.getProviders().then((s) => onChangeRef.current(s, false)), 2000);
     return () => clearInterval(t);
-  }, [loginMode]);
+  }, [antLoginMode]);
 
   function terminal(cmd: string) {
     if (!runInTerminal(cmd)) setError("先打开一个项目文件夹，下面的终端才能用。也可以在系统自带的终端里运行：" + cmd);
@@ -106,7 +111,7 @@ export function ProviderSection({ state, selectedId, onSelect, onClose, onChange
             : !p.baseURL
               ? "还差一步：填接口地址。"
               : loginMode
-                ? "还差一步：用 Anthropic 账号登录。"
+                ? `还差一步：用 ${selected.openaiLogin ? "ChatGPT" : "Anthropic"} 账号登录。`
                 : "还差一步：填 API Key。",
         );
         return;
@@ -257,19 +262,21 @@ export function ProviderSection({ state, selectedId, onSelect, onClose, onChange
             </Field>
           )}
 
-          {selected.login && (
+          {(selected.login ?? selected.openaiLogin) && (
             <Field label="登录方式">
               <div className="seg" role="radiogroup" aria-label="登录方式">
                 {(["api_key", "login"] as const).map((m) => (
                   <button key={m} type="button" role="radio" aria-checked={authMode === m} className={authMode === m ? "on" : undefined} onClick={() => setAuthMode(m)}>
-                    {m === "api_key" ? "API Key" : "Anthropic 账号登录"}
+                    {m === "api_key" ? "API Key" : selected.openaiLogin ? "ChatGPT 账号登录" : "Anthropic 账号登录"}
                   </button>
                 ))}
               </div>
             </Field>
           )}
 
-          {loginMode && selected.login && <LoginPanel login={selected.login} run={terminal} />}
+          {loginMode && selected.login && <LoginPanel login={selected.login} run={terminal} onLoggedIn={(s) => onChange(s, false)} />}
+
+          {loginMode && selected.openaiLogin && <OpenAILoginPanel login={selected.openaiLogin} onLoggedIn={(s) => onChange(s, false)} />}
 
           {selected.needsKey && !loginMode && (
             <Field
@@ -438,8 +445,122 @@ export function ProviderSection({ state, selectedId, onSelect, onClose, onChange
   );
 }
 
-/** "Log in with an Anthropic account" through the official ant CLI, run in the app's terminal. */
-function LoginPanel({ login, run }: { login: AnthropicLogin; run(cmd: string): void }) {
+/** "Log in with an Anthropic account": built-in OAuth link flow first, official ant CLI as fallback. */
+function LoginPanel({ login, run, onLoggedIn }: { login: AnthropicLogin; run(cmd: string): void; onLoggedIn(s: ProvidersState): void }) {
+  const [authUrl, setAuthUrl] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [oauthErr, setOauthErr] = useState("");
+  const [copied, setCopied] = useState(false);
+  // Logged in: the same link flow adds another account next to the ones already kept.
+  const [adding, setAdding] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [activeId, setActiveId] = useState("");
+
+  function extractCode(input: string): string {
+    const t = input.trim();
+    if (!t.includes("code=")) return t;
+    try {
+      const u = new URL(t.includes("?") ? t : `http://localhost/callback?${t.replace(/^\?/, "")}`);
+      return u.searchParams.get("code") ?? t;
+    } catch {
+      return t.match(/[?&]code=([^&]+)/)?.[1] ?? t;
+    }
+  }
+
+  async function gen() {
+    setOauthErr("");
+    setBusy(true);
+    try {
+      const r = await window.sweet.claudeOAuthGenerate("full");
+      setAuthUrl(r.auth_url);
+      setSessionId(r.session_id);
+    } catch (e) {
+      setOauthErr(cleanError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function exchange() {
+    const c = extractCode(code);
+    if (!c || !sessionId) {
+      setOauthErr(!sessionId ? "先点「生成登录链接」。" : "先粘贴授权码。");
+      return;
+    }
+    setOauthErr("");
+    setBusy(true);
+    try {
+      onLoggedIn(await window.sweet.claudeOAuthExchange({ session_id: sessionId, code: c }));
+      setAuthUrl("");
+      setSessionId("");
+      setCode("");
+      setAdding(false);
+      setReloadKey((k) => k + 1);
+    } catch (e) {
+      setOauthErr(cleanError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function toggleAdd() {
+    setAdding((v) => !v);
+    setAuthUrl("");
+    setSessionId("");
+    setCode("");
+    setOauthErr("");
+  }
+
+  const oauthFlow = (
+    <>
+      {!authUrl ? (
+        <button type="button" className="send" onClick={() => void gen()} disabled={busy}>
+          {busy ? "生成中…" : "生成登录链接"}
+        </button>
+      ) : (
+        <>
+          <input value={authUrl} readOnly className="st-textarea" aria-label="Claude 登录链接" onFocus={(e) => e.currentTarget.select()} />
+          <span className="st-inline">
+            <button
+              type="button"
+              className="mini-btn"
+              onClick={() => {
+                void navigator.clipboard?.writeText(authUrl).then(
+                  () => setCopied(true),
+                  () => setOauthErr("复制失败，手动选中链接复制。"),
+                );
+                setTimeout(() => setCopied(false), 1500);
+              }}
+            >
+              {copied ? "已复制" : "复制链接"}
+            </button>
+            <button type="button" className="mini-btn" onClick={() => window.open(authUrl, "_blank", "noopener")}>
+              在浏览器里打开
+            </button>
+            <button type="button" className="link-btn" onClick={() => void gen()} disabled={busy}>
+              重新生成
+            </button>
+          </span>
+          <textarea
+            className="st-textarea"
+            rows={2}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="浏览器登录成功后，把地址栏里 code= 后面的码（或整个回调地址）粘到这里"
+            aria-label="授权码"
+            spellCheck={false}
+          />
+          <button type="button" className="send" onClick={() => void exchange()} disabled={busy || !code.trim()}>
+            {busy ? "验证中…" : "完成登录"}
+          </button>
+        </>
+      )}
+      {oauthErr && <span className="hint">站内登录出错：{oauthErr}</span>}
+    </>
+  );
+
   return (
     <div className="st-login">
       <p className="hint">
@@ -448,18 +569,41 @@ function LoginPanel({ login, run }: { login: AnthropicLogin; run(cmd: string): v
       </p>
 
       {login.loggedIn ? (
-        <div className="st-login-state ok">
-          <span>
-            <Icon name="check-circle" /> 已登录{login.account ? `：${login.account}` : ""}
-          </span>
-          {login.email && login.email !== login.account && <span className="hint">{login.email}</span>}
-          <button type="button" className="link-btn" onClick={() => run("ant auth logout")}>
-            退出登录
-          </button>
-        </div>
-      ) : !login.antInstalled ? (
+        <>
+          <div className="st-login-state ok">
+            <span>
+              <Icon name="check-circle" /> 已登录{login.account ? `：${login.account}` : ""}
+            </span>
+            {!activeId && login.email && login.email !== login.account && <span className="hint">{login.email}</span>}
+            <button type="button" className="link-btn" onClick={() => run("ant auth logout")}>
+              退出 ant 登录
+            </button>
+          </div>
+          <ClaudeAccounts
+            reloadKey={reloadKey}
+            adding={adding}
+            onToggleAdd={toggleAdd}
+            onChanged={() => void window.sweet.getProviders().then(onLoggedIn, () => {})}
+            onActiveChange={setActiveId}
+          />
+          {adding && (
+            <div className="st-login-state">
+              <span className="hint">添加账号：生成链接，在浏览器里登录另一个账号，再把授权码粘回来。原来的账号会保留，新账号会成为当前使用的账号。</span>
+              {oauthFlow}
+            </div>
+          )}
+          <ClaudeResetPanel key={activeId} />
+        </>
+      ) : (
         <div className="st-login-state">
-          <span>需要先安装 Anthropic 官方命令行工具 ant。</span>
+          <span className="hint">方式一（推荐）：站内生成链接，浏览器打开登录后把授权码粘回来，不用装任何工具。</span>
+          {oauthFlow}
+        </div>
+      )}
+
+      {!login.loggedIn && !login.antInstalled ? (
+        <div className="st-login-state">
+          <span>方式二需要先安装 Anthropic 官方命令行工具 ant。</span>
           {IS_WIN ? (
             <span className="hint">
               到{" "}
@@ -479,15 +623,232 @@ function LoginPanel({ login, run }: { login: AnthropicLogin; run(cmd: string): v
           )}
         </div>
       ) : (
-        <div className="st-login-state">
-          <span>{login.expired ? "登录已经过期了，重新登录一次吧。" : "还没有登录。"}</span>
-          <button type="button" className="send" onClick={() => run("ant auth login")}>
-            在终端里登录
+        !login.loggedIn && (
+          <div className="st-login-state">
+            <span>方式二：在终端里用官方 ant 登录（备用）。</span>
+            <button type="button" className="send" onClick={() => run("ant auth login")}>
+              在终端里登录
+            </button>
+            <span className="hint">会打开浏览器，登录 Console 账号并选一个工作区。登录完成后这里会自动变成「已登录」。</span>
+          </div>
+        )
+      )}
+      {login.error && <span className="hint">读取登录信息时出错：{login.error}</span>}
+    </div>
+  );
+}
+
+function OpenAILoginPanel({ login, onLoggedIn }: { login: OpenAILogin; onLoggedIn(s: ProvidersState): void }) {
+  const [authUrl, setAuthUrl] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [oauthErr, setOauthErr] = useState("");
+  const [copied, setCopied] = useState(false);
+  // Logged in: the same link flow adds another account next to the ones already kept.
+  const [adding, setAdding] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [activeId, setActiveId] = useState("");
+
+  async function gen() {
+    setOauthErr("");
+    setBusy(true);
+    try {
+      const r = await window.sweet.openaiOAuthGenerate();
+      setAuthUrl(r.auth_url);
+      setSessionId(r.session_id);
+    } catch (e) {
+      setOauthErr(cleanError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function exchange() {
+    // The whole callback address goes through as it is: the main process checks its state.
+    const c = code.trim();
+    if (!c || !sessionId) {
+      setOauthErr(!sessionId ? "先点「生成登录链接」。" : "先粘贴授权码。");
+      return;
+    }
+    setOauthErr("");
+    setBusy(true);
+    try {
+      onLoggedIn(await window.sweet.openaiOAuthExchange({ session_id: sessionId, code: c }));
+      setAuthUrl("");
+      setSessionId("");
+      setCode("");
+      setAdding(false);
+      setReloadKey((k) => k + 1);
+    } catch (e) {
+      setOauthErr(cleanError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function toggleAdd() {
+    setAdding((v) => !v);
+    setAuthUrl("");
+    setSessionId("");
+    setCode("");
+    setOauthErr("");
+  }
+
+  const oauthFlow = (
+    <>
+      {!authUrl ? (
+        <button type="button" className="send" onClick={() => void gen()} disabled={busy}>
+          {busy ? "生成中…" : "生成登录链接"}
+        </button>
+      ) : (
+        <>
+          <input value={authUrl} readOnly className="st-textarea" aria-label="ChatGPT 登录链接" onFocus={(e) => e.currentTarget.select()} />
+          <span className="st-inline">
+            <button
+              type="button"
+              className="mini-btn"
+              onClick={() => {
+                void navigator.clipboard?.writeText(authUrl).then(
+                  () => setCopied(true),
+                  () => setOauthErr("复制失败，手动选中链接复制。"),
+                );
+                setTimeout(() => setCopied(false), 1500);
+              }}
+            >
+              {copied ? "已复制" : "复制链接"}
+            </button>
+            <button type="button" className="mini-btn" onClick={() => window.open(authUrl, "_blank", "noopener")}>
+              在浏览器里打开
+            </button>
+            <button type="button" className="link-btn" onClick={() => void gen()} disabled={busy}>
+              重新生成
+            </button>
+          </span>
+          <textarea
+            className="st-textarea"
+            rows={2}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="浏览器登录成功后会跳到一个打不开的 localhost 页面，把地址栏里的整个地址（或 code= 后面的码）粘到这里"
+            aria-label="授权码"
+            spellCheck={false}
+          />
+          <button type="button" className="send" onClick={() => void exchange()} disabled={busy || !code.trim()}>
+            {busy ? "验证中…" : "完成登录"}
           </button>
-          <span className="hint">会打开浏览器，登录 Console 账号并选一个工作区。登录完成后这里会自动变成「已登录」。</span>
+        </>
+      )}
+      {oauthErr && <span className="hint">登录出错：{oauthErr}</span>}
+    </>
+  );
+
+  return (
+    <div className="st-login">
+      <p className="hint">
+        用 ChatGPT 账号登录，对话走订阅额度，不用填 API Key。保存这个登录方式后生效；百科、识图等一次性功能暂时还不能用订阅。
+      </p>
+
+      {login.loggedIn ? (
+        <>
+          <div className="st-login-state ok">
+            <span>
+              <Icon name="check-circle" /> 已登录{!activeId && login.email ? `：${login.email}` : ""}
+            </span>
+            {!activeId && login.plan_type && <span className="hint">套餐：{login.plan_type}</span>}
+            {login.chatgpt_account_id && <span className="hint">账号 ID：{login.chatgpt_account_id}</span>}
+          </div>
+          <OpenAIAccounts
+            reloadKey={reloadKey}
+            adding={adding}
+            onToggleAdd={toggleAdd}
+            onChanged={() => void window.sweet.getProviders().then(onLoggedIn, () => {})}
+            onActiveChange={setActiveId}
+          />
+          {adding && (
+            <div className="st-login-state">
+              <span className="hint">添加账号：生成链接，在浏览器里登录另一个账号，再把地址粘回来。原来的账号会保留，新账号会成为当前使用的账号。</span>
+              {oauthFlow}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="st-login-state">
+          {login.expired && <span className="hint">登录已经过期，重新登录一次。</span>}
+          {oauthFlow}
         </div>
       )}
       {login.error && <span className="hint">读取登录信息时出错：{login.error}</span>}
+    </div>
+  );
+}
+
+const RESET_WINDOW_LABELS: Record<string, string> = Object.fromEntries(USAGE_WINDOWS.map(({ key, label }) => [key, label]));
+
+/** Usage-limit resets left on the subscription, under the usage panel. Read-only: there is no redeem action. */
+function ClaudeResetPanel() {
+  const [resets, setResets] = useState<ClaudeResetCredits | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      const r = await window.sweet.claudeResetCredits();
+      if ("error" in r) {
+        setError(r.error);
+        setResets(null);
+      } else {
+        setResets(r);
+      }
+    } catch (e) {
+      setError(cleanError(e));
+      setResets(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  return (
+    <div className="st-login-state" style={{ width: "100%", gap: 8, boxSizing: "border-box" }}>
+      <span className="st-inline" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+        <span>额度重置次数{resets?.eligible ? `：可用 ${resets.available_count} 次` : ""}</span>
+        <button type="button" className="link-btn" onClick={() => void load()} disabled={loading}>
+          {loading ? "刷新中…" : "刷新"}
+        </button>
+      </span>
+      {error ? (
+        <span className="hint">读取重置次数出错：{error}</span>
+      ) : !resets ? (
+        <span className="hint">{loading ? "查询中…" : "暂无数据"}</span>
+      ) : !resets.eligible ? (
+        <span className="hint">这个账号目前没有可用的额度重置。</span>
+      ) : (
+        <>
+          {resets.credits.length === 0 && <span className="hint">没有重置次数的明细。</span>}
+          {resets.credits.map((c, i) => {
+            const expires = c.expires_at ? new Date(c.expires_at) : null;
+            return (
+              <div key={i} style={{ width: "100%" }}>
+                <span style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 12 }}>
+                  <span>{c.label || "重置次数"}</span>
+                  <span style={{ fontVariantNumeric: "tabular-nums", color: "var(--muted)" }}>剩 {c.resets_left} 次</span>
+                </span>
+                <span className="hint">
+                  {c.clears.length ? `清空：${c.clears.map((k) => RESET_WINDOW_LABELS[k] ?? k).join("、")}` : "未说明清空哪些额度"}
+                  {expires && Number.isFinite(expires.getTime()) ? ` · ${expires.toLocaleDateString()} 到期` : ""}
+                </span>
+              </div>
+            );
+          })}
+          {resets.cooldown_until && <span className="hint">冷却中，{resetIn(resets.cooldown_until).replace("重置", "可再次使用")}。</span>}
+        </>
+      )}
     </div>
   );
 }

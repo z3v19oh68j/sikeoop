@@ -44,10 +44,11 @@ import type {
   TranscriptItem,
 } from "@shared/types";
 import type { AiSite, AiToolboxPrefs } from "@shared/types";
-import type { PvFfmpegState, PvPack, PvProject, PvShot, PvStep, PvStoryboard } from "@shared/types";
+import { createImagePromptMock } from "./components/image-prompts/mock";
+import type { PvAsset, PvBeats, PvFfmpegState, PvPack, PvProject, PvShot, PvStep, PvStoryboard } from "@shared/types";
 import type { BrowserAutomationState, BrowserFlow } from "@shared/types";
 import type { AgentPermissionCard, DispatchAgentInput, DispatchEvent, DispatchProgress } from "@shared/types";
-import type { DispatchJob, DispatchView, QuotaSettings, ResumePlan, UpdateState } from "@shared/types";
+import type { DispatchJob, DispatchView, QuotaSettings, ResidentView, ResumePlan, UpdateState } from "@shared/types";
 import type { ArxivEntry, EvidenceRecord, EvidenceRepoFile, PaperDoc, PaperEvent, PaperSummary, PaperTask, PaperTranslation, PromptPackState, PromptPreset, WritingAction } from "@shared/types";
 import type { DisclosureDraft, IdeaEvent, IdeaRun, IdeaSettings, NoveltyWork, ResearchIdea, ReviewEvent, ReviewReport, ReviewRun, ReviewSummary, ReviewerModel } from "@shared/types";
 import type { BibSettings, CslStyle, QuartoEvent, QuartoRun, QuartoWatch, ZoteroItem } from "@shared/types";
@@ -441,7 +442,7 @@ const BUILTIN_SKILLS: SkillInfo[] = [
   ["verify-before-done", "完成前先验证。真的运行检查，看到结果再说「改好了」。"],
   ["self-review", "改完后自查。按清单检查 bug、遗漏、安全问题和多余的改动。"],
   ["git-checkpoint", "用 git 小步存档，需要时安全地回到之前的版本。"],
-].map(([name, description]) => ({ name, description, format: "standard", origin: "内置技能", source: "sikeoop 内置", enabled: true, builtin: true, files: 1, hasScripts: false }));
+].map(([name, description]) => ({ name, description, format: "standard", origin: "内置技能", source: "sikeoop 内置", enabled: true, builtin: true, forced: false, files: 1, hasScripts: false }));
 let MOCK_PREVIEW: SkillPreview | null = null;
 /** Full texts behind file change cards, for "左右对比". */
 const DIFF_SOURCES = new Map<string, { path: string; before: string; after: string }>();
@@ -511,8 +512,8 @@ const MOCK_HUB: SkillHubItem[] = [
 ];
 let SKILLS: SkillInfo[] = [
   ...BUILTIN_SKILLS,
-  { name: "pdf", description: "读取、合并、拆分 PDF，提取表格和文字。", format: "standard", origin: "标准 Skill", source: "https://github.com/anthropics/skills", enabled: true, builtin: false, files: 6, hasScripts: true },
-  { name: "react", description: "React 组件规范（适用于 *.tsx）", format: "converted", origin: "Cursor 规则", source: "/Users/me/project", enabled: false, builtin: false, files: 1, hasScripts: false },
+  { name: "pdf", description: "读取、合并、拆分 PDF，提取表格和文字。", format: "standard", origin: "标准 Skill", source: "https://github.com/anthropics/skills", enabled: true, builtin: false, forced: false, files: 6, hasScripts: true },
+  { name: "react", description: "React 组件规范（适用于 *.tsx）", format: "converted", origin: "Cursor 规则", source: "/Users/me/project", enabled: false, builtin: false, forced: false, files: 1, hasScripts: false },
 ];
 let MCP: McpServerView[] = [
   { name: "filesystem", type: "stdio", summary: "npx -y @modelcontextprotocol/server-filesystem /Users/me/Documents", enabled: true, trusted: false, status: "connected", tools: [{ name: "read_file", description: "Read the complete contents of a file" }, { name: "list_directory", description: "List files in a directory" }], secretKeys: [] },
@@ -1973,6 +1974,92 @@ function createPaperMock2(): Pick<
 
 // ---- Auto-resume after a usage limit (quota) mock: two waiting plans and a few finished ones ----
 
+function createResidentMock(): Pick<SweetApi, "residentView" | "setResidentSettings" | "residentStart" | "residentStop" | "residentRunNow" | "onResident"> {
+  const HOUR = 3_600_000;
+  const t0 = Date.now();
+  const running = (): ResidentView["current"] => ({
+    id: `r${Date.now().toString(36)}`,
+    startedAt: Date.now(),
+    account: "claude",
+    topic: "React 19 的 use() 和 Actions",
+    status: "running",
+    summary: "",
+    outputs: [],
+  });
+  // Opens in the most telling state: both accounts used up, waiting for the reset.
+  let view: ResidentView = {
+    on: true,
+    phase: "waiting_quota",
+    resumeAt: t0 + 2 * HOUR + 13 * 60_000,
+    startedAt: t0 - 19 * HOUR - 24 * 60_000,
+    roundsToday: 4,
+    rounds: [
+      {
+        id: "r5", startedAt: t0 - 52 * 60_000, endedAt: t0 - 21 * 60_000, account: "codex", topic: "Electron 的 utilityProcess", status: "quota",
+        summary: "读完了官方文档和两篇迁移文章，正要在分支上把索引进程换成 utilityProcess 时额度用完了，下一轮接着做。",
+        outputs: ["记忆：utilityProcess 和 child_process.fork 的区别", "分支 resident/utility-process（未完成，2 个提交）"],
+      },
+      {
+        id: "r4", startedAt: t0 - 2.4 * HOUR, endedAt: t0 - 1.6 * HOUR, account: "claude", topic: "CSS 锚点定位 (anchor positioning)", status: "ok",
+        summary: "弄清了 anchor-name / position-anchor / position-try 的用法和 Chromium 的支持情况。写了一个技能，并在分支上把侧边栏的浮层改成了锚点定位，去掉了手算坐标的代码。",
+        outputs: ["技能：css-anchor-positioning/SKILL.md", "记忆：锚点定位在 Electron 33 以上可用", "分支 resident/sidebar-anchor（3 个提交，等你审）"],
+      },
+      {
+        id: "r3", startedAt: t0 - 4.1 * HOUR, endedAt: t0 - 3.9 * HOUR, account: "claude", topic: "Vite 6 的 Environment API", status: "failed",
+        summary: "官方文档站连续超时，没读到足够的内容，这一轮什么都没留下。",
+        outputs: [],
+      },
+      {
+        id: "r2", startedAt: t0 - 6.5 * HOUR, endedAt: t0 - 5.7 * HOUR, account: "codex", topic: "TypeScript 5.6 的迭代器辅助方法", status: "ok",
+        summary: "整理了 Iterator.prototype 上新增的 map / filter / take 等方法，以及它们和数组方法在惰性求值上的区别。",
+        outputs: ["记忆：迭代器辅助方法速查", "技能：ts-iterator-helpers/SKILL.md"],
+      },
+      {
+        id: "r1", startedAt: t0 - 26 * HOUR, endedAt: t0 - 25.8 * HOUR, account: "claude", topic: "", status: "stopped",
+        summary: "你关掉了超级常驻，这一轮停在了选题阶段。",
+        outputs: [],
+      },
+    ],
+    settings: {
+      topics: ["Electron 的 utilityProcess", "React 19 的 use() 和 Actions", "WebGPU 入门"],
+      selfDirected: true,
+      targets: { knowledge: true, project: true, self: false },
+      accounts: ["claude", "codex"],
+      dailyRounds: 12,
+      defaultDelayHours: 5,
+    },
+    accounts: [
+      { id: "claude", ready: true, limitedUntil: t0 + 2 * HOUR + 13 * 60_000 },
+      { id: "codex", ready: true, limitedUntil: t0 + 4 * HOUR + 40 * 60_000 },
+    ],
+  };
+  const listeners = new Set<(v: ResidentView) => void>();
+  const set = (patch: Partial<ResidentView>) => {
+    view = { ...view, ...patch };
+    listeners.forEach((l) => l(view));
+    return view;
+  };
+  const free = () => view.accounts.map((a) => ({ id: a.id, ready: a.ready }));
+  return {
+    residentView: async () => view,
+    setResidentSettings: async (settings) => {
+      if (!settings.accounts.length) throw new Error("至少要留一个账号参与");
+      return set({ settings });
+    },
+    residentStart: async () => {
+      if (!view.settings.accounts.some((id) => view.accounts.find((a) => a.id === id)?.ready)) throw new Error("参与的账号都还没有登录");
+      return set({ on: true, phase: "running", note: undefined, resumeAt: undefined, startedAt: Date.now(), current: running(), accounts: free() });
+    },
+    residentStop: async () => set({ on: false, phase: "off", note: undefined, resumeAt: undefined, current: undefined }),
+    residentRunNow: async () =>
+      set({ phase: "running", note: undefined, resumeAt: undefined, roundsToday: view.roundsToday + 1, current: running(), accounts: free() }),
+    onResident: (cb) => {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+  };
+}
+
 function createQuotaMock(): Pick<SweetApi, "quotaSettings" | "setQuotaSettings" | "resumePlans" | "cancelResumePlan" | "resumeNow" | "onResumePlans"> {
   const now = Date.now();
   const H = 3_600_000;
@@ -2258,20 +2345,33 @@ const PV_SHOTS: PvShot[] = [
 
 type PvProgress = { id: string; step: PvStep; status: PvProject["steps"][PvStep]; message?: string };
 
-function createPvMock(): Pick<SweetApi, "pvList" | "pvCreate" | "pvGet" | "pvRunStep" | "pvCancel" | "pvReadFile" | "pvWriteFile" | "pvStoryboard" | "pvSaveStoryboard" | "pvPacks" | "pvFfmpeg" | "pvFfmpegDownload" | "pvRenderPreview" | "pvPreviewUrl" | "onPvProgress"> {
+function createPvMock(): Pick<SweetApi, "pvList" | "pvCreate" | "pvGet" | "pvRunStep" | "pvCancel" | "pvReadFile" | "pvWriteFile" | "pvStoryboard" | "pvSaveStoryboard" | "pvPacks" | "pvFfmpeg" | "pvFfmpegDownload" | "pvRenderPreview" | "pvPreviewUrl" | "onPvProgress" | "pvAssets" | "pvImportAssets" | "pvRemoveAsset" | "pvAssetUrl" | "pvSetMusic" | "pvBeats" | "pvSetBeatGrid" | "pvSnapStoryboard"> {
   const steps = (done: PvStep[]) => Object.fromEntries((["brief", "script", "storyboard", "beats", "assets", "compose", "render"] as PvStep[]).map((s) => [s, done.includes(s) ? "done" : "todo"])) as PvProject["steps"];
-  const projects: PvProject[] = [{ id: "promo-30s", name: "sikeoop 30 秒宣传片", kind: "promo", ratio: "16:9", seconds: 30, dir: "pv/promo-30s", steps: steps(["brief", "script", "storyboard"]), updatedAt: Date.now() - 3_600_000 }];
+  const projects: PvProject[] = [{ id: "promo-30s", name: "sikeoop 30 秒宣传片", kind: "promo", ratio: "16:9", seconds: 30, dir: "pv/promo-30s", steps: steps(["brief", "script", "storyboard"]), updatedAt: Date.now() - 3_600_000 },
+    { id: "song-pv", name: "主题曲 PV", kind: "music", ratio: "16:9", seconds: 32, dir: "pv/song-pv", steps: steps(["brief", "script", "storyboard"]), updatedAt: Date.now() - 7_200_000, music: "song-120bpm.mp3" }];
   const files: Record<string, string> = {
     "promo-30s/brief.md": "# 需求\n\n- 给谁看：第一次听说 sikeoop 的编程新手\n- 记住一件事：AI 改什么、跑什么，都先问你\n- 风格：黄昏的海、粉色点缀、轻快\n- 平台：B 站、官网首页，16:9",
     "promo-30s/script.md": "| 时间 | 旁白 / 字幕 |\n|---|---|\n| 0–4s | 写代码，不用怕 |\n| 4–10s | 说出你想做的 |\n| 10–16s | 改什么，先给你看 |\n| 16–21s | 跑什么，先说清楚 |\n| 21–26s | 认真干活，偶尔嘴毒 |\n| 26–30s | sikeoop · 免费下载 |",
   };
-  const boards: Record<string, PvStoryboard> = { "promo-30s": { shots: PV_SHOTS } };
+  const boards: Record<string, PvStoryboard> = { "promo-30s": { shots: PV_SHOTS }, "song-pv": { shots: PV_SHOTS.map((s) => ({ ...s, source: "code" as const })) } };
   let ff: PvFfmpegState = { status: "missing" };
+  const assets: Record<string, PvAsset[]> = { "promo-30s": [
+    { file: "demo-screen.mp4", kind: "video", bytes: 8_400_000, seconds: 12.5 },
+    { file: "logo.png", kind: "image", bytes: 96_000 },
+    { file: "song-120bpm.mp3", kind: "audio", bytes: 3_200_000, seconds: 32 },
+  ], "song-pv": [{ file: "song-120bpm.mp3", kind: "audio", bytes: 3_200_000, seconds: 32 }] };
+  const beatsOf: Record<string, PvBeats> = {};
+  const makeBeats = (file: string, bpm: number, offset: number, beatsPerBar: number, duration: number, confidence: number): PvBeats => {
+    const gap = 60 / bpm;
+    const beats: number[] = [];
+    for (let t = offset; t < duration; t += gap) beats.push(Math.round(t * 1000) / 1000);
+    return { file, bpm, offset, beatsPerBar, duration, beats, bars: beats.filter((_, i) => i % beatsPerBar === 0), confidence };
+  };
   const listeners = new Set<(e: PvProgress) => void>();
-  const setStep = (id: string, step: PvStep, status: PvProject["steps"][PvStep]) => {
+  const setStep = (id: string, step: PvStep, status: PvProject["steps"][PvStep], message?: string) => {
     const p = projects.find((x) => x.id === id);
     if (p) p.steps = { ...p.steps, [step]: status };
-    listeners.forEach((l) => l({ id, step, status }));
+    listeners.forEach((l) => l({ id, step, status, message }));
   };
   const packs: PvPack[] = [
     { id: "common", name: "通用", kind: "common", entries: [
@@ -2283,6 +2383,16 @@ function createPvMock(): Pick<SweetApi, "pvList" | "pvCreate" | "pvGet" | "pvRun
     { id: "promo", name: "宣传片", kind: "promo", entries: [
       { id: "p1", title: "开头 3 秒给钩子", body: "第一个镜头就亮出最能打的画面或一句问题，不要从 logo 慢慢淡入太久。", steps: ["storyboard", "script"] },
       { id: "p2", title: "真实界面胜过概念图", body: "宣传软件就拍软件本身的操作，配一句话说明它省了什么事。", steps: ["storyboard", "compose"] },
+    ] },
+    { id: "field-notes", name: "实战经验", kind: "common", entries: [
+      { id: "bars", title: "先定小节，再填画面", body: "有配乐的片子先数出每段有几个小节，镜头时长按小节的整数倍排。", steps: ["storyboard", "beats"] },
+      { id: "beat-check", title: "节拍估算要人耳复核", body: "自动分析可能把速度听成一半或两倍，定稿前跟着节拍点自己听一遍。", steps: ["beats"] },
+      { id: "credits", title: "外来素材逐个记来源", body: "每个不是自己做的素材，都记下出处和授权，出片前对一遍。", steps: ["assets"] },
+      { id: "mix", title: "混音顺序和电平", body: "先放旁白，再垫音乐，音乐压低到不抢话的程度。", steps: ["render"] },
+    ] },
+    { id: "structure", name: "音乐 PV", kind: "music", entries: [
+      { id: "sections", title: "按歌曲段落排画面", body: "前奏、主歌、副歌各用一种画面语言，副歌给最强的画面。", steps: ["brief", "script", "storyboard"] },
+      { id: "hits", title: "卡点手法", body: "切镜、缩放、闪白落在重拍上；不要每一拍都卡，留几拍让画面喘气。", steps: ["storyboard", "beats", "compose"] },
     ] },
   ];
   return {
@@ -2299,7 +2409,12 @@ function createPvMock(): Pick<SweetApi, "pvList" | "pvCreate" | "pvGet" | "pvRun
       setTimeout(() => {
         if (step === "brief") files[`${id}/brief.md`] = "# 需求（AI 草稿）\n\n- 给谁看：\n- 记住一件事：\n- 风格：";
         if (step === "script") files[`${id}/script.md`] = "| 时间 | 旁白 |\n|---|---|\n| 0–5s | （AI 草稿）|";
+        if (step === "beats") { const m = projects.find((x) => x.id === id)?.music; if (m) beatsOf[id] = makeBeats(m, 120, 0.18, 4, 32, 0.86); }
         if (step === "storyboard" && !boards[id]?.shots.length) boards[id] = { shots: PV_SHOTS.map((s) => ({ ...s })) };
+        if (step === "assets") {
+          const lacking = (boards[id]?.shots ?? []).filter((s) => (s.source === "file" || s.source === "screen") && !(assets[id] ?? []).some((a) => a.file === s.asset)).map((s) => s.id);
+          if (lacking.length) { setStep(id, step, "error", `这些镜头还没有可用的素材：${lacking.join("、")}`); return; }
+        }
         setStep(id, step, "done");
       }, 1800);
       return `job-pv-${step}-${Date.now()}`;
@@ -2330,6 +2445,35 @@ function createPvMock(): Pick<SweetApi, "pvList" | "pvCreate" | "pvGet" | "pvRun
       return `/Users/demo/番茄待办/pv/${id}/out/preview.mp4`;
     },
     pvPreviewUrl: async (_root, id, file) => `sikeoop-pv://${id}/${file.split("/").map(encodeURIComponent).join("/")}`,
+    pvAssets: async (_root, id) => assets[id] ?? [],
+    pvImportAssets: async (_root, id) => {
+      const added: PvAsset[] = [{ file: `imported-${Date.now() % 10000}.png`, kind: "image", bytes: 240_000 }];
+      assets[id] = [...(assets[id] ?? []), ...added];
+      return added;
+    },
+    pvRemoveAsset: async (_root, id, file) => {
+      assets[id] = (assets[id] ?? []).filter((a) => a.file !== file);
+      const p = projects.find((x) => x.id === id);
+      if (p?.music === file) p.music = undefined;
+    },
+    pvAssetUrl: async (_root, id, file) => `sikeoop-pv://${id}/assets/${encodeURIComponent(file)}`,
+    pvSetMusic: async (_root, id, file) => {
+      const p = projects.find((x) => x.id === id)!;
+      p.music = file ?? undefined;
+      delete beatsOf[id];
+      return { ...p };
+    },
+    pvBeats: async (_root, id) => beatsOf[id] ?? null,
+    pvSetBeatGrid: async (_root, id, g) => {
+      const old = beatsOf[id];
+      beatsOf[id] = makeBeats(old?.file ?? "song-120bpm.mp3", g.bpm, g.offset, g.beatsPerBar, old?.duration ?? 32, old?.confidence ?? 0.5);
+      return beatsOf[id];
+    },
+    pvSnapStoryboard: async (_root, id, unit) => {
+      const b = beatsOf[id];
+      const u = (60 / (b?.bpm ?? 120)) * (unit === "bar" ? (b?.beatsPerBar ?? 4) : 1);
+      return { shots: (boards[id]?.shots ?? []).map((s) => ({ ...s, seconds: Math.max(1, Math.round(s.seconds / u)) * u })) };
+    },
     onPvProgress: (cb) => { listeners.add(cb); return () => listeners.delete(cb); },
   };
 }
@@ -2346,6 +2490,43 @@ const TOOLBOX_SITES: AiSite[] = [
   { id: "scholar", name: "Google 学术", category: "academic", home: "https://scholar.google.com/", query: "https://scholar.google.com/scholar?q={q}", note: "找论文", login: "none" },
   { id: "phind", name: "Phind", category: "dev", home: "https://www.phind.com/", query: "https://www.phind.com/search?q={q}", note: "面向程序员", login: "optional" },
 ];
+
+function createCheatshopMock(): Pick<SweetApi, "cheatshopTree" | "cheatshopRead"> {
+  const README = "# Game Cheat Workshop\n\n游戏逆向 / 外挂开发学习与模板工坊。\n\n> 开发模式使用的是假数据；正式包里由主进程读取 workshop 目录。";
+  const HOOK = "// hook_template.cpp (mock)\n#include <Dobby.h>\nextern \"C\" void* orig_TakeDamage;\nvoid hook_TakeDamage(void* self, float dmg) {\n  // 无敌：直接丢弃伤害\n}\n";
+  return {
+    cheatshopTree: async () => ({
+      ok: true,
+      data: {
+        rootPath: "/mock/game-cheat-workshop",
+        readme: "README.md",
+        index: "INDEX.md",
+        sections: [
+          {
+            dir: "20-unity-il2cpp",
+            order: "20",
+            title: "Unity IL2CPP dump + inline hook",
+            files: [
+              { path: "20-unity-il2cpp/hook_template.cpp", name: "hook_template.cpp", ext: ".cpp", size: HOOK.length },
+              { path: "20-unity-il2cpp/README.md", name: "README.md", ext: ".md", size: 120 },
+            ],
+          },
+          {
+            dir: "60-cheat-engine",
+            order: "60",
+            title: "Cheat Engine 自动汇编",
+            files: [{ path: "60-cheat-engine/godmode.ct.aa", name: "godmode.ct.aa", ext: ".aa", size: 48 }],
+          },
+        ],
+      },
+    }),
+    cheatshopRead: async (p) => {
+      if (p === "README.md") return { ok: true, data: { text: README, ext: ".md", size: README.length } };
+      if (p === "20-unity-il2cpp/hook_template.cpp") return { ok: true, data: { text: HOOK, ext: ".cpp", size: HOOK.length } };
+      return { ok: false, message: `mock 里没有 ${p}` };
+    },
+  };
+}
 
 function createToolboxMock(): Pick<SweetApi, "toolboxSites" | "toolboxPrefs" | "toolboxSavePrefs" | "toolboxOpenUrl"> {
   let prefs: AiToolboxPrefs = { favorites: ["metaso"], order: [], hidden: [], custom: [], groups: [{ id: "g1", name: "国内三家", sites: ["metaso", "kimi", "doubao"] }] };
@@ -2594,9 +2775,12 @@ export function installDevMock() {
 
   const api: SweetApi = {
     ...createPvMock(),
+    ...createResidentMock(),
     ...createBrowserAutomationMock(),
     ...createBrowserFlowMock(),
     ...createToolboxMock(),
+    ...createImagePromptMock(),
+    ...createCheatshopMock(),
     session: sessionMock.api,
     listRecent: async () => RECENT,
     protoList: async () => [{ name: PROTO_NAME, screens: (await protoDoc()).canvas.screens.length, updatedAt: Date.now() }],
@@ -2755,6 +2939,8 @@ export function installDevMock() {
     onSound: () => () => {},
     snipShortcut: async () => ({ accelerator: "CommandOrControl+Shift+2", enabled: false }),
     setSnipShortcut: async (on) => ({ accelerator: "CommandOrControl+Shift+2", enabled: on }),
+    snipCopy: async () => true,
+    setSnipCopy: async (on) => on,
     onChatInject: () => () => {},
     webSearch: async () => ({ engine: "auto", using: "duckduckgo", hasKey: { tavily: false, brave: false } }),
     setWebSearch: async () => ({ engine: "auto", using: "duckduckgo", hasKey: { tavily: false, brave: false } }),
@@ -2781,6 +2967,11 @@ export function installDevMock() {
     groupDelete: async () => {},
     groupSend: async () => {},
     groupStop: async () => {},
+    groupFinalize: async () => ({
+      goal: "示例目标", feasible: true, summary: "示例结论。", open: [], by: "米朵", at: Date.now(),
+      tasks: [{ id: "t1", title: "示例任务", assignee: "deepseek/deepseek-chat", what: "示例内容", owns: ["src/a.ts"], after: [], accept: "类型检查通过" }],
+    }),
+    groupHandoff: async () => ({ text: "这是群聊定下的分工方案（示例）。" }),
     onGroupEvent: () => () => {},
     // Kept in memory: the editor works, runs don't.
     automations: async () => ({ automations: AUTOMATIONS, runs: [], runningId: null }),
@@ -2860,6 +3051,147 @@ export function installDevMock() {
       return structuredClone(PROVIDERS);
     },
     providerDiscoverModels: async (id) => (id === "free-deepseek" ? ["deepseek-v3.2", "deepseek-r1", "deepseek-coder"] : PROVIDERS.providers.find((p) => p.id === id)?.suggestedModels ?? []),
+    claudeOAuthGenerate: async () => ({ auth_url: "https://claude.com/cai/oauth/authorize?code=true&client_id=demo&state=demo", session_id: "demo-session" }),
+    claudeOAuthExchange: async () => {
+      const claude = PROVIDERS.providers.find((p) => p.id === "anthropic")!;
+      claude.login = { loggedIn: true, antInstalled: true, account: "Siker Studio", email: "me@example.com" };
+      return structuredClone(PROVIDERS);
+    },
+    claudeOAuthLogout: async () => {
+      const claude = PROVIDERS.providers.find((p) => p.id === "anthropic")!;
+      claude.login = { loggedIn: false, antInstalled: true };
+      return structuredClone(PROVIDERS);
+    },
+    openaiOAuthGenerate: async () => ({ auth_url: "https://auth.openai.com/oauth/authorize?client_id=demo&state=demo", session_id: "demo-openai-session" }),
+    openaiOAuthExchange: async () => {
+      const openai = PROVIDERS.providers.find((p) => p.id === "openai")!;
+      openai.openaiLogin = { loggedIn: true, email: "me@example.com", chatgpt_account_id: "demo-account", plan_type: "plus" };
+      return structuredClone(PROVIDERS);
+    },
+    openaiOAuthLogout: async () => {
+      const openai = PROVIDERS.providers.find((p) => p.id === "openai")!;
+      openai.openaiLogin = { loggedIn: false };
+      return structuredClone(PROVIDERS);
+    },
+    // Demo accounts: shown once the ChatGPT login is "logged in"; switching and removing change the list.
+    ...(() => {
+      type Accounts = Awaited<ReturnType<Window["sweet"]["openaiAccounts"]>>;
+      const inHours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
+      const seed = () => [
+        { id: "d41c7be0-demo-0001", email: "siker@example.com", plan_type: "plus", active: true },
+        { id: "e8a3f952-demo-0002", email: "studio@example.com", plan_type: "pro", active: false },
+        { id: "f06b2d17-demo-0003", email: "backup@example.com", plan_type: "team", active: false },
+      ];
+      let demo = seed();
+      const openai = () => PROVIDERS.providers.find((p) => p.id === "openai");
+      const usageOf = (id: string): Accounts[number]["usage"] =>
+        id.startsWith("d4")
+          ? { plan_type: "plus", limit_reached: false, fetched_at: new Date().toISOString(),
+              primary: { used_percent: 37, resets_at: inHours(2.4), window_seconds: 18_000 },
+              secondary: { used_percent: 64, resets_at: inHours(80), window_seconds: 604_800 },
+              additional: [{ name: "Codex Spark", limit_reached: false, primary: { used_percent: 5, resets_at: inHours(2.4), window_seconds: 18_000 } }] }
+          : id.startsWith("e8")
+            ? { plan_type: "pro", limit_reached: false, fetched_at: new Date().toISOString(),
+                primary: { used_percent: 93, resets_at: inHours(0.6), window_seconds: 18_000 },
+                secondary: { used_percent: 81, resets_at: inHours(52), window_seconds: 604_800 },
+                additional: [{ name: "Codex Spark", limit_reached: true, primary: { used_percent: 100, resets_at: inHours(0.6), window_seconds: 18_000 } }] }
+            : { error: "登录已过期，重新登录这个账号" };
+      const list = (): Accounts => {
+        if (!openai()?.openaiLogin?.loggedIn) return [];
+        if (demo.length === 0) demo = seed();
+        return [...demo].sort((a, b) => Number(b.active) - Number(a.active)).map((a) => ({ ...a, usage: usageOf(a.id) }));
+      };
+      return {
+        openaiAccounts: async () => list(),
+        openaiAccountSwitch: async (id: string) => {
+          if (!demo.some((a) => a.id === id)) throw new Error("找不到这个账号");
+          demo = demo.map((a) => ({ ...a, active: a.id === id }));
+          return list();
+        },
+        openaiAccountRemove: async (id: string) => {
+          demo = demo.filter((a) => a.id !== id);
+          if (demo.length && !demo.some((a) => a.active)) demo[0].active = true;
+          const o = openai();
+          if (!demo.length && o) o.openaiLogin = { loggedIn: false };
+          return list();
+        },
+      };
+    })(),
+    openaiUsage: async () => {
+      const openai = PROVIDERS.providers.find((p) => p.id === "openai");
+      if (!openai?.openaiLogin?.loggedIn) return { error: "还没有登录 ChatGPT 订阅" };
+      const inHours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
+      return {
+        plan_type: "plus",
+        limit_reached: false,
+        primary: { used_percent: 37, resets_at: inHours(2), window_seconds: 18_000 },
+        secondary: { used_percent: 64, resets_at: inHours(80), window_seconds: 604_800 },
+        additional: [{ name: "Codex Spark", limit_reached: false, primary: { used_percent: 5, resets_at: inHours(2), window_seconds: 18_000 } }],
+        fetched_at: new Date().toISOString(),
+      };
+    },
+    claudeResetCredits: async () => ({
+      eligible: true,
+      available_count: 2,
+      credits: [
+        { label: "Max 套餐赠送", resets_left: 1, expires_at: new Date(Date.now() + 12 * 86_400_000).toISOString(), clears: ["five_hour", "seven_day"],
+          percent_used: { five_hour: 42, seven_day: 18 }, blocking: null, use_requires_limit: true, redeemable: false },
+        { label: "活动奖励", resets_left: 1, clears: ["five_hour"], percent_used: { five_hour: 42 } as Record<string, number>, blocking: null, use_requires_limit: true, redeemable: false },
+      ],
+      weekly_resets_at: new Date(Date.now() + 5 * 86_400_000).toISOString(),
+      fetched_at: new Date().toISOString(),
+    }),
+    // Demo accounts: shown once the Claude login is "logged in"; switching and removing change the list.
+    ...(() => {
+      type Accounts = Awaited<ReturnType<Window["sweet"]["claudeAccounts"]>>;
+      const inHours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
+      const seed = () => [
+        { id: "a1f3c9d2-demo-0001", email: "siker@example.com", active: true },
+        { id: "b7e2048a-demo-0002", email: "studio@example.com", active: false },
+        { id: "c94d61fe-demo-0003", email: "backup@example.com", active: false },
+      ];
+      let demo = seed();
+      const claude = () => PROVIDERS.providers.find((p) => p.id === "anthropic");
+      const usageOf = (id: string): Accounts[number]["usage"] =>
+        id.startsWith("a1")
+          ? { five_hour: { utilization: 42, resets_at: inHours(3.2) }, seven_day: { utilization: 18, resets_at: inHours(96) },
+              seven_day_sonnet: { utilization: 12, resets_at: inHours(96) }, seven_day_overage_included: { utilization: 7, resets_at: inHours(96) } }
+          : id.startsWith("b7")
+            ? { five_hour: { utilization: 96, resets_at: inHours(0.7) }, seven_day: { utilization: 83, resets_at: inHours(41) },
+                seven_day_sonnet: { utilization: 100, resets_at: inHours(41) }, seven_day_overage_included: { utilization: 0, resets_at: inHours(41) } }
+            : { error: "登录已过期，重新登录这个账号" };
+      const list = (): Accounts => {
+        if (!claude()?.login?.loggedIn) return [];
+        if (demo.length === 0) demo = seed();
+        return [...demo].sort((a, b) => Number(b.active) - Number(a.active)).map((a) => ({ ...a, usage: usageOf(a.id) }));
+      };
+      return {
+        claudeAccounts: async () => list(),
+        claudeAccountSwitch: async (id: string) => {
+          if (!demo.some((a) => a.id === id)) throw new Error("找不到这个账号");
+          demo = demo.map((a) => ({ ...a, active: a.id === id }));
+          return list();
+        },
+        claudeAccountRemove: async (id: string) => {
+          demo = demo.filter((a) => a.id !== id);
+          if (demo.length && !demo.some((a) => a.active)) demo[0].active = true;
+          const c = claude();
+          if (!demo.length && c) c.login = { loggedIn: false, antInstalled: true };
+          return list();
+        },
+      };
+    })(),
+    claudeUsage: async () => {
+      const claude = PROVIDERS.providers.find((p) => p.id === "anthropic");
+      if (!claude?.login?.loggedIn) return { error: "Claude OAuth 未登录" };
+      const inHours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
+      return {
+        five_hour: { utilization: 42, resets_at: inHours(3) },
+        seven_day: { utilization: 18, resets_at: inHours(96) },
+        seven_day_sonnet: { utilization: 12, resets_at: inHours(96) },
+        seven_day_overage_included: { utilization: 7, resets_at: inHours(96) },
+      };
+    },
     setBuiltinFreeProviderEnabled: async (id, enabled) => {
       Object.assign(PROVIDERS.providers.find((p) => p.id === id)!, { enabled });
       return structuredClone(PROVIDERS);
@@ -3054,7 +3386,7 @@ export function installDevMock() {
       await wait(300);
       SKILLS = [
         ...SKILLS.filter((s) => !picked.some((c) => c.name === s.name)),
-        ...picked.map((c) => ({ name: c.name, description: c.description, format: c.format, origin: c.origin, source: MOCK_PREVIEW!.source, enabled: true, builtin: false, files: c.files.length, hasScripts: c.hasScripts })),
+        ...picked.map((c) => ({ name: c.name, description: c.description, format: c.format, origin: c.origin, source: MOCK_PREVIEW!.source, enabled: true, builtin: false, forced: false, files: c.files.length, hasScripts: c.hasScripts })),
       ];
       return SKILLS;
     },

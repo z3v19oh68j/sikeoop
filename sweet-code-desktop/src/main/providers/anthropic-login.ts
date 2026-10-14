@@ -1,17 +1,15 @@
+import { validOAuthToken } from "./claude-oauth.ts";
 import { loadConfig, loadCredentials } from "@anthropic-ai/sdk/core/credentials";
 import type { AnthropicLogin } from "@shared/types";
 import { findOnPath } from "../shell-env";
 
-// "Log in with an Anthropic account" uses the official `ant` CLI: `ant auth login`
-// opens the browser, the user signs in to the Anthropic Console, and the CLI stores
-// an OAuth profile under ~/.config/anthropic (Windows: %APPDATA%\Anthropic). The SDK
-// reads that profile itself and refreshes the token, so this app never sees a
-// password or handles tokens. It is billed as API usage on that Console account;
-// Claude Pro/Max subscriptions are not usable from third-party apps.
-
 /** What the settings screen shows about the login. Never includes the token itself. */
 export async function loginStatus(): Promise<AnthropicLogin> {
   const antInstalled = Boolean(findOnPath(process.platform === "win32" ? "ant.exe" : "ant"));
+  try {
+    const token = await validOAuthToken();
+    if (token) return { loggedIn: true, antInstalled, account: token.org_uuid ?? token.account_uuid, email: token.email };
+  } catch { /* Expired or unavailable OAuth: keep the existing CLI fallback. */ }
   try {
     const config = await loadConfig();
     // Only an interactive login counts; workload-identity setups are for servers, not this app.

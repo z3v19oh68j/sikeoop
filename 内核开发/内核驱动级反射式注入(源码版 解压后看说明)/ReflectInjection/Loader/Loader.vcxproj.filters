@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{175c9c76-f9de-48ca-b2e9-54cc950f8f36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pch">
+      <UniqueIdentifier>{6986fbcb-c1ff-4d86-a5b8-a2ca0be38329}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{e42e8472-662e-41cb-88c7-783e15c5320e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Injector">
+      <UniqueIdentifier>{94401fd2-3bc3-4cb8-9624-311a3d8a18e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Driver">
+      <UniqueIdentifier>{4ede8c9a-3b63-4ae6-b144-a4df2854c27a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Pch.cpp">
+      <Filter>Pch</Filter>
+    </ClCompile>
+    <ClCompile Include="Injector.cpp">
+      <Filter>Injector</Filter>
+    </ClCompile>
+    <ClCompile Include="Driver.cpp">
+      <Filter>Driver</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Pch.h">
+      <Filter>Pch</Filter>
+    </ClInclude>
+    <ClInclude Include="Injector.h">
+      <Filter>Injector</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface.hpp">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Driver.h">
+      <Filter>Driver</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

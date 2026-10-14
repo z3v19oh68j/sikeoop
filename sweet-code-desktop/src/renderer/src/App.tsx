@@ -16,6 +16,8 @@ import { ResearchScreen } from "./components/research/ResearchScreen";
 import { PapersScreen } from "./components/papers/PapersScreen";
 import { PvScreen } from "./components/pv/PvScreen";
 import { ToolboxScreen } from "./components/toolbox/ToolboxScreen";
+import { ImagePromptScreen } from "./components/image-prompts/ImagePromptScreen";
+import { CheatShopScreen } from "./components/CheatShopScreen";
 import { AndroidPanel } from "./components/AndroidPanel";
 import { disposeModel, monaco, setInlineCompletion, syncModel } from "./monaco";
 import { deepseekCost } from "./pricing";
@@ -31,6 +33,7 @@ import { ArchiveDialog, ResumeDialog } from "./components/ArchiveDialogs";
 import { GroupScreen } from "./components/GroupScreen";
 import { UsageScreen } from "./components/UsageScreen";
 import { AutomationScreen } from "./components/AutomationScreen";
+import { ResidentScreen } from "./components/ResidentScreen";
 import { RemoteScreen } from "./components/RemoteScreen";
 import { ClusterConsole } from "./components/ClusterConsole";
 import { DispatchConsole } from "./components/DispatchConsole";
@@ -99,7 +102,7 @@ export function App() {
   const [browserReq, setBrowserReq] = useState<{ url: string; n: number } | null>(null);
   const browserOnRef = useRef(false);
   browserOnRef.current = browserOn;
-  const [screen, setScreen] = useState<"start" | "partners" | "work" | "studio" | "resources" | "wiki" | "graph" | "group" | "usage" | "automation" | "remote" | "cluster" | "dispatch" | "regress" | "mobile" | "extensions" | "research" | "papers" | "pv" | "toolbox">("start");
+  const [screen, setScreen] = useState<"start" | "partners" | "work" | "studio" | "resources" | "wiki" | "graph" | "group" | "usage" | "automation" | "resident" | "remote" | "cluster" | "dispatch" | "regress" | "mobile" | "extensions" | "research" | "papers" | "pv" | "toolbox" | "imgprompts" | "cheatshop">("start");
   /** The group chat mounts on its first visit. */
   const [groupOpened, setGroupOpened] = useState(false);
   /** The wiki mounts on its first visit, like the studio. */
@@ -135,7 +138,7 @@ export function App() {
   const [toast, setToast] = useState<ReactNode>("");
   const [terminalOpen, setTerminalOpen] = useState(false);
   /** A message to send to the AI on the user's behalf ("帮我看看"). */
-  const [injected, setInjected] = useState<{ text: string; nonce: number }>();
+  const [injected, setInjected] = useState<{ text: string; nonce: number; dispatch?: boolean }>();
   /** Errors Monaco found in the file being edited. */
   const [problems, setProblems] = useState<string[]>([]);
   const filesRef = useRef(files);
@@ -463,11 +466,13 @@ export function App() {
       { id: "go.graph", group: "打开", title: "知识图谱", keys: "zhishitupu zstp graph", run: go("graph") },
       { id: "go.group", group: "打开", title: "Agent 群聊", keys: "qunliao ql group chat", run: () => (setGroupOpened(true), setScreen("group")) },
       { id: "go.automation", group: "打开", title: "自动化", keys: "zidonghua zdh automation schedule dingshi", run: go("automation") },
+      { id: "go.resident", group: "打开", title: "超级常驻", keys: "chaojichangzhu cjcz changzhu cz resident xuexi 24", run: go("resident") },
       { id: "go.extensions", group: "打开", title: "扩展（主题、语法高亮）", keys: "kuozhan kz zhuti zt extensions themes openvsx", run: go("extensions") },
       { id: "go.mobile", group: "打开", title: "手机", keys: "shouji sj phone mobile anzhuo", run: go("mobile") },
       { id: "go.remote", group: "打开", title: "微信远程控制", keys: "weixin wx yuancheng yc wechat remote", run: go("remote") },
       { id: "go.cluster", group: "打开", title: "鸿蒙集群控制台", keys: "hongmeng hm jiqun jq harmony cluster", run: go("cluster") },
       { id: "go.toolbox", group: "打开", title: "百宝箱：同时问几家 AI 搜索", keys: "baibaoxiang bbx sousuo ss ai search toolbox duibi", run: go("toolbox") },
+      { id: "go.cheatshop", group: "打开", title: "外挂工坊：游戏逆向模板集", keys: "waiguagongfang wggf cheat workshop game reverse hack il2cpp unreal frida", run: go("cheatshop") },
       { id: "go.dispatch", group: "打开", title: "调度台", keys: "diaodutai ddt renwu rw dispatch jobs", run: go("dispatch") },
       { id: "go.usage", group: "打开", title: "用量统计", keys: "yongliang yl tongji tj usage token", run: go("usage") },
       { id: "go.partners", group: "打开", title: "全部伙伴", keys: "huoban hb partners", run: go("partners") },
@@ -483,6 +488,7 @@ export function App() {
       { id: "help.uninstall", group: "帮助", title: "卸载 sikeoop", keys: "xiezai xz shanchu sc uninstall remove", run: () => void window.sweet.uninstallApp().then((why) => why && window.alert(why)) },
     ];
     // Deep research ships once it has had a real run (docs/方案-深度科研.md: testing is the user's).
+    if (SHOW_UNFINISHED) cmds.push({ id: "go.imgprompts", group: "打开", title: "提示词库：精选的图片生成提示词", keys: "tishiciku tsck tishici tsc shengtu st tupian tp image prompt gallery", run: go("imgprompts") });
     if (SHOW_UNFINISHED) cmds.push({ id: "go.pv", group: "打开", title: "PV 工坊", keys: "pvgongfang pv xuanchuanpian xcp shipin sp video promo", run: go("pv") });
     if (SHOW_UNFINISHED) cmds.push({ id: "go.papers", group: "打开", title: "论文工坊", keys: "lunwengongfang lwgf lunwen lw fanyi fy runse rs arxiv paper", run: go("papers") });
     if (SHOW_UNFINISHED) cmds.push({ id: "go.research", group: "打开", title: "深度科研", keys: "shendukeyan sdky keyan ky yanjiu yj research debate", run: go("research") });
@@ -514,7 +520,7 @@ export function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const askAI = useCallback((text: string) => setInjected({ text, nonce: Date.now() }), []);
+  const askAI = useCallback((text: string, dispatch?: boolean) => setInjected({ text, nonce: Date.now(), ...(dispatch ? { dispatch } : {}) }), []);
 
   // "Continue in the chat" from the island's screenshot answer.
   const rootRef = useRef(root);
@@ -685,6 +691,7 @@ export function App() {
               },
             },
             automation: { on: screen === "automation", run: () => setScreen("automation") },
+            resident: { on: screen === "resident", run: () => setScreen("resident") },
             extensions: { on: screen === "extensions", run: () => setScreen("extensions") },
             mobile: { on: screen === "mobile", run: () => setScreen("mobile") },
             remote: { on: screen === "remote", run: () => setScreen("remote") },
@@ -694,6 +701,8 @@ export function App() {
             papers: { on: screen === "papers", hidden: !SHOW_UNFINISHED, run: () => setScreen("papers") },
             pv: { on: screen === "pv", hidden: !SHOW_UNFINISHED, run: () => setScreen("pv") },
             toolbox: { on: screen === "toolbox", run: () => setScreen("toolbox") },
+            imgprompts: { on: screen === "imgprompts", hidden: !SHOW_UNFINISHED, run: () => setScreen("imgprompts") },
+            cheatshop: { on: screen === "cheatshop", run: () => setScreen("cheatshop") },
             regress: { on: screen === "regress", hidden: !SHOW_UNFINISHED, run: () => setScreen("regress") },
             usage: { on: screen === "usage", run: () => setScreen("usage") },
             partners: { on: screen === "partners", run: () => setScreen("partners") },
@@ -764,6 +773,8 @@ export function App() {
           initialRepository={researchRepo ?? undefined}
         />
         <ToolboxScreen hidden={screen !== "toolbox"} />
+        {SHOW_UNFINISHED && <ImagePromptScreen hidden={screen !== "imgprompts"} />}
+        <CheatShopScreen hidden={screen !== "cheatshop"} />
         {SHOW_UNFINISHED && <PvScreen hidden={screen !== "pv"} root={root} />}
         {SHOW_UNFINISHED && (
           <PapersScreen
@@ -783,6 +794,7 @@ export function App() {
           />
         )}
         <RegressConsole hidden={screen !== "regress"} />
+        <ResidentScreen hidden={screen !== "resident"} />
         <AutomationScreen
           hidden={screen !== "automation"}
           hasProject={!!root}
@@ -796,10 +808,10 @@ export function App() {
             key={`group:${root ?? "none"}`}
             hidden={screen !== "group"}
             onSettings={() => openSettings()}
-            onHandOff={(text) => {
+            onHandOff={(text, dispatch) => {
               if (!root) return flash("先打开一个项目，Agent 才能动手");
               setScreen("work");
-              askAI(text);
+              askAI(text, dispatch);
             }}
           />
         )}

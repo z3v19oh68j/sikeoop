@@ -65,3 +65,77 @@ export function noteRows(notes: string | undefined, max = 3): NoteRow[] {
 
 /** The whole notes, readable without markdown marks. */
 export const notesText = (notes: string) => plain(notes).trim();
+
+// The same notes in full, for the release-notes view (ReleaseNotes.tsx): a tagline, then sections of bullets.
+
+export type NoteTone = "new" | "better" | "fix" | "warn" | "plain";
+
+export interface NoteItem {
+  /** The bold lead of the bullet, "" when it has none. */
+  lead: string;
+  /** The rest of the bullet. */
+  text: string;
+  /** Nested bullets under it. */
+  details: string[];
+}
+
+export interface NoteSection {
+  heading: string;
+  tone: NoteTone;
+  items: NoteItem[];
+  /** Lines of the section that are not bullets. */
+  paragraphs: string[];
+}
+
+export interface ParsedNotes {
+  /** The quoted line under the title. */
+  tagline: string;
+  sections: NoteSection[];
+}
+
+function toneOf(heading: string): NoteTone {
+  if (/注意|警告|须知|warning|breaking/i.test(heading)) return "warn";
+  const s = sectionOf(heading);
+  return s === "other" ? "plain" : s;
+}
+
+function itemOf(text: string): NoteItem {
+  const bold = /^\*\*(.+?)\*\*\s*[：:]?\s*(.*)$/.exec(text);
+  return bold ? { lead: plain(bold[1]).replace(/[：:]\s*$/, ""), text: plain(bold[2]), details: [] } : { lead: "", text: plain(text), details: [] };
+}
+
+export function parseNotes(notes: string | undefined): ParsedNotes {
+  const out: ParsedNotes = { tagline: "", sections: [] };
+  if (!notes?.trim()) return out;
+  let section: NoteSection | null = null;
+  // Text before the first heading goes in a section without one.
+  const current = () => (section ??= out.sections[out.sections.push({ heading: "", tone: "plain", items: [], paragraphs: [] }) - 1]);
+  for (const raw of notes.split(/\r?\n/)) {
+    const line = raw.trimEnd();
+    if (!line.trim()) continue;
+    if (/^#\s+/.test(line)) continue; // the title: the card already says which version this is
+    const h = /^#{2,6}\s+(.+)/.exec(line);
+    if (h) {
+      const heading = plain(h[1]).trim();
+      section = { heading, tone: toneOf(heading), items: [], paragraphs: [] };
+      out.sections.push(section);
+      continue;
+    }
+    const quote = /^>\s?(.*)/.exec(line);
+    if (quote && !section && !out.tagline) {
+      out.tagline = plain(quote[1]).trim();
+      continue;
+    }
+    const nested = /^\s+[-*+]\s+(.+)/.exec(line);
+    const last = section?.items[section.items.length - 1];
+    if (nested && last) {
+      last.details.push(plain(nested[1]).trim());
+      continue;
+    }
+    const bullet = /^\s*(?:[-*+]|\d+[.)])\s+(.+)/.exec(line);
+    if (bullet) current().items.push(itemOf(bullet[1].trim()));
+    else current().paragraphs.push(plain(line).trim());
+  }
+  out.sections = out.sections.filter((s) => s.items.length || s.paragraphs.length);
+  return out;
+}

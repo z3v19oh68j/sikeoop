@@ -1,15 +1,31 @@
+import * as claudeOAuth from "./providers/claude-oauth.ts";
+import * as openaiOAuth from "./providers/openai-oauth.ts";
+import { cachedCodexQuota, type CodexQuotaResult } from "./providers/openai-codex.ts";
+import { claudeUsageWithPassiveFallback, queryClaudeResetCredits, type ClaudeResetCreditsResult } from "./providers/claude-usage.ts";
+import { claudeAccounts } from "./providers/claude-accounts.ts";
+import { openaiAccounts } from "./providers/openai-accounts.ts";
+import type { ClaudeUsageResult } from "@shared/types";
 import { AgentDispatchService } from "./dispatch/agent-service.ts";
 import { AgentApprovals } from "./connectors/approval.ts";
 import { ToolboxService } from "./toolbox/service.ts";
 import { registerToolboxIpc } from "./toolbox/ipc.ts";
+import { ImagePromptService } from "./image-prompts/service.ts";
+import { registerImagePromptIpc } from "./image-prompts/ipc.ts";
+import { CheatshopService } from "./cheatshop/service.ts";
+import { registerCheatshopIpc } from "./cheatshop/ipc.ts";
 import { PV_SCHEME, servePvMedia } from "./pv/protocol.ts";
 import { runPvProcess } from "./pv/host.ts";
 import { PvService } from "./pv/service.ts";
 import { FfmpegService, githubPlan } from "./pv/ffmpeg.ts";
 import { registerPvIpc } from "./pv/ipc.ts";
+import { assetExtensions as pvAssetExtensions } from "./pv/media.ts";
 import { installPvSkills } from "./pv/skills.ts";
 import { QuotaService } from "./quota/service.ts";
 import { quotaStore } from "./quota/store.ts";
+import { ResidentService } from "./resident/service.ts";
+import { residentStore } from "./resident/store.ts";
+import { roundRunner } from "./resident/runner.ts";
+import { loginStatus as anthropicLoginStatus } from "./providers/anthropic-login";
 import { PaperService } from './papers/service.ts';
 import { registerPaperIpc } from './papers/ipc.ts';
 import { ReviewService } from './papers/review.ts';
@@ -30,7 +46,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { BrowserWindow, app, clipboard, dialog, globalShortcut, ipcMain, net, protocol, safeStorage, session as electronSession, shell, systemPreferences } from "electron";
+import { BrowserWindow, ClipboardItem, app, clipboard, dialog, globalShortcut, ipcMain, net, protocol, safeStorage, session as electronSession, shell, systemPreferences } from "electron";
 import type {
   AgentKinds,
   ConsolidateReport,
@@ -63,6 +79,7 @@ import type {
 import { ResearchService } from "./research/runner";
 import type { ResearchRequest } from "@shared/types";
 import { SYSTEM_PROMPT } from "./agent/context";
+import { withUnlockModule } from "./agent/unlock.ts";
 import { WORKER_PROMPT } from "./agent/prompts";
 import { uninstall } from "./uninstall";
 import { providerHealth } from "./providers/health";
@@ -84,6 +101,7 @@ import { learnLessons } from "./agent/lessons";
 import { McpManager, parseMcpConfig } from "./plugins/mcp";
 import { BUILTIN_SKILLS } from "./plugins/builtin";
 import { SkillStore } from "./plugins/skills";
+import { ensureHackPreset } from "./plugins/forced-skills.ts";
 import type { Complete } from "./plugins/skill-review";
 import { searchSkillHub } from "./plugins/skillhub";
 import * as sessions from "./agent/session-store";
@@ -105,8 +123,10 @@ import { webTools } from "./tools/web-tools";
 import * as recent from "./recent";
 import { Voice } from "./voice";
 import { Approver } from "./approver";
+import { unattendedDecision } from "./approver-rules.ts";
 import { Dictation } from "./dictation";
 import { MAX_REPLY, PeerBus, hostFraming, peerFraming, peerPrompt, replyFraming, routedText } from "./peers";
+import { hostMessages, hostProgress } from "./peer-host";
 import { replyText, wantsReply } from "./dispatch/reply";
 import * as contextSettings from "./context-settings";
 import { HookBus } from "./hooks/bus";
@@ -171,7 +191,9 @@ import { type Cluster, loadCluster, rolePrompt } from "./agent/harmony-cluster";
 import { ClusterMonitor } from "./agent/cluster-monitor";
 import type { ClusterView } from "@shared/types";
 import type { ToolDef } from "./providers/types";
-import { buildTree, getRoot, hasRoot, readWorkspaceFile, setRoot, writeWorkspaceFile } from "./workspace";
+import { buildTree, getRoot, hasRoot, readWorkspaceFile, setRoot, withRoot, writeWorkspaceFile } from "./workspace";
+import { createSandbox, runInSandbox } from "./dispatch/sandbox.ts";
+import { mkdir, realpath } from "node:fs/promises";
 
 let win: BrowserWindow | null = null;
 
@@ -515,6 +537,18 @@ const peers: PeerBus = new PeerBus({
     remote.askGone(id);
   },
   onMessage: (from, to, text) => island.notice(`${from} → ${to}`, text),
+  // Super-dispatch mode runs unattended: a session working on a task the main conversation handed
+  // it gets its permission requests answered by the fixed rules, not by the user.
+  autoAnswer: (s, tool, input, cwd) =>
+    session.unattendedGoal && dispatcher.current(s.id)?.from === "sikeoop" ? unattendedDecision({ tool_name: tool, tool_input: input, cwd }) : null,
+  // The main conversation takes a session's messages only while it waits on a task it handed that session.
+  host: {
+    awaiting: (id) => {
+      const job = dispatcher.current(id);
+      return job && job.from === "sikeoop" && !job.reply ? { jobId: job.id, sent: hostMessages(job.progress).length } : null;
+    },
+    receive: (from, jobId, message) => dispatcher.progress(jobId, hostProgress(from.name, message)),
+  },
   // A cross-project session's member: its send_to, tool calls, replies and exit go to the timeline.
   onSessionEvent: (e) => crossSessions.onPeerEvent(e),
   // A terminal session on a job that owns certain files may only write those.
@@ -631,6 +665,17 @@ const groups = new GroupService({
   call: (m, system, user, onDelta, signal) => stream({ ...providers.resolve(m.providerId), model: m.model }, system, user, onDelta, { maxTokens: 2000, signal }),
   // Each member's reply is a job: one group speaks one at a time, different groups at once.
   dispatcher,
+  // A plan's tasks go to the members themselves (as sub-agents, when still configured) or to a terminal session.
+  assignees: (members) => {
+    const workers = workerModels();
+    return [
+      ...members.flatMap((m) => {
+        const w = workers.find((x) => x.providerId === m.providerId && x.model === m.model);
+        return w ? [{ name: w.name, note: `群成员「${m.name}」，以子代理身份干活` }] : [];
+      }),
+      ...peers.sessionsView().filter((s) => !s.group).map((s) => ({ name: s.name, note: `终端里的 ${s.cli === "codex" ? "Codex" : s.cli === "claude" ? "Claude Code" : s.cli} 会话` })),
+    ];
+  },
   emit: (e) => {
     win?.webContents.send("group:event", e);
     if (e.type === "message" && e.message.from === "member" && !e.message.error) sound("group");
@@ -775,11 +820,23 @@ const shot: { image: string; thumb: string; question: string; answer: string; ab
   abort: null,
 };
 let snipState: { enabled: boolean; error?: string } = { enabled: true };
+/** Every screenshot also goes to the clipboard as an image, ready to paste into a chat app or a document. */
+let snipCopy = true;
 
 async function takeShot(): Promise<void> {
   try {
     let img = await snipper.capture();
     if (!img) return;
+    // Copied at full size, before it is shrunk for the model: what is pasted elsewhere stays sharp.
+    let copied = false;
+    if (snipCopy) {
+      try {
+        await clipboard.write([new ClipboardItem({ "image/png": new Blob([new Uint8Array(img.toPNG())], { type: "image/png" }) })]);
+        copied = true;
+      } catch {
+        // The clipboard is busy or refused it: the screenshot itself still works.
+      }
+    }
     const { width, height } = img.getSize();
     if (Math.max(width, height) > SNIP_MAX_SIDE) {
       img = width >= height ? img.resize({ width: SNIP_MAX_SIDE, quality: "best" }) : img.resize({ height: SNIP_MAX_SIDE, quality: "best" });
@@ -789,7 +846,7 @@ async function takeShot(): Promise<void> {
     shot.thumb = img.resize({ width: Math.min(420, img.getSize().width) }).toDataURL();
     shot.question = "";
     shot.answer = "";
-    island.shotShow({ kind: "shot", providerId: "", image: shot.thumb });
+    island.shotShow({ kind: "shot", providerId: "", image: shot.thumb, ...(copied ? { copied: true } : {}) });
   } catch (err) {
     if (err instanceof NeedsPermission) {
       background.notify("截图需要「屏幕录制」权限", "在系统设置里给 sikeoop 打开「屏幕录制」，然后重新打开 sikeoop。", true);
@@ -842,7 +899,7 @@ function applySnipGesture(change: { enabled?: boolean; sideButton?: 4 | 5 }, ask
 
 async function saveSnipSettings(): Promise<void> {
   await fs.promises
-    .writeFile(snipSettingsFile(), JSON.stringify({ enabled: snipState.enabled || !!snipState.error, gesture: gestureState.enabled, sideButton: gestureState.sideButton }), "utf8")
+    .writeFile(snipSettingsFile(), JSON.stringify({ enabled: snipState.enabled || !!snipState.error, gesture: gestureState.enabled, sideButton: gestureState.sideButton, copy: snipCopy }), "utf8")
     .catch(() => {});
 }
 
@@ -905,9 +962,9 @@ const mcp = new McpManager(
   (servers) => win?.webContents.send("mcp:changed", servers),
 );
 /** Enabled skills, refreshed whenever they change, so a new conversation can read them synchronously. */
-let enabledSkills: { name: string; description: string }[] = [];
+let enabledSkills: { name: string; description: string; forced: boolean }[] = [];
 async function refreshSkills() {
-  enabledSkills = (await skills.enabled()).map(({ name, description }) => ({ name, description }));
+  enabledSkills = (await skills.enabled()).map(({ name, description, forced }) => ({ name, description, forced }));
   return skills.list();
 }
 
@@ -1012,7 +1069,7 @@ async function runHarmonyRole(
   const role = cluster.roles.find((r) => r.name === roleName);
   if (!role) throw new Error(`没有这个角色 ${roleName}`);
   const exec = new SessionExecutor(`cluster:${role.name}`, role.name, async (job, sig) => ({ text: await runRoleSession(cluster, role, envelope, sig, goal, job) }));
-  const sub = dispatcher.submit({ executor: exec, input: goal, origin: "cluster", from: "sikeoop", parentId: parentJobId, timeoutMs: 31 * 60_000, ...jobLimits(limits) });
+  const sub = dispatcher.submit({ executor: exec, input: goal, origin: "cluster", from: "sikeoop", parentId: parentJobId, timeoutMs: 31 * 60_000, ...jobLimits(limits), scope: jobLimits(limits).scope ? { ...jobLimits(limits).scope!, readOnly: role.readOnly } : undefined });
   if ("error" in sub) return `Error: ${sub.error}`;
   const onAbort = () => dispatcher.cancel(sub.job.id);
   signal.addEventListener("abort", onAbort, { once: true });
@@ -1062,7 +1119,7 @@ async function runRoleSession(cluster: Cluster, role: Cluster["roles"][number], 
   signal.addEventListener("abort", onAbort, { once: true });
   const timer = setTimeout(onAbort, 30 * 60_000);
   try {
-    await sub.send({ text: envelope, editor: {}, effort: "medium", lazy: true });
+    await sub.send({ text: envelope, editor: {}, effort: "low", lazy: true });
   } catch (err) {
     clusterMonitor.finish(runId, "", signal.aborted);
     throw err;
@@ -1085,6 +1142,7 @@ const agentBus: AgentBusDeps = {
     const r = dispatcher.submit({ executor: cliExecutor(s), input: message, origin: "chat", from: "sikeoop", parentId: parentJobId, ...jobLimits(limits) });
     return "error" in r ? r : { session: s, queued, done: r.done };
   },
+  job: (id) => dispatcher.wait(id) ?? null,
   pending: (id) => dispatcher.pending(id)?.done ?? null,
   last: (s) => {
     const job = dispatcher.last(s.id);
@@ -1112,14 +1170,14 @@ const agentBus: AgentBusDeps = {
       const w = findWorker(name);
       if (!w) return { error: `没有叫「${name}」的模型，用 list_agents 看有哪些` };
       // A ref of its own per task: a model has no state, so its tasks never queue behind each other.
-      const exec = new SessionExecutor(`worker:${w.name}#${++workerSeq}`, w.name, async (job, sig) => ({ text: await runWorkerSession({ providerId: w.providerId, model: w.model }, sig, job) }));
+      const exec = new SessionExecutor(`worker:${w.name}#${++workerSeq}`, w.name, async (job, sig) => ({ text: await runWorker({ providerId: w.providerId, model: w.model }, sig, job) }));
       const r = dispatcher.submit({ executor: exec, input: message, origin: "chat", from: "sikeoop", parentId: parentJobId, timeoutMs: 31 * 60_000, ...jobLimits(limits) });
       if ("error" in r) return r;
       // Nobody is left to read its result once the coordinator's turn is stopped.
       const onAbort = () => dispatcher.cancel(r.job.id);
       signal.addEventListener("abort", onAbort, { once: true });
       void r.done.then(() => signal.removeEventListener("abort", onAbort));
-      return { done: r.done };
+      return { job: r.job, done: r.done };
     },
   },
 };
@@ -1143,7 +1201,7 @@ function findWorker(name: string) {
  * Like a cluster role, without the role: it works unattended with the dangerous actions refused,
  * may only write what its job owns, and what it does shows up on its job in the dispatch console.
  */
-async function runWorkerSession(target: ModelTarget, signal: AbortSignal, job: DispatchJob): Promise<string> {
+async function runWorkerSession(target: ModelTarget, signal: AbortSignal, job: DispatchJob, input = job.input): Promise<string> {
   let text = "";
   const sub = new AgentSession({
     ...sessionDeps,
@@ -1168,11 +1226,65 @@ async function runWorkerSession(target: ModelTarget, signal: AbortSignal, job: D
   const onAbort = () => sub.cancel();
   signal.addEventListener("abort", onAbort, { once: true });
   try {
-    await sub.send({ text: job.input, editor: {}, effort: "medium", lazy: true });
+    await sub.send({ text: input, editor: {}, effort: "low", lazy: true });
   } finally {
     signal.removeEventListener("abort", onAbort);
   }
   return text.trim() || "（子代理没有文字回复）";
+}
+
+let sandboxSeq = 0;
+/** Sandbox checks compare a copy with itself, so they keep their own baselines apart from the project's. */
+const sandboxVerifier = new Verifier(async (command, cwd, signal) => {
+  const bash = findBash();
+  if (!bash) throw new Error(GIT_BASH_MISSING);
+  const r = await execute(bash, command, cwd, 10 * 60_000, signal, () => {});
+  return { output: r.output, exitCode: r.exitCode };
+});
+
+/**
+ * A sub-agent's task that changes files (it says which: `owns`) is done in a sandbox copy of the
+ * project (dispatch/sandbox.ts): checked there, merged back only when it passes, thrown away and
+ * redone otherwise. A task that names no files, or a project that can't be copied, runs in the
+ * project as before.
+ */
+async function runWorker(target: ModelTarget, signal: AbortSignal, job: DispatchJob): Promise<string> {
+  const root = job.scope?.roots[0];
+  if (!root || !job.scope?.owns?.length || job.scope.readOnly) return runWorkerSession(target, signal, job);
+  const note = (text: string) => dispatcher.progress(job.id, { type: "status", at: Date.now(), text });
+  const open = async () => {
+    const base = path.join(app.getPath("userData"), "sandboxes");
+    await mkdir(base, { recursive: true });
+    return createSandbox(root, path.join(await realpath(base), `${job.id.slice(0, 8)}-${++sandboxSeq}`));
+  };
+  let first: Awaited<ReturnType<typeof open>>;
+  try {
+    first = await open();
+  } catch (err) {
+    note(`没有建成沙盒，直接在项目里做：${(err as Error).message.slice(0, 120)}`);
+    return runWorkerSession(target, signal, job);
+  }
+  let handed = false;
+  // The same task as it reads inside a copy: the copy is its only root.
+  const inside = (dir: string, n: number): DispatchJob => ({ ...job, id: `${job.id}:sandbox${n}`, scope: { ...job.scope!, roots: [dir] }, result: undefined, checks: undefined });
+  let n = 0;
+  return runInSandbox(job.input, signal, {
+    open: async () => (handed ? open() : ((handed = true), first)),
+    note,
+    begin: async (sb, sig) => {
+      const copy = inside(sb.dir, ++n);
+      return { copy, before: await sandboxVerifier.before(copy, sig) };
+    },
+    work: (sb, input, sig) => withRoot(sb.dir, () => runWorkerSession(target, sig, inside(sb.dir, n), input)),
+    check: async (_sb, state, report, sig) => {
+      state.copy.result = { text: report };
+      try {
+        return await sandboxVerifier.after(state.copy, state.before, sig);
+      } finally {
+        sandboxVerifier.end(state.copy);
+      }
+    },
+  });
 }
 
 // Tools a reopened conversation gets even if it started without them: the terminal sessions and
@@ -1225,11 +1337,14 @@ function makeAdapter(
   // (often the one a WeChat message lands in) couldn't reach Claude Code / Codex or the emulator at
   // all, so they're appended at the end. That costs one cache rewrite the first time it's reopened.
   const toolDefs = saved ? withBusTools(saved, registry.definitions()) : registry.definitions();
+  // opts.system sessions (terminal/worker agents) keep their own prompt; only the main
+  // conversation passes through the unlock module (on by default; SIKEOOP_CC_UNLOCK=off to disable).
+  const system = opts.system ?? withUnlockModule(SYSTEM_PROMPT);
   return {
     contextBudget: contextBudget(p.preset),
     contextWindow: p.preset.contextWindow ?? 128_000,
-    systemPrompt: opts.system ?? SYSTEM_PROMPT,
-    adapter: createAdapter(p, opts.system ?? SYSTEM_PROMPT, toolDefs),
+    systemPrompt: system,
+    adapter: createAdapter(p, system, toolDefs),
     provider: { id: p.preset.id, name: p.preset.name, kind: p.preset.kind, model: p.model, compat: p.preset.compat, builtinFree: p.preset.builtinFree, auto: opts.target?.auto || configured.model === "auto" },
     registry,
     toolDefs,
@@ -1388,6 +1503,13 @@ const paperTools = new ToolsService({
 });
 const toolbox = new ToolboxService(path.join(app.isPackaged ? process.resourcesPath : path.join(app.getAppPath(), "resources"), "ai-search", "sites.json"), app.getPath("userData"), text => clipboard.writeText(text));
 const pvResources = app.isPackaged ? process.resourcesPath : path.join(app.getAppPath(), "resources");
+const imagePrompts = new ImagePromptService({ dataDir: path.join(pvResources, "image-prompts"), userData: app.getPath("userData"), copy: text => clipboard.writeText(text), requireRelease: app.isPackaged });
+// Workshop lives next to sweet-code-desktop in dev, and ships as `resources/cheatshop` in the installer.
+const cheatshop = new CheatshopService(
+  app.isPackaged
+    ? path.join(process.resourcesPath, "cheatshop")
+    : path.resolve(app.getAppPath(), "..", "game-cheat-workshop"),
+);
 const pvFfmpeg = new FfmpegService({
   userData: app.getPath("userData"), request: paperToolRequest, run: runProcess,
   plan: () => githubPlan(paperToolRequest, process.platform, process.arch),
@@ -1658,6 +1780,49 @@ const automations = new AutomationService({
   },
 });
 
+// Super-resident mode: an endless loop of learning rounds on the two subscription logins. Each
+// round is its own background conversation, pinned to one account: no routing, no failover.
+const RESIDENT_PROVIDER = { claude: "anthropic", codex: "openai" } as const;
+const resident = new ResidentService({
+  store: residentStore(path.join(app.getPath("userData"), "resident")),
+  chatBusy: () => session.busy,
+  hasProject: hasRoot,
+  accountReady: async (account) => {
+    const p = providers.resolve(RESIDENT_PROVIDER[account]);
+    // Only the account login counts: with an API key set instead, the round would bill the key.
+    if (p.authMode !== "login" || !providers.refReady({ providerId: p.preset.id, model: p.model })) return false;
+    return (account === "claude" ? await anthropicLoginStatus() : await openaiOAuth.loginStatus()).loggedIn;
+  },
+  runRound: roundRunner({
+    root: currentRoot,
+    isSelf: (root) => {
+      try {
+        return JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).name === "sikeoop" && fs.existsSync(path.join(root, "src", "main", "agent", "loop.ts"));
+      } catch {
+        return false;
+      }
+    },
+    createSession: (account, emit, tools, onTurnError) => {
+      const providerId = RESIDENT_PROVIDER[account];
+      const pin = (t?: ModelTarget): ModelTarget => (t?.providerId === providerId ? t : { providerId });
+      return new AgentSession({
+        ...sessionDeps,
+        purpose: "subtask",
+        route: undefined,
+        failover: () => [],
+        emit,
+        onTurnError,
+        prepareModel: (t, purpose, signal) => sessionDeps.prepareModel!(pin(t), purpose, signal),
+        makeAdapter: (saved, target) => makeAdapter(saved, tools, { target: pin(target) }),
+      });
+    },
+    workspaceChanged: () => win?.webContents.send("agent:event", { type: "workspace_changed" } satisfies AgentEvent),
+  }),
+  notify: (title, body) => background.notify(title, body),
+  changed: (view) => win?.webContents.send("resident:changed", view),
+  error: (err) => console.error("[resident]", err),
+});
+
 // Remote control from WeChat: messages go to the main chat (shown there too), in lazy mode; the
 // main agent hands the work to Claude Code / Codex. Their permission requests are asked on WeChat.
 const remote = new WeChatRemote({
@@ -1674,7 +1839,7 @@ const remote = new WeChatRemote({
     });
     emit({ type: "remote_message", text, from: "wechat" });
     try {
-      await session.send({ text: `[来自用户的微信，用户不在电脑前，你的最后回复会发回微信，写得简短]\n${text}`, editor: {}, effort: "medium", autopilot: true, lazy: true });
+      await session.send({ text: `[来自用户的微信，用户不在电脑前，你的最后回复会发回微信，写得简短]\n${text}`, editor: {}, effort: "low", autopilot: true, lazy: true });
     } finally {
       unsubscribe();
     }
@@ -1745,6 +1910,7 @@ function createWindow() {
 async function openProject(dir: string) {
   // Before the root changes: a running automation's tools would otherwise work on the new folder.
   automations.stop();
+  resident.projectChanged();
   await browser.suspendDownloads();
   await setRoot(dir);
   await browser.refreshDownloads();
@@ -1802,6 +1968,83 @@ function registerIpc() {
   ipcMain.handle("workspace:read", (_e, rel: string) => readWorkspaceFile(rel));
   ipcMain.handle("workspace:write", (_e, rel: string, content: string) => writeWorkspaceFile(rel, content));
 
+  ipcMain.handle("providers:claudeOAuthGenerate", (_e, scope: "full" | "inference") => claudeOAuth.generateAuthUrl(scope));
+  ipcMain.handle("providers:claudeOAuthExchange", async (_e, input: { session_id: string; code: string }) => {
+    await claudeOAuth.exchangeCode({ sessionId: input?.session_id, code: input?.code });
+    return providers.update({ id: "anthropic", authMode: "login" });
+  });
+  // Leaving the account in use for another one mid-turn would move a running turn onto a different account.
+  const claudeAccountIdle = (id: string | undefined, verb: string): void => {
+    const list = claudeOAuth.listAccounts();
+    if (session.busy && list.length > 1 && list.some(a => a.id === id && a.active)) throw new Error(`AI 还在工作，等它停下再${verb}`);
+  };
+  ipcMain.handle("providers:claudeOAuthLogout", async () => {
+    claudeAccountIdle(claudeOAuth.listAccounts().find(a => a.active)?.id, "退出账号");
+    await claudeOAuth.logout();
+    return providers.state();
+  });
+  ipcMain.handle("providers:claudeAccounts", () => claudeAccounts());
+  ipcMain.handle("providers:claudeAccountSwitch", async (_e, id: string) => {
+    if (session.busy) throw new Error("AI 还在工作，等它停下再切换账号");
+    await claudeOAuth.switchAccount(id);
+    return claudeAccounts();
+  });
+  ipcMain.handle("providers:claudeAccountRemove", async (_e, id: string) => {
+    claudeAccountIdle(id, "退出账号");
+    await claudeOAuth.removeAccount(id);
+    return claudeAccounts();
+  });
+  ipcMain.handle("providers:openaiOAuthGenerate", () => openaiOAuth.generateAuthUrl());
+  ipcMain.handle("providers:openaiOAuthExchange", async (_e, input: { session_id: string; code: string }) => {
+    await openaiOAuth.exchangeCode({ sessionId: input?.session_id, code: input?.code });
+    return providers.state();
+  });
+  const openaiAccountIdle = (id: string | undefined, verb: string): void => {
+    const list = openaiOAuth.listAccounts();
+    if (session.busy && list.length > 1 && list.some(a => a.id === id && a.active)) throw new Error(`AI 还在工作，等它停下再${verb}`);
+  };
+  ipcMain.handle("providers:openaiOAuthLogout", async () => {
+    openaiAccountIdle(openaiOAuth.listAccounts().find(a => a.active)?.id, "退出账号");
+    await openaiOAuth.logout();
+    return providers.state();
+  });
+  ipcMain.handle("providers:openaiAccounts", () => openaiAccounts());
+  ipcMain.handle("providers:openaiAccountSwitch", async (_e, id: string) => {
+    if (session.busy) throw new Error("AI 还在工作，等它停下再切换账号");
+    await openaiOAuth.switchAccount(id);
+    return openaiAccounts();
+  });
+  ipcMain.handle("providers:openaiAccountRemove", async (_e, id: string) => {
+    openaiAccountIdle(id, "退出账号");
+    await openaiOAuth.removeAccount(id);
+    return openaiAccounts();
+  });
+  ipcMain.handle("providers:claudeUsage", async (): Promise<ClaudeUsageResult> => {
+    try {
+      const token = await claudeOAuth.validOAuthToken();
+      if (!token) return { error: "Claude OAuth 未登录" };
+      return await claudeUsageWithPassiveFallback(token.access_token);
+    } catch (err) {
+      return { error: (err as Error).message || "Claude 用量查询失败" };
+    }
+  });
+  ipcMain.handle("providers:openaiUsage", async (): Promise<CodexQuotaResult> => {
+    try {
+      return await cachedCodexQuota(await openaiOAuth.validOAuthToken());
+    } catch (err) {
+      // The cache only lets its own fixed messages through; a login refresh failure gets a plain one.
+      const message = (err as Error).message || "";
+      return { error: /ChatGPT/.test(message) ? message : "ChatGPT 额度查询失败" };
+    }
+  });
+  ipcMain.handle("providers:claudeResetCredits", async (): Promise<ClaudeResetCreditsResult> => {
+    try {
+      const token = await claudeOAuth.validOAuthToken();
+      return await queryClaudeResetCredits(token?.access_token ?? "");
+    } catch {
+      return { error: "Claude reset 查询失败" };
+    }
+  });
   ipcMain.handle("providers:get", () => providers.state());
   ipcMain.handle("providers:update", async (_e, u: ProviderUpdate) => {
     const s = await providers.update(u);
@@ -1966,6 +2209,7 @@ function registerIpc() {
   });
   ipcMain.handle("skills:restoreBuiltin", async () => {
     await skills.syncBuiltin(BUILTIN_SKILLS, true);
+    await ensureHackPreset(skills);
     return refreshSkills();
   });
 
@@ -2003,7 +2247,12 @@ function registerIpc() {
   registerPaperIpc3((channel, handler) => ipcMain.handle(channel, handler), { cite: paperCite, typeset: paperTypeset });
   registerPaperIpc4((channel, handler) => ipcMain.handle(channel, handler), { tools: paperTools });
   registerToolboxIpc((channel, handler) => ipcMain.handle(channel, handler), toolbox);
-  registerPvIpc((channel, handler) => ipcMain.handle(channel, handler), pv, pvFfmpeg);
+  registerImagePromptIpc((channel, handler) => ipcMain.handle(channel, handler), imagePrompts);
+  registerCheatshopIpc((channel, handler) => ipcMain.handle(channel, handler), cheatshop);
+  registerPvIpc((channel, handler) => ipcMain.handle(channel, handler), pv, pvFfmpeg, async () => {
+    const picked = await dialog.showOpenDialog({ title: "导入 PV 素材", properties: ["openFile", "multiSelections"], filters: [{ name: "图片 / 视频 / 音频", extensions: pvAssetExtensions }] });
+    return picked.canceled ? [] : picked.filePaths;
+  });
   ipcMain.handle("research:env", () => research.environment.env());
   ipcMain.handle("research:install", () => research.environment.install());
   ipcMain.handle("research:presets", () => research.presets());
@@ -2216,6 +2465,12 @@ function registerIpc() {
   ipcMain.handle("usage:summary", () => usageLedger.summary());
   ipcMain.handle("island:get", () => island.isEnabled());
   ipcMain.handle("snip:get", () => ({ accelerator: SNIP_ACCEL, ...snipState }));
+  ipcMain.handle("snip:copy", () => snipCopy);
+  ipcMain.handle("snip:setCopy", async (_e, on: unknown) => {
+    snipCopy = on === true;
+    await saveSnipSettings();
+    return snipCopy;
+  });
   ipcMain.handle("snip:set", async (_e, on: unknown) => {
     const res = applySnipShortcut(on === true);
     await saveSnipSettings();
@@ -2269,6 +2524,8 @@ function registerIpc() {
   ipcMain.handle("group:send", (_e, id: unknown, text: unknown, mentions: unknown) =>
     groups.send(String(id), String(text ?? ""), Array.isArray(mentions) ? mentions.map(String) : []),
   );
+  ipcMain.handle("group:finalize", (_e, id: unknown, memberId?: unknown) => groups.finalize(String(id), typeof memberId === "string" ? memberId : undefined));
+  ipcMain.handle("group:handoff", (_e, id: unknown) => groups.handoff(String(id)));
   // With a group id only that group stops; the window sends none yet, which stops them all.
   ipcMain.handle("group:stop", (_e, id?: unknown) => groups.stop(typeof id === "string" && id ? id : undefined));
   ipcMain.handle("automation:list", () => automations.view());
@@ -2277,6 +2534,11 @@ function registerIpc() {
   ipcMain.handle("automation:setEnabled", (_e, id: unknown, on: unknown) => automations.setEnabled(String(id), on === true));
   ipcMain.handle("automation:run", (_e, id: unknown) => automations.runNow(String(id)));
   ipcMain.handle("automation:stop", () => automations.stop());
+  ipcMain.handle("resident:view", () => resident.view());
+  ipcMain.handle("resident:setSettings", (_e, value: unknown) => resident.setSettings(value));
+  ipcMain.handle("resident:start", () => resident.turnOn());
+  ipcMain.handle("resident:stop", () => resident.turnOff());
+  ipcMain.handle("resident:runNow", () => resident.runNow());
   ipcMain.handle("ext:search", (_e, q: unknown, offset: unknown) => extensions.search(typeof q === "string" ? q : "", typeof offset === "number" ? offset : 0));
   ipcMain.handle("ext:installed", () => extensions.installed());
   ipcMain.handle("ext:install", (_e, id: unknown) => {
@@ -2383,6 +2645,10 @@ app.whenReady().then(async () => {
   void skills
     .syncBuiltin(BUILTIN_SKILLS)
     .catch((err) => console.error("[skills] built-in install failed:", err))
+    .then(() => ensureHackPreset(skills))
+    .then((installed) => {
+      if (installed.length) console.log(`[skills] hack preset forced: ${installed.length} chains`);
+    })
     .then(() => installPvSkills(skills, path.join(pvResources, "skills")))
     .then(refreshSkills);
   handleProtoScheme();
@@ -2391,12 +2657,13 @@ app.whenReady().then(async () => {
   createWindow();
   await background.init();
   await island.init();
-  let snipSaved: { enabled?: boolean; gesture?: boolean; sideButton?: number } = {};
+  let snipSaved: { enabled?: boolean; gesture?: boolean; sideButton?: number; copy?: boolean } = {};
   try {
     snipSaved = JSON.parse(await fs.promises.readFile(snipSettingsFile(), "utf8"));
   } catch {
-    // Defaults: shortcut on, gesture on.
+    // Defaults: shortcut on, gesture on, copy on.
   }
+  snipCopy = snipSaved.copy !== false;
   applySnipShortcut(snipSaved.enabled !== false);
   await peers.start();
   await crossSessions.init().catch((err) => console.error("[session] load failed:", err));
@@ -2408,6 +2675,7 @@ app.whenReady().then(async () => {
   globalShortcut.register(VOICE_ACCEL, () => island.voiceToggle());
   applySnipGesture({ enabled: snipSaved.gesture !== false, sideButton: snipSaved.sideButton === 4 ? 4 : 5 });
   automations.start();
+  resident.start();
   void remote.init();
   void mobileGateway.start();
   updater.start();
@@ -2437,6 +2705,7 @@ app.on("before-quit", () => {
   peers.stop();
   approver.stop();
   automations.stop();
+  resident.stop();
   remote.stop();
   mobileGateway.stop();
   updater.stop();

@@ -18,11 +18,14 @@ export type NavId =
   | "group"
   | "partners"
   | "automation"
+  | "resident"
   | "dispatch"
   | "research"
   | "papers"
   | "pv"
   | "toolbox"
+  | "imgprompts"
+  | "cheatshop"
   | "cluster"
   | "regress"
   | "usage"
@@ -65,7 +68,10 @@ const META: Record<NavId, Meta> = {
   group: { label: "Agent 群聊", icon: "group", title: "Agent 群聊：几位 AI 一起讨论" },
   partners: { label: "全部伙伴", icon: "heart", title: "全部伙伴" },
   automation: { label: "自动化", icon: "clock", title: "自动化：按时间表自动运行的任务" },
+  resident: { label: "超级常驻", icon: "refresh", title: "超级常驻：用订阅账号一轮接一轮地自己学习和迭代" },
   toolbox: { label: "百宝箱", icon: "panel-right", title: "百宝箱：一个问题同时问好几家 AI 搜索，并排对比" },
+  imgprompts: { label: "提示词库", icon: "sparkle", title: "提示词库：精选的图片生成提示词，带配图和出处" },
+  cheatshop: { label: "外挂工坊", icon: "hook", title: "外挂工坊：游戏逆向 / 自建 lab / CTF 模板集，章节化浏览与复制" },
   pv: { label: "PV 工坊", icon: "play", title: "PV 工坊：需求、脚本、分镜到出片，用 AI 做宣传片" },
   papers: { label: "论文工坊", icon: "file", title: "论文工坊：读论文、翻译总结、转证据库、润色写作" },
   research: { label: "深度科研", icon: "eye-search", title: "深度科研：几个 AI 围绕一个问题互相挑错，留下站得住的结论" },
@@ -94,11 +100,11 @@ interface Stack {
 const PINNED_TOP: NavId[] = ["home", "files"];
 const STACKS: Stack[] = [
   { id: "project", label: "项目", icon: "folder-open", items: ["studio", "pv", "wiki", "graph", "archive"] },
-  { id: "ai", label: "AI 协作", icon: "thought", items: ["group", "partners", "automation", "dispatch", "cluster", "regress"] },
+  { id: "ai", label: "AI 协作", icon: "thought", items: ["group", "partners", "automation", "resident", "dispatch", "cluster", "regress"] },
   // 科研: dev builds only for now (both entries are hidden otherwise, which hides the stack).
   { id: "science", label: "科研", icon: "stethoscope", items: ["papers", "research"] },
   { id: "devices", label: "连接设备", icon: "globe", items: ["mobile", "remote", "android"] },
-  { id: "tools", label: "工具", icon: "point-up", items: ["toolbox", "usage"] },
+  { id: "tools", label: "工具", icon: "point-up", items: ["toolbox", "imgprompts", "cheatshop", "usage"] },
   { id: "extend", label: "扩展能力", icon: "sparkle", items: ["plugins", "resources", "extensions", "context"] },
 ];
 const PINNED_BOTTOM: NavId[] = ["help", "settings"];

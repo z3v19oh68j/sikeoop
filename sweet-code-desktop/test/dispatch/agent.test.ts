@@ -105,3 +105,50 @@ test("agent submission is gated in production and validates before any child sta
   for (const bad of [{ input: "" }, { input: "x", readOnly: "false" }, { input: "x", model: "bad" }, { input: "x", timeoutMs: -1 }, { input: "x", owns: [1] }]) assert.throws(() => service.submit(bad));
   assert.equal(d.jobs().length, 0); d.close();
 });
+
+test("T6-2: opencode denies locked writes and releases its locks when run ends", async t => {
+  const f = await fixture(t);
+  const { FileLocks } = await import("../../src/main/session/locks.ts");
+  const locks = new FileLocks(); t.after(() => locks.close());
+  const file = path.join(f.cwd, "owned.txt");
+  // Use the existing ACP fixture with an in-scope write location.
+  const localStub = path.join(f.cwd, "fake-acp.mjs");
+  await fs.writeFile(localStub, (await fs.readFile(stub, "utf8")).replace("/outside/blocked.txt", file));
+  for (const conflict of [true, false]) {
+    if (conflict) await locks.acquire("other-owner", [file]);
+    let approvals = 0;
+    const progress: DispatchProgress[] = [];
+    const d = new Dispatcher({ emit: () => {} }); t.after(() => d.close());
+    const exec = new AgentExecutor({
+      cwd: f.cwd, bin: process.execPath, args: [localStub, f.log], fileLocks: locks,
+      approveStart: async () => true,
+      permission: async () => {
+        approvals++;
+        const held = await locks.acquire("probe", [file]);
+        assert.equal(held.ok, false);
+        if (!held.ok) assert.equal(held.owner, exec.ref);
+        return "opaque:once";
+      },
+      progress: (id, p) => { progress.push(p); d.progress(id, p); },
+    });
+    const done = await submitted(d.submit({
+      executor: exec, input: "permission-edit", origin: "user", from: "sikeoop",
+      scope: { roots: [f.cwd], owns: ["owned.txt"] },
+    })).done;
+    assert.equal(done.status, "done");
+    assert.equal(approvals, conflict ? 0 : 1);
+    const rows = (await fs.readFile(f.log, "utf8")).trim().split("\n").map(l => JSON.parse(l));
+    const outcome = rows.filter(r => r.id === "permission-opaque").at(-1).result.outcome;
+    assert.equal(outcome.outcome, conflict ? "cancelled" : "selected");
+    if (conflict) {
+      assert.ok(progress.some(p => p.text?.includes("other-owner")));
+      const held = await locks.acquire("probe", [file]);
+      assert.equal(held.ok, false);
+      locks.release("other-owner");
+    } else {
+      assert.equal(outcome.optionId, "opaque:once");
+      assert.deepEqual(await locks.acquire("probe", [file]), { ok: true });
+      locks.release("probe");
+    }
+  }
+});

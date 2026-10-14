@@ -4,11 +4,25 @@ import type { EffortPurpose } from "../../shared/types.ts";
 import { selectEffort } from "../agent/route.ts";
 import { claudeEffortParams } from "./effort.ts";
 import { anthropicClient } from "./index";
+import { codexInstallationId, isCodexLogin, OpenAICodexAdapter } from "./openai-codex.ts";
 import { installId, routing, type ResolvedProvider } from "./store";
 import { fromAnthropic, fromOpenAI, reportUsage } from "../usage/ledger";
 import { toStepUsage } from "./openai-responses";
 
 const source = (p: ResolvedProvider) => ({ providerId: p.preset.id, providerName: p.preset.name, model: p.model });
+
+/**
+ * The same request through the ChatGPT subscription: one step of a conversation without tools.
+ * That endpoint takes no output limit, so maxTokens is not sent.
+ */
+async function codexRequest(p: ResolvedProvider, system: string, user: string, onDelta: (text: string) => void, signal: AbortSignal): Promise<string> {
+  const adapter = new OpenAICodexAdapter({ model: p.model, installationId: codexInstallationId() }, system, []);
+  adapter.addUserText([user]);
+  let out = "";
+  const res = await adapter.step({ effort: "low", signal }, { onText: (t) => { out += t; onDelta(t); }, onThinking: () => {} });
+  reportUsage(source(p), res.usage);
+  return out.trim();
+}
 
 /**
  * One plain request (system + one user message → text), for helpers that work beside the main
@@ -20,6 +34,7 @@ async function completeRequest(
   user: string,
   opts: { maxTokens: number; signal: AbortSignal; purpose?: EffortPurpose },
 ): Promise<string> {
+  if (isCodexLogin(p)) return codexRequest(p, system, user, () => {}, opts.signal);
   if (p.preset.kind === "anthropic") {
     const res = await anthropicClient(p).messages.create(
       {
@@ -69,6 +84,7 @@ async function streamRequest(
   onDelta: (text: string) => void,
   opts: { maxTokens: number; signal: AbortSignal; purpose?: EffortPurpose },
 ): Promise<string> {
+  if (isCodexLogin(p)) return codexRequest(p, system, user, onDelta, opts.signal);
   let out = "";
   if (p.preset.kind === "anthropic") {
     const s = anthropicClient(p).messages.stream(

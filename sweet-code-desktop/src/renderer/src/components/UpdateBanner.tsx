@@ -2,6 +2,8 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import type { UpdateState } from "@shared/types";
 import { Icon } from "./Icon";
 import { useSkin } from "../skin";
+import { noteRows } from "./update/notes";
+import { ReleaseNotes } from "./update/ReleaseNotes";
 import "../styles/update.css";
 
 // The EVA × MIKU skin has its own card; loaded only when that skin is on (its own chunk and CSS).
@@ -15,6 +17,7 @@ const EvaUpdateCard = lazy(() => import("./update/EvaUpdateCard").then((m) => ({
 export function UpdateBanner() {
   const [s, setS] = useState<UpdateState | null>(null);
   const [dismissed, setDismissed] = useState<string | null>(null);
+  const [allNotes, setAllNotes] = useState(false);
 
   useEffect(() => {
     void window.sweet.updateState().then(setS);
@@ -48,7 +51,23 @@ export function UpdateBanner() {
         )}
         {s.status === "ready" && <span>重启就换成新版本，不重启的话下次退出时自动装上。</span>}
         {s.status === "available" && !s.canInstall && <span>这个版本不能自己替换，去官网下新的安装包就行（设置和对话都会保留）。</span>}
-        {s.notes && <p className="update-notes">{s.notes}</p>}
+        {s.notes &&
+          (allNotes ? (
+            <div className="update-notes" tabIndex={0}>
+              <ReleaseNotes notes={s.notes} />
+            </div>
+          ) : (
+            <ul className="update-highlights">
+              {noteRows(s.notes).map((r, i) => (
+                <li key={i}>{r.title}</li>
+              ))}
+            </ul>
+          ))}
+        {s.notes && (
+          <button type="button" className="link-btn update-more" onClick={() => setAllNotes(!allNotes)} aria-expanded={allNotes}>
+            {allNotes ? "收起" : "查看全部更新说明"}
+          </button>
+        )}
         <div className="update-actions">
           {s.status === "ready" && (
             <button type="button" className="neu-btn primary" onClick={() => void window.sweet.updateInstall()}>

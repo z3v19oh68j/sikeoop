@@ -1,0 +1,20 @@
+import { z } from 'zod';
+export const idSchema = z.string().regex(/^[a-f0-9]{16}$/);
+export const categorySchema = z.enum(['portrait','poster','product','ui','infographic','illustration','character','photo','brand','space','edit','fun','other']);
+export const langSchema = z.enum(['zh','en','other']);
+export const modelSchema = z.enum(['gpt-image-2','gpt-image-2.5','other']);
+export const licenseSchema = z.enum(['MIT','CC-BY-4.0','none','unclear','reserved']);
+export const flagSchema = z.enum(['real-person','ip','brand','suggestive']);
+const text = z.string().max(20000);
+export const variantSchema = z.object({lang:langSchema,steps:z.array(z.object({label:text.optional(),text:text.min(1)}).strict()).min(1).max(100)}).strict();
+export const bodySchema = z.object({variants:z.array(variantSchema).min(1).max(10),modelExact:text.optional(),size:text.optional(),sourceUrl:text.optional(),attribution:text.optional(),alsoIn:z.array(text),hasVars:z.boolean()}).strict();
+export const cardSchema = z.object({id:idSchema,title:text.min(1),titleEn:text.optional(),excerpt:text,category:categorySchema,tags:z.array(text),langs:z.array(langSchema),models:z.array(modelSchema),ratio:text.optional(),needsReference:z.boolean(),multiStep:z.boolean(),author:text.optional(),source:text.min(1),license:licenseSchema,thirdParty:z.boolean(),flags:z.array(flagSchema),featured:z.boolean(),thumb:z.object({o:z.number().int().nonnegative(),n:z.number().int().positive(),w:z.number().int().positive(),h:z.number().int().positive()}).strict().optional()}).strict();
+export const sourceSchema = z.object({id:text,name:text,repoUrl:text,license:licenseSchema,licenseNote:text.optional(),attribution:text.optional(),count:z.number().int().nonnegative()}).strict();
+const fileSchema = z.object({bytes:z.number().int().nonnegative(),sha256:z.string().regex(/^[a-f0-9]{64}$/)}).strict();
+export const manifestSchema = z.object({schema:z.literal(1),profile:z.enum(['dev','release']),generatedAt:z.number().nonnegative(),policyHash:z.string().regex(/^[a-f0-9]{64}$/),dataset:z.string().regex(/^[a-f0-9]{12}$/),files:z.object({'index.json':fileSchema,'bodies.json':fileSchema,'thumbs.pack':fileSchema}).strict(),sources:z.array(sourceSchema)}).strict();
+export const querySchema = z.object({q:z.string().max(200).optional(),category:categorySchema.optional(),model:modelSchema.optional(),lang:langSchema.optional(),favoritesOnly:z.boolean().optional(),withImage:z.boolean().optional(),offset:z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).default(0),limit:z.number().int().min(1).max(96).default(48)}).strict();
+export const copySchema = z.object({id:idSchema,lang:langSchema.optional(),step:z.number().int().nonnegative().optional()}).strict();
+export const favoritesSchema = z.object({version:z.literal(1),favorites:z.array(z.object({id:idSchema,at:z.number().nonnegative()}).strict()).max(5000)}).strict();
+export type DiskCard = z.infer<typeof cardSchema>;
+export type DiskBody = z.infer<typeof bodySchema>;
+export function safeUrl(raw: string | undefined): string | undefined { try { if (!raw || /[\u0000-\u0020\\]/.test(raw)) return; const u=new URL(raw); if (!['http:','https:'].includes(u.protocol)||u.username||u.password||!u.hostname) return; return u.href; } catch { return; } }

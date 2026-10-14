@@ -13,8 +13,11 @@ export const CONFIG_DIR = ".sikeoop";
 
 const ConfigSchema = z.object({
   version: z.literal(1).default(1),
-  /** The mode a session starts in. Bypass and auto are never offered. */
-  permissionMode: z.enum(["default", "acceptEdits", "plan"]).default("default"),
+  /**
+   * The mode a session starts in. auto is opt-in: Claude Code's own classifier reviews each action
+   * instead of asking the user; deny and ask rules still apply. Bypass is never offered.
+   */
+  permissionMode: z.enum(["default", "acceptEdits", "plan", "auto"]).default("default"),
   /** Load the agent team from .sikeoop/agents. */
   team: z.boolean().default(true),
   /** Claude Code permission rules (deny > ask > allow). */

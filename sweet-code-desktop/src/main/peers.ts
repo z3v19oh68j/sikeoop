@@ -6,6 +6,7 @@ import { fileLocks } from "./session/locks";
 import { fromNeutral, toNeutral } from "./cli-agents/protocol";
 import { QuietWatch } from "./cli-agents/quiet";
 import type { AgentCli, AgentCliId, AgentSessionView } from "@shared/types";
+import { HOST_NAME, hostLine, hostRefusal, isHostName, type HostChannel } from "./peer-host";
 
 // The agent bus: Claude Code and Codex sessions in sikeoop's terminal tabs, and a small MCP server
 // on 127.0.0.1 that lets them talk to each other (list_peers, send_to). A message is typed into
@@ -15,8 +16,6 @@ import type { AgentCli, AgentCliId, AgentSessionView } from "@shared/types";
 // so nothing has to be installed and neither CLI's global config is touched. Claude Code also
 // reports its state through hooks in its --settings file; Codex through its `notify` command.
 
-/** Agent-to-agent messages in a row without the user typing in between, before the bus says stop. */
-const MAX_HOPS = 5;
 /** How long a permission request waits for an answer on the island before the terminal asks instead. */
 const ASK_TIMEOUT_MS = 110_000;
 /**
@@ -37,7 +36,8 @@ export function peerPrompt(name: string, roots?: string[]): string {
   return (
     `你是 ${name}，运行在 sikeoop 的终端里。${roots ? `这是跨项目 session，工作目录为 ${roots.join("、")}，只与本 session 成员通信。` : "同一项目"}的其他终端里还有别的 AI 会话：Claude Code 叫 Claude-1、Claude-2…，Codex 叫 Codex-1、Codex-2…，其他 CLI 也是“名字-序号”（用 list_peers 看有谁）。` +
     "用户让你给 Claude 或 Codex 发消息、问它、交给它时，指的就是这些会话：用 sikeoop 的 send_to，不要去开桌面 App、浏览器或用电脑操作。" +
-    "消息写清要做什么，代码只给文件路径和行号，对方会自己读。收到的消息以「[X → 你]」开头，怎么回复按消息末尾括号里说的做。"
+    "消息写清要做什么，代码只给文件路径和行号，对方会自己读。收到的消息以「[X → 你]」开头，怎么回复按消息末尾括号里说的做。" +
+    (roots ? "" : `「[${HOST_NAME} → 你]」是 sikeoop 主对话派来的任务：做的过程中要报进度或说明受阻，可以 send_to（to="${HOST_NAME}"），最多几条；最终回复会自动送回。`)
   );
 }
 
@@ -62,8 +62,6 @@ interface Session {
   status: AgentSessionView["status"];
   detail: string;
   since: number;
-  /** Agent messages delivered to it since the user last typed there. */
-  hops: number;
 }
 
 export interface SessionPeerEvent {
@@ -89,6 +87,7 @@ export class PeerBus {
   private sessions = new Map<string, Session>();
   private counters = new Map<string, Record<string, number>>();
   private readonly locks = fileLocks;
+  private readonly lockOutputTouches = new WeakMap<Session, number>();
   private asks = new Map<string, PendingAsk>();
   /** Waiting for a session's turn to end (host_wait), by session id: called with its last reply. */
   private turnWaiters = new Map<string, Set<(last: string) => void>>();
@@ -117,6 +116,13 @@ export class PeerBus {
       onAskGone(id: string): void;
       /** One agent sent another a message. */
       onMessage(from: string, to: string, text: string): void;
+      /** The main conversation as a member of the bus (peer-host.ts). */
+      host?: HostChannel;
+      /**
+       * Answers a session's permission request without the user, or null to ask on the island as
+       * usual. For work that runs unattended (super-dispatch mode).
+       */
+      autoAnswer?(session: AgentSessionView, tool: string, input: unknown, cwd?: string): { decision: "allow" | "deny"; reason: string } | null;
     },
   ) {}
 
@@ -155,7 +161,7 @@ export class PeerBus {
     counts[cli] = (counts[cli] ?? 0) + 1;
     const name = `${label}-${counts[cli]}`;
     const s: Session = {
-      id: token.slice(0, 12), tab, name, cli, token, group, status: "starting", detail: "正在启动", since: Date.now(), hops: 0,
+      id: token.slice(0, 12), tab, name, cli, token, group, status: "starting", detail: "正在启动", since: Date.now(),
       cliName: extension?.cliName ?? (cli === "codex" ? "Codex" : "Claude Code"),
       extension: !!extension,
     };
@@ -181,6 +187,12 @@ export class PeerBus {
   unregister(tab: string): void {
     for (const s of this.sessions.values()) {
       if (s.tab !== tab) continue;
+      const now = Date.now();
+      const lastTouch = this.lockOutputTouches.get(s);
+      if (lastTouch === undefined || now - lastTouch >= 30_000) {
+        this.locks.touch(s.id);
+        this.lockOutputTouches.set(s, now);
+      }
       this.sessions.delete(s.id);
       s.quiet?.stop();
       this.settled(s);
@@ -201,7 +213,6 @@ export class PeerBus {
     this.opts.onUserInput?.(view(s));
     s.quiet?.arm();
     this.settled(s);
-    s.hops = 0;
     if (s.status !== "working") this.set(s, "working", "正在干活");
   }
 
@@ -347,8 +358,6 @@ export class PeerBus {
     const to = framing ? [...this.sessions.values()].find((p) => p.group === framing.group && (p.id === toName || p.name === toName)) ?? { error: "session 成员已退出" } : this.resolve(null, toName);
     if ("error" in to) return to;
     if (to.status === "starting") return { error: `${to.name} 还在启动，稍等再发` };
-    // The host speaks for the user: the agent-to-agent chain starts over.
-    to.hops = 0;
     const text = framing?.raw ? message : hostFraming(message);
     this.deliver(to.id, text, "收到 sikeoop 的任务");
     return view(to);
@@ -445,6 +454,7 @@ export class PeerBus {
 
   /** Claude Code hook events, Codex notify events, and an extension CLI's events (cli-agents/protocol.ts). */
   private async hook(s: Session, body: Record<string, unknown>): Promise<unknown> {
+    this.locks.touch(s.id);
     const neutral = fromNeutral(body);
     if (neutral) return toNeutral(await this.hook(s, neutral));
     const e = body;
@@ -498,6 +508,16 @@ export class PeerBus {
       this.set(s, "idle", last ? last.slice(0, 60) : "这一轮做完了");
       this.opts.onNotice("done", view(s), last.slice(0, 80) || "这一轮做完了");
     } else if (event === "PermissionRequest") {
+      const auto = this.opts.autoAnswer?.(view(s), String(e.tool_name ?? ""), e.tool_input, typeof e.cwd === "string" ? e.cwd : undefined);
+      if (auto) {
+        this.set(s, "working", auto.decision === "allow" ? "无人值守：自动放行" : `无人值守：已拒绝（${auto.reason}）`);
+        return {
+          hookSpecificOutput: {
+            hookEventName: "PermissionRequest",
+            decision: { behavior: auto.decision, ...(auto.decision === "deny" ? { message: `超级调度模式下没有人审批，这一步被自动拒绝：${auto.reason}。换一种做法；做不了就在最终回复里说明。` } : {}) },
+          },
+        };
+      }
       this.set(s, "waiting", "等你批准");
       const decision = await this.ask(s, String(e.tool_name ?? ""), e.tool_input);
       if (decision) this.set(s, "working", decision === "allow" ? "已批准，继续干活" : "被拒绝了");
@@ -520,6 +540,7 @@ export class PeerBus {
 
   /** MCP over JSON-RPC, one message per request (the bridge forwards stdio lines here). */
   private async rpc(s: Session, msg: Record<string, unknown>): Promise<unknown> {
+    this.locks.touch(s.id);
     const id = msg.id;
     const method = String(msg.method ?? "");
     if (id === undefined || id === null) return null; // notifications need no answer
@@ -551,8 +572,10 @@ export class PeerBus {
 
   private listPeers(self: Session): string {
     const others = [...this.sessions.values()].filter((p) => p !== self && p.group === self.group);
-    if (!others.length) return "现在只有你一个，sikeoop 里没有其他 AI 会话。";
-    return others.map((p) => `${p.name}（${p.cliName}）· ${STATUS_TEXT[p.status]} · ${p.detail}`).join("\n");
+    // The main conversation is listed too (not in a cross-project session, which has none).
+    const host = this.opts.host && !self.group ? [hostLine(!!this.opts.host.awaiting(self.id))] : [];
+    if (!others.length) return ["现在只有你一个，sikeoop 里没有其他 AI 会话。", ...host].join("\n");
+    return [...others.map((p) => `${p.name}（${p.cliName}）· ${STATUS_TEXT[p.status]} · ${p.detail}`), ...host].join("\n");
   }
 
   /**
@@ -579,10 +602,22 @@ export class PeerBus {
     return { error: `sikeoop 里没有在线的 ${kindName} 会话。${online}`, ...(!extension && kind ? { missing: kind as AgentCli } : {}) };
   }
 
+  /** A session's message to the main conversation: only while that is waiting on a task from this session. */
+  private sendToHost(from: Session, message: string): string | { error: string } {
+    const host = this.opts.host!;
+    const awaiting = host.awaiting(from.id);
+    const refused = hostRefusal({ group: from.group, awaiting });
+    if (refused || !awaiting) return { error: refused ?? "" };
+    host.receive(view(from), awaiting.jobId, message);
+    this.opts.onMessage(from.name, `${HOST_NAME} 主对话`, message);
+    return `已交给 ${HOST_NAME} 主对话，它会和这个任务的结果一起看到。它不会中途回话：接着做，做完直接结束这一轮。`;
+  }
+
   private async sendTo(from: Session, args: Record<string, unknown>): Promise<string | { error: string }> {
     const message = String(args.message ?? "").trim();
     if (!message) return { error: "message 不能是空的" };
     if (message.length > MAX_MESSAGE) return { error: `消息太长（${message.length} 字，上限 ${MAX_MESSAGE}）。代码和日志别贴进来，写文件路径和行号，对方会自己读。` };
+    if (this.opts.host && isHostName(String(args.to ?? ""))) return this.sendToHost(from, message);
     const to = this.resolve(from, String(args.to ?? "").trim());
     if ("error" in to) return to;
     if (from.group) {
@@ -594,9 +629,6 @@ export class PeerBus {
       if (typeof routed === "string") this.opts.onMessage(from.name, to.name, message);
       return routed;
     }
-    // A ping-pong between two agents stops here until the user steps in.
-    if (to.hops >= MAX_HOPS) return { error: `${to.name} 已经连续收到 ${MAX_HOPS} 条 AI 消息了，等用户确认后再继续。先把情况告诉用户。` };
-    to.hops++;
     this.deliver(to.id, peerFraming(from.name, message), `收到 ${from.name} 的消息`);
     this.opts.onMessage(from.name, to.name, message);
     // Said outright so the sender doesn't poll list_peers waiting for the answer.
@@ -679,7 +711,7 @@ const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        to: { type: "string", description: "Session name (Codex-1), or just claude / codex if only one is running. Omit if there is only one other session." },
+        to: { type: "string", description: "Session name (Codex-1), or just claude / codex if only one is running. Omit if there is only one other session. \"sikeoop\" is the main conversation: it only takes messages while it waits on a task it gave you." },
         message: { type: "string", description: `What to tell or ask it, at most ${MAX_MESSAGE} characters` },
       },
       required: ["message"],

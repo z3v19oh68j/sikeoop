@@ -628,3 +628,257 @@ test("the rework runs on what is left of the job's time", async () => {
   assert.equal(job.result?.text, "第一轮", "the first round's reply is kept");
   d.close();
 });
+
+// ---- 调度核心第一批（docs/调度核心-修改指导.md 第 3 节）----
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** An executor that finishes each job by itself after `ms`. */
+class TimedExecutor implements Executor {
+  readonly kind = "cli" as const;
+  busy = false;
+  started = 0;
+  readonly ref: string;
+  readonly name: string;
+  private readonly ms: number;
+  constructor(ref: string, ms: number) {
+    this.ref = ref;
+    this.ms = ms;
+    this.name = ref;
+  }
+  ready() {
+    return !this.busy;
+  }
+  alive() {
+    return true;
+  }
+  async run() {
+    this.started++;
+    await sleep(this.ms);
+    return { text: "ok" };
+  }
+}
+
+/** Pumps every few ms, so a queue timeout would show up long before the 2 s interval. */
+function pumping(d: Dispatcher) {
+  const t = setInterval(() => d.pump(), 5);
+  return () => clearInterval(t);
+}
+
+test("T1-1: five jobs on one executor all finish, however long they queue in total", async () => {
+  const { d } = setup({ queueTimeoutMs: 100 });
+  const stop = pumping(d);
+  const x = new TimedExecutor("a", 40);
+  const jobs = Array.from({ length: 5 }, () => submit(d, x));
+  const ended = await Promise.all(jobs.map((j) => j.done));
+  stop();
+  assert.deepEqual(ended.map((j) => j.status), ["done", "done", "done", "done", "done"]);
+  d.close();
+});
+
+test("T1-2: five jobs in one lane on different executors all finish", async () => {
+  const { d } = setup({ queueTimeoutMs: 100 });
+  const stop = pumping(d);
+  const jobs = Array.from({ length: 5 }, (_, i) => submit(d, new TimedExecutor(`x${i}`, 40), { lane: "L" }));
+  const ended = await Promise.all(jobs.map((j) => j.done));
+  stop();
+  assert.deepEqual(ended.map((j) => j.status), ["done", "done", "done", "done", "done"]);
+  d.close();
+});
+
+test("T1-4: the unavailable-executor clock restarts once the wait is the dispatcher's own", async () => {
+  const { d } = setup({ queueTimeoutMs: 80 });
+  const stop = pumping(d);
+  const x = new TimedExecutor("a", 100);
+  x.busy = true;
+  const first = submit(d, x);
+  const second = submit(d, x);
+  await sleep(50);
+  x.busy = false; // free now, but the dispatcher's own first job takes it for 100 ms
+  const ended = await Promise.all([first.done, second.done]);
+  stop();
+  assert.deepEqual(ended.map((j) => j.status), ["done", "done"]);
+  d.close();
+});
+
+test("T2-1: with a cap of 4, a running parent's 12 children add only one overflow", async () => {
+  const { d } = setup({ maxRunning: 4 });
+  const parent = new FakeExecutor("parent");
+  const root = submit(d, parent);
+  await tick();
+  const kids = Array.from({ length: 12 }, (_, i) => new FakeExecutor(`k${i}`));
+  for (const k of kids) submit(d, k, { parentId: root.job.id });
+  await tick();
+  assert.equal(d.view().running, 5);
+  assert.equal(kids.filter((k) => k.started.length).length, 4);
+  assert.equal(d.jobs().filter((j) => j.overCap && j.status === "running").length, 1);
+  d.close();
+});
+
+test("T2-3: cap 1, root -> child -> grandchild, each waiting on the next, all start and finish", async () => {
+  const { d } = setup({ maxRunning: 1 });
+  const [a, b, c] = ["root", "child", "grand"].map((n) => new FakeExecutor(n));
+  const root = submit(d, a);
+  await tick();
+  const child = submit(d, b, { parentId: root.job.id });
+  await tick();
+  assert.equal(b.started.length, 1);
+  const grand = submit(d, c, { parentId: child.job.id });
+  await tick();
+  assert.equal(c.started.length, 1);
+  c.finish();
+  assert.equal((await grand.done).status, "done");
+  b.finish();
+  assert.equal((await child.done).status, "done");
+  a.finish();
+  assert.equal((await root.done).status, "done");
+  d.close();
+});
+
+test("T2-4: cap 1, a parent waiting for approval still lets its child start", async () => {
+  const { d } = setup({ maxRunning: 1 });
+  const p = new FakeExecutor("p");
+  const k = new FakeExecutor("k");
+  const root = submit(d, p);
+  await until(() => p.started.length === 1);
+  d.progress(root.job.id, { type: "permission", at: Date.now() });
+  assert.equal(d.jobs().find((j) => j.id === root.job.id)?.status, "waiting_approval");
+  submit(d, k, { parentId: root.job.id });
+  await tick();
+  assert.equal(k.started.length, 1);
+  d.close();
+});
+
+test("T2-5: two children of one parent at the cap: one overflows, the other waits for it", async () => {
+  const { d } = setup({ maxRunning: 1 });
+  const p = new FakeExecutor("p");
+  const k1 = new FakeExecutor("k1");
+  const k2 = new FakeExecutor("k2");
+  const root = submit(d, p);
+  await tick();
+  const first = submit(d, k1, { parentId: root.job.id });
+  submit(d, k2, { parentId: root.job.id });
+  await tick();
+  assert.equal(k1.started.length, 1);
+  assert.equal(k2.started.length, 0);
+  k1.finish();
+  await first.done;
+  await until(() => k2.started.length === 1);
+  d.close();
+});
+
+test("T3-1: tool progress emits progress events but no job events", async () => {
+  const { d, events } = setup();
+  const x = new FakeExecutor("a");
+  const r = submit(d, x);
+  await until(() => x.started.length === 1);
+  const jobsBefore = events.filter((e) => e.type === "job").length;
+  for (let i = 0; i < 300; i++) d.progress(r.job.id, { type: "tool", at: Date.now(), title: `t${i}` });
+  assert.equal(events.filter((e) => e.type === "job").length, jobsBefore);
+  assert.equal(events.filter((e) => e.type === "progress").length, 300);
+  d.close();
+});
+
+test("T5-2: overlapping owners queue, disjoint and read-only jobs run in parallel", async (t) => {
+  const { d, events } = setup();
+  t.after(() => d.close());
+  const xs = ["owner", "overlap", "disjoint", "reader"].map(n => new FakeExecutor(n));
+  const first = submit(d, xs[0], { scope: { roots: ["/p"], owns: ["src/a/"] } });
+  const second = submit(d, xs[1], { scope: { roots: ["/p"], owns: ["src/a/x.ts"] } });
+  const third = submit(d, xs[2], { scope: { roots: ["/p"], owns: ["src/b/"] } });
+  const reader = submit(d, xs[3], { scope: { roots: ["/p"], readOnly: true } });
+  await tick();
+  assert.deepEqual(xs.map(x => x.started.length), [1, 0, 1, 1]);
+  assert.deepEqual(d.jobs().find(j => j.id === second.job.id)?.waiting, { reason: "conflict", detail: "owner" });
+  const before = events.length;
+  d.pump();
+  assert.equal(events.length, before);
+  xs[0].finish();
+  await first.done;
+  await until(() => xs[1].started.length === 1);
+  xs[1].finish("完成");
+  const result = await second.done;
+  assert.match(result.result?.text ?? "", /完成\n说明：因文件归属冲突.*owner/);
+  assert.equal(result.waiting, undefined);
+  xs[2].finish();
+  xs[3].finish();
+  assert.equal((await third.done).result?.text, "ok");
+  await reader.done;
+});
+
+test("T5-3: ancestors and descendants are exempt, siblings are not", async (t) => {
+  const { d } = setup({ maxRunning: 5 });
+  t.after(() => d.close());
+  const parent = new FakeExecutor("parent");
+  const child = new FakeExecutor("child");
+  const sibling = new FakeExecutor("sibling");
+  const scope = { roots: ["/p"] };
+  const root = submit(d, parent, { scope });
+  const c = submit(d, child, { scope, parentId: root.job.id });
+  const s = submit(d, sibling, { scope, parentId: root.job.id });
+  await tick();
+  assert.equal(child.started.length, 1);
+  assert.equal(sibling.started.length, 0);
+  child.finish();
+  await c.done;
+  await until(() => sibling.started.length === 1);
+  sibling.finish();
+  await s.done;
+  parent.finish();
+  await root.done;
+
+  // A descendant can already be running when its queued ancestor becomes ready.
+  const ancestor = new FakeExecutor("ancestor");
+  ancestor.busy = true;
+  const descendant = new FakeExecutor("descendant");
+  const a = submit(d, ancestor, { scope });
+  const b = submit(d, descendant, { scope, parentId: a.job.id });
+  await tick();
+  ancestor.busy = false;
+  d.pump();
+  await tick();
+  assert.equal(ancestor.started.length, 1);
+  descendant.finish();
+  ancestor.finish();
+  await Promise.all([a.done, b.done]);
+});
+
+test("T5-4: strict is default; declared and off allow undeclared writes", async (t) => {
+  for (const conflict of [undefined, "strict", "declared", "off"] as const) {
+    const { d } = setup({ conflict });
+    t.after(() => d.close());
+    const x = new FakeExecutor("x"), y = new FakeExecutor("y");
+    const scope = { roots: ["/p"] };
+    const a = submit(d, x, { scope });
+    const b = submit(d, y, { scope });
+    await tick();
+    assert.equal(y.started.length, conflict === "declared" || conflict === "off" ? 1 : 0);
+    x.finish();
+    await a.done;
+    await until(() => y.started.length === 1);
+    y.finish();
+    await b.done;
+  }
+});
+
+test("T5-5: conflict backlog clears executor timeout accounting", async (t) => {
+  const { d } = setup({ queueTimeoutMs: 30 });
+  t.after(() => d.close());
+  const x = new FakeExecutor("x"), y = new FakeExecutor("y");
+  y.busy = true;
+  const scope = { roots: ["/p"] };
+  const b = submit(d, y, { scope });
+  await new Promise(r => setTimeout(r, 10));
+  const a = submit(d, x, { scope });
+  d.pump();
+  assert.equal(d.jobs().find(j => j.id === b.job.id)?.waiting?.reason, "conflict");
+  await new Promise(r => setTimeout(r, 50));
+  d.pump();
+  assert.equal(d.jobs().find(j => j.id === b.job.id)?.status, "queued");
+  y.busy = false;
+  x.finish();
+  await a.done;
+  await until(() => y.started.length === 1);
+  y.finish();
+  assert.equal((await b.done).status, "done");
+});

@@ -1,7 +1,7 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { z } from "zod";
-import { defineTool, type ToolSpec } from "./registry";
+import { defineTool, type ToolSpec } from "./registry.ts";
 
 // web_search and fetch_page: the agent can look things up on the web and read pages.
 // Search goes to the engine set in settings (Tavily or Brave with a key, else DuckDuckGo's free
@@ -31,10 +31,20 @@ const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 
 /** Links the agent may open without asking: they came from a search result. */
 const fromSearch = new Set<string>();
+/** The same address written slightly differently (host case, missing "/", #anchor) is one link. */
+const linkKey = (url: string) => {
+  try {
+    const u = new URL(url);
+    u.hash = "";
+    return u.href;
+  } catch {
+    return url;
+  }
+};
 /** A link that came out of a web_search result this session (the built-in browser opens these without asking too). */
-export const cameFromSearch = (url: string) => fromSearch.has(url);
+export const cameFromSearch = (url: string) => fromSearch.has(linkKey(url));
 const remember = (url: string) => {
-  fromSearch.add(url);
+  fromSearch.add(linkKey(url));
   if (fromSearch.size > 1000) fromSearch.delete(fromSearch.values().next().value!);
 };
 
@@ -73,15 +83,19 @@ async function duckduckgo(fetcher: Fetcher, q: string, signal: AbortSignal): Pro
   if (!res.ok) throw new Error(`DuckDuckGo 返回 ${res.status}`);
   const html = await res.text();
   const out: Result[] = [];
-  const block = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?(?:<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>)?/g;
-  for (const m of html.matchAll(block)) {
+  // One piece per result, so each snippet is looked for only inside its own result (an optional
+  // group after a lazy gap never matched anything, which left every snippet empty).
+  for (const piece of html.split(/(?=<a[^>]+class="result__a")/).slice(1)) {
+    const m = piece.match(/^<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/);
+    if (!m) continue;
+    const snippet = piece.match(/class="result__snippet"[^>]*>([\s\S]*?)<\/(?:a|div|td)>/)?.[1] ?? "";
     let url = decodeEntities(m[1]);
     // Results link through DuckDuckGo's redirect: /l/?uddg=<real url>.
     const real = url.match(/[?&]uddg=([^&]+)/);
     if (real) url = decodeURIComponent(real[1]);
     if (url.startsWith("//")) url = `https:${url}`;
     if (!/^https?:\/\//.test(url) || /duckduckgo\.com\/y\.js/.test(url)) continue; // ads
-    out.push({ title: stripTags(m[2]), url, snippet: stripTags(m[3] ?? "") });
+    out.push({ title: stripTags(m[2]), url, snippet: stripTags(snippet) });
     if (out.length >= MAX_RESULTS) break;
   }
   return out;
@@ -222,16 +236,24 @@ export function webTools(fetcher: Fetcher, config: () => SearchConfig): ToolSpec
       const c = config();
       const signal = AbortSignal.any([ctx.signal, AbortSignal.timeout(TIMEOUT)]);
       let results: Result[];
+      // Tavily or Brave without a key falls back to DuckDuckGo; the hint must follow what ran.
+      const used = c.engine !== "duckduckgo" && c.apiKey ? c.engine : "duckduckgo";
       try {
         results =
-          c.engine === "tavily" && c.apiKey
+          used === "tavily"
             ? await tavily(fetcher, c.apiKey, query, signal)
-            : c.engine === "brave" && c.apiKey
+            : used === "brave"
               ? await brave(fetcher, c.apiKey, query, signal)
               : await duckduckgo(fetcher, query, signal);
       } catch (err) {
         if (ctx.signal.aborted) throw err;
-        return `Search failed: ${(err as Error).message}. ${c.engine === "duckduckgo" ? "DuckDuckGo may be unreachable from this network; the user can set a Tavily or Brave key in settings." : ""}`;
+        const hint =
+          used !== "duckduckgo"
+            ? ""
+            : c.engine !== "duckduckgo"
+              ? ` ${c.engine === "tavily" ? "Tavily" : "Brave"} is chosen in settings but has no key, so DuckDuckGo was used and may be unreachable from this network; the user can add the key in settings.`
+              : " DuckDuckGo may be unreachable from this network; the user can set a Tavily or Brave key in settings.";
+        return `Search failed: ${(err as Error).message}.${hint}`;
       }
       if (!results.length) return `No results for "${query}".`;
       for (const r of results) remember(r.url);
@@ -258,7 +280,7 @@ export function webTools(fetcher: Fetcher, config: () => SearchConfig): ToolSpec
     parallelSafe: true,
     summarize: (i) => `打开网页：${i.url.replace(/^https?:\/\//, "").slice(0, 60)}`,
     async run({ url }, ctx) {
-      if (!fromSearch.has(url)) {
+      if (!cameFromSearch(url)) {
         const ok = await ctx.requestApproval({
           kind: "tool",
           server: "网页",

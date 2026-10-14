@@ -54,6 +54,15 @@ test("ready only when idle; alive while the session exists", () => {
   assert.ok(t.x.alive());
 });
 
+test("T9-1: a session that has only just gone idle isn't ready until it settles", () => {
+  const t = setup();
+  const now = 100_000;
+  t.view.since = now - 1000;
+  assert.ok(!t.x.ready(now));
+  t.view.since = now - 2000;
+  assert.ok(t.x.ready(now));
+});
+
 test("a cancel stops the session too; a timeout only stops waiting for it", async () => {
   const cancelled = setup();
   const c = new AbortController();

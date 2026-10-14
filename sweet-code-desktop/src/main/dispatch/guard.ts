@@ -85,6 +85,31 @@ export function isInside(root: string, p: string, foldCase: boolean = FOLD_CASE)
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel));
 }
 
+/** Conservative lexical write ranges, relative to the first scope root. */
+export function writeSet(job: Pick<DispatchJob, "scope">): string[] | "all" | null {
+  const scope = job.scope;
+  if (!scope || scope.readOnly || !scope.roots.length) return null;
+  if (!scope.owns?.length) return "all";
+  return scope.owns.map(pattern => {
+    const normalized = pattern.split(path.sep).join("/");
+    const star = normalized.indexOf("*");
+    // Exact paths remain exact; glob prefixes stop at the last complete directory.
+    const literal = star < 0 ? normalized : normalized.slice(0, star);
+    const prefix = star < 0 ? literal : literal.slice(0, literal.lastIndexOf("/") + 1);
+    return path.resolve(scope.roots[0], prefix);
+  });
+}
+
+/** True when two jobs might write the same path (case rules match ownership guards). */
+export function mayOverlap(a: Pick<DispatchJob, "scope">, b: Pick<DispatchJob, "scope">, foldCase: boolean = FOLD_CASE): boolean {
+  const aw = writeSet(a), bw = writeSet(b);
+  if (aw === null || bw === null) return false;
+  const contains = (x: string, y: string) => isInside(x, y, foldCase) || isInside(y, x, foldCase);
+  if (!a.scope!.roots.some(x => b.scope!.roots.some(y => contains(x, y)))) return false;
+  if (aw === "all" || bw === "all") return true;
+  return aw.some(x => bw.some(y => contains(x, y)));
+}
+
 /**
  * Before a job starts: its folders exist and are writable by the executor, its dependencies are
  * installed, and it can reach the network if it needs to. fail = don't start it.

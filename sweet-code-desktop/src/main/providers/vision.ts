@@ -4,6 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { ImageInput } from "@shared/types";
 import { anthropicClient } from "./index";
+import { codexInstallationId, isCodexLogin, OpenAICodexAdapter } from "./openai-codex.ts";
 import type { ResolvedProvider } from "./store";
 import { toStepUsage } from "./openai-responses";
 
@@ -32,6 +33,17 @@ async function analyzeImagesRequest(
     throw new Error(`识图要用 ${p.preset.name} 的 API Key，先在设置里填好。`);
   }
   const ask = question.trim() || "这张图里有什么？";
+  // ChatGPT subscription: one step without tools. That endpoint takes no output limit.
+  if (isCodexLogin(p)) {
+    const adapter = new OpenAICodexAdapter({ model: p.model, installationId: codexInstallationId() }, SYSTEM, []);
+    adapter.addUserImages(images, ask);
+    let out = "";
+    const res = await adapter.step({ effort: "low", signal }, { onText: (t) => { out += t; }, onThinking: () => {} });
+    reportUsage({ providerId: p.preset.id, providerName: p.preset.name, model: p.model }, res.usage);
+    const text = out.trim();
+    if (!text) throw new Error("识图模型没有返回内容");
+    return text;
+  }
   {
     if (p.preset.kind === "anthropic") {
       const res = await anthropicClient(p).messages.create(

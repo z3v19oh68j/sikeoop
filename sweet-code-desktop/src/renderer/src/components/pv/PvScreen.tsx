@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Icon } from "../Icon";
 import { StatusBadge, cleanError } from "../settings/ui";
-import { STEPS, pv, type PvFfmpegState, type PvKind, type PvPack, type PvProject, type PvShot, type PvStep, type PvStoryboard } from "./types";
+import { AssetsStep } from "./AssetsStep";
+import { BeatsStep } from "./BeatsStep";
+import { PackPanel } from "./PackPanel";
+import { STEPS, pv, type PvAsset, type PvFfmpegState, type PvKind, type PvPack, type PvProject, type PvShot, type PvStep, type PvStoryboard } from "./types";
 import "../../styles/settings.css";
 import "../../styles/research.css";
 import "../../styles/pv.css";
@@ -21,6 +24,8 @@ export function PvScreen({ hidden, root }: { hidden: boolean; root: string | nul
   const [packs, setPacks] = useState<PvPack[]>([]);
   const [ff, setFf] = useState<PvFfmpegState | null>(null);
   const [error, setError] = useState("");
+  // Why a step failed, as told by the backend ("<project id>/<step>" → message); gone after a reload.
+  const [notes, setNotes] = useState<Record<string, string>>({});
 
   const refresh = () => root && void pv().pvList(root).then((l) => { setProjects(l); setId((cur) => cur ?? l[0]?.id ?? null); });
   useEffect(() => {
@@ -28,7 +33,10 @@ export function PvScreen({ hidden, root }: { hidden: boolean; root: string | nul
     refresh();
     void pv().pvPacks().then(setPacks);
     void pv().pvFfmpeg().then(setFf);
-    return pv().onPvProgress((e) => setProjects((l) => l.map((p) => (p.id === e.id ? { ...p, steps: { ...p.steps, [e.step]: e.status } } : p))));
+    return pv().onPvProgress((e) => {
+      setProjects((l) => l.map((p) => (p.id === e.id ? { ...p, steps: { ...p.steps, [e.step]: e.status } } : p)));
+      setNotes((n) => ({ ...n, [`${e.id}/${e.step}`]: e.status === "error" ? e.message ?? "" : "" }));
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hidden, root]);
 
@@ -40,7 +48,7 @@ export function PvScreen({ hidden, root }: { hidden: boolean; root: string | nul
         <header className="rs-head">
           <div>
             <h1>PV 工坊</h1>
-            <p className="hint">需求 → 脚本 → 分镜 → 合成 → 出片，每一步都能看、能改。成片用 Remotion 生成在项目的 pv/ 文件夹里。</p>
+            <p className="hint">需求 → 脚本 → 分镜 → 卡点 → 素材 → 合成 → 出片，每一步都能看、能改。成片用 Remotion 生成在项目的 pv/ 文件夹里。</p>
           </div>
           <div className="pv-head-actions">
             {projects.length > 0 && (
@@ -66,7 +74,7 @@ export function PvScreen({ hidden, root }: { hidden: boolean; root: string | nul
             }}
           />
         )}
-        {root && project ? <Workbench key={project.id} root={root} project={project} packs={packs} ff={ff} onFf={setFf} onProject={(p) => setProjects((l) => l.map((x) => (x.id === p.id ? p : x)))} /> : root && !creating && <p className="rs-card hint">还没有片子。点「新建片子」开始，比如给你的项目做一条 30 秒宣传片。</p>}
+        {root && project ? <Workbench key={project.id} root={root} project={project} packs={packs} ff={ff} onFf={setFf} notes={notes} onProject={(p) => setProjects((l) => l.map((x) => (x.id === p.id ? p : x)))} /> : root && !creating && <p className="rs-card hint">还没有片子。点「新建片子」开始，比如给你的项目做一条 30 秒宣传片。</p>}
       </div>
     </main>
   );
@@ -95,31 +103,55 @@ function CreateDialog({ onCancel, onCreate }: { onCancel(): void; onCreate(p: { 
   );
 }
 
-function Workbench({ root, project, packs, ff, onFf, onProject }: { root: string; project: PvProject; packs: PvPack[]; ff: PvFfmpegState | null; onFf(s: PvFfmpegState): void; onProject(p: PvProject): void }) {
+function Workbench({ root, project, packs, ff, onFf, notes, onProject }: { root: string; project: PvProject; packs: PvPack[]; ff: PvFfmpegState | null; onFf(s: PvFfmpegState): void; notes: Record<string, string>; onProject(p: PvProject): void }) {
   const [step, setStep] = useState<PvStep>("brief");
   const [preview, setPreview] = useState<{ path: string; url: string } | null>(null);
   const [error, setError] = useState("");
   const [askFf, setAskFf] = useState(false);
+  const [ffNote, setFfNote] = useState("");
+  // null until the first read comes back.
+  const [assets, setAssets] = useState<PvAsset[] | null>(null);
+  const [assetsError, setAssetsError] = useState("");
+  const loadAssets = () => { setAssetsError(""); void pv().pvAssets(root, project.id).then(setAssets, (e) => { setAssets([]); setAssetsError(cleanError(e)); }); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(loadAssets, [root, project.id]);
   const meta = STEPS.find((s) => s.id === step)!;
+  const go = (s: PvStep) => { setError(""); setStep(s); };
+  const note = notes[`${project.id}/${step}`];
 
   async function run(s: PvStep) {
     setError("");
+    const was = project.steps[s];
+    // Marked running before the call, so a quick "done" from the backend is never overwritten.
+    onProject({ ...project, steps: { ...project.steps, [s]: "running" } });
     try {
       await pv().pvRunStep(root, project.id, s);
-      onProject({ ...project, steps: { ...project.steps, [s]: "running" } });
-    } catch (e) { setError(cleanError(e)); }
+    } catch (e) {
+      setError(cleanError(e));
+      onProject({ ...project, steps: { ...project.steps, [s]: was } });
+    }
   }
   async function render() {
     setError("");
     try {
       const out = await pv().pvRenderPreview(root, project.id);
       // Played through the backend's sikeoop-pv:// protocol (only files under pv/<id>/out/).
-      const rel = out.replace(/\\/g, "/").split("/out/").pop() ?? out;
-      setPreview({ path: out, url: await pv().pvPreviewUrl(root, project.id, rel) });
+      const normalized = out.replace(/\\/g, "/");
+      const marker = normalized.lastIndexOf("/out/");
+      if (marker < 0) throw new Error("预览输出路径无效");
+      setPreview({ path: out, url: await pv().pvPreviewUrl(root, project.id, normalized.slice(marker + 5)) });
     } catch (e) { setError(cleanError(e)); }
   }
 
-  const entries = packs.filter((p) => p.kind === "common" || p.kind === project.kind).flatMap((p) => p.entries.filter((e) => e.steps.includes(step)).map((e) => ({ ...e, pack: p.name })));
+  async function recheckFf() {
+    setFfNote("检查中…");
+    try {
+      const s = await pv().pvFfmpeg();
+      onFf(s);
+      setFfNote(s.status === "ready" ? "" : "还是没找到。装完后可以新开一个终端跑 ffmpeg -version 确认一下，再回来检查。");
+    } catch (e) { setFfNote(`没检查成：${cleanError(e)}`); }
+  }
+  const beatsDone = project.steps.beats === "done";
   const busy = Object.values(project.steps).includes("running");
 
   return (
@@ -129,10 +161,10 @@ function Workbench({ root, project, packs, ff, onFf, onProject }: { root: string
         <ol>
           {STEPS.map((s, i) => (
             <li key={s.id}>
-              <button type="button" className={"pv-step" + (s.id === step ? " on" : "") + (s.later ? " later" : "")} onClick={() => setStep(s.id)} aria-current={s.id === step ? "step" : undefined}>
+              <button type="button" className={"pv-step" + (s.id === step ? " on" : "")} onClick={() => go(s.id)} aria-current={s.id === step ? "step" : undefined}>
                 <span className={"pv-dot " + project.steps[s.id]}>{i + 1}</span>
                 <span className="pv-step-name">{s.label}</span>
-                {s.later ? <span className="pv-later">第二批</span> : <StatusBadge tone={STATUS_TONE[project.steps[s.id]]}>{STATUS_TEXT[project.steps[s.id]]}</StatusBadge>}
+                <StatusBadge tone={STATUS_TONE[project.steps[s.id]]}>{STATUS_TEXT[project.steps[s.id]]}</StatusBadge>
               </button>
             </li>
           ))}
@@ -144,19 +176,24 @@ function Workbench({ root, project, packs, ff, onFf, onProject }: { root: string
         <header className="rs-card-head">
           <h3>{meta.label}</h3>
           <span className="spacer" />
-          {!meta.later && step !== "render" && (
-            <button type="button" className="send rs-accent" disabled={project.steps[step] === "running"} onClick={() => void run(step)}>
-              {project.steps[step] === "running" ? "AI 在写…" : step === "compose" ? "让 AI 写 Remotion 组件" : project.steps[step] === "done" ? "让 AI 重写" : "让 AI 写"}
+          {step !== "render" && (
+            <button type="button" className="send rs-accent" disabled={project.steps[step] === "running" || (step === "beats" && !project.music)} onClick={() => void run(step)}>
+              {step === "beats" ? (project.steps.beats === "running" ? "分析中…" : beatsDone ? "重新分析节拍" : "分析节拍") : step === "assets" ? (project.steps.assets === "running" ? "检查中…" : "检查素材") : project.steps[step] === "running" ? "AI 在写…" : step === "compose" ? "让 AI 写 Remotion 组件" : project.steps[step] === "done" ? "让 AI 重写" : "让 AI 写"}
             </button>
           )}
         </header>
         {error && <p className="err-text">{error}</p>}
-        {meta.later ? (
-          <p className="hint pv-empty">卡点和素材准备在第二批做。现在可以跳过，直接到「合成」。</p>
+        {project.steps[step] === "error" && step !== "beats" && step !== "render" && (
+          <p className="err-text">{step === "assets" ? "素材检查没过" : "这一步没跑成"}{note ? `：${note}` : "，再点一次右上角的按钮试试。"}{step === "assets" && note ? "　到「分镜」步给这些镜头选好素材，再回来检查。" : ""}</p>
+        )}
+        {step === "beats" ? (
+          <BeatsStep root={root} project={project} assets={assetsError ? null : assets} ffMissing={!!ff && ff.status !== "ready"} failure={note} onGo={go} />
+        ) : step === "assets" ? (
+          <AssetsStep root={root} project={project} assets={assets} loadError={assetsError} onReload={loadAssets} onAssets={setAssets} onProject={onProject} />
         ) : FILE_OF[step] ? (
           <MarkdownStep key={step + project.steps[step]} root={root} id={project.id} file={FILE_OF[step]!} />
         ) : step === "storyboard" ? (
-          <StoryboardStep key={project.steps.storyboard} root={root} id={project.id} target={project.seconds} />
+          <StoryboardStep key={project.steps.storyboard} root={root} id={project.id} target={project.seconds} assets={assets ?? []} />
         ) : step === "compose" ? (
           <p className="hint pv-empty">按分镜生成 Remotion 工程（pv/{project.id}/remotion/），再交给编程 AI 一个镜头一个镜头写组件。进度在「调度台」里能看到。</p>
         ) : (
@@ -164,6 +201,14 @@ function Workbench({ root, project, packs, ff, onFf, onProject }: { root: string
             <p className="hint">用 Remotion 渲染预览版，输出到 pv/{project.id}/out/。</p>
             {ff?.status === "ready" ? (
               <button type="button" className="send rs-accent" onClick={() => void render()}>出预览片</button>
+            ) : ff?.status === "missing" && ff.hint ? (
+              // The backend only looks for an installed ffmpeg here (macOS / Linux), so no download offer.
+              <div className="rs-callout">
+                <p>出片需要 ffmpeg，这台电脑上还没找到。sikeoop 在这个系统上不会代你下载，要自己装一下：</p>
+                <p className="pv-ff-hint">{ff.hint}</p>
+                {ff.error && <p className="warn-text">{ff.error}</p>}
+                <div className="rs-actions">{ffNote && <span className="hint">{ffNote}</span>}<span className="spacer" /><button type="button" className="send rs-accent" disabled={ffNote === "检查中…"} onClick={() => void recheckFf()}>我装好了，重新检查</button></div>
+              </div>
             ) : askFf || ff?.status === "downloading" ? (
               <div className="rs-callout">
                 <p>出片需要 ffmpeg。sikeoop 不随包带它，会从官方镜像下载到本机的 sikeoop 工具文件夹（约 80 MB），下载后校验 sha256，你点同意后才会开始。</p>
@@ -182,12 +227,7 @@ function Workbench({ root, project, packs, ff, onFf, onProject }: { root: string
             )}
           </div>
         )}
-        <details className="st-disclosure pv-pack" open>
-          <summary><Icon name="chevron-right" /> 经验包 · {meta.label}（{entries.length}）</summary>
-          {entries.length === 0 ? <p className="hint">这一步还没有经验条目。</p> : (
-            <ul>{entries.map((e) => <li key={e.id}><b>{e.title}</b><span className="hint">{e.pack}</span><p>{e.body}</p></li>)}</ul>
-          )}
-        </details>
+        <PackPanel packs={packs} kind={project.kind} step={step} />
       </section>
 
       <aside className="pv-preview rs-card">
@@ -220,7 +260,7 @@ function MarkdownStep({ root, id, file }: { root: string; id: string; file: stri
   );
 }
 
-function StoryboardStep({ root, id, target }: { root: string; id: string; target: number }) {
+function StoryboardStep({ root, id, target, assets }: { root: string; id: string; target: number; assets: PvAsset[] }) {
   const [sb, setSb] = useState<PvStoryboard | null>(null);
   const [dirty, setDirty] = useState(false);
   const [drag, setDrag] = useState<number | null>(null);
@@ -251,6 +291,15 @@ function StoryboardStep({ root, id, target }: { root: string; id: string; target
               <label><span>景别</span><input value={s.framing} onChange={(e) => patch(i, { framing: e.target.value })} /></label>
               <label><span>运镜</span><input value={s.camera} onChange={(e) => patch(i, { camera: e.target.value })} /></label>
               <label><span>来源</span><select value={s.source} onChange={(e) => patch(i, { source: e.target.value as PvShot["source"] })}>{(Object.keys(SOURCE) as PvShot["source"][]).map((k) => <option key={k} value={k}>{SOURCE[k]}</option>)}</select></label>
+              {(s.source === "file" || s.source === "screen") && (
+                <label className="wide"><span>用哪个素材</span>
+                  <select value={s.asset ?? ""} onChange={(e) => patch(i, { asset: e.target.value || undefined })}>
+                    <option value="">（还没选）</option>
+                    {s.asset && !assets.some((a) => a.file === s.asset) && <option value={s.asset}>{s.asset}（找不到）</option>}
+                    {assets.filter((a) => a.kind !== "audio").map((a) => <option key={a.file} value={a.file}>{a.file}</option>)}
+                  </select>
+                </label>
+              )}
               <label className="wide"><span>画面</span><input value={s.visual} onChange={(e) => patch(i, { visual: e.target.value })} /></label>
               <label><span>字幕</span><input value={s.caption ?? ""} onChange={(e) => patch(i, { caption: e.target.value })} /></label>
               <label><span>转场</span><input value={s.transition ?? ""} onChange={(e) => patch(i, { transition: e.target.value })} /></label>

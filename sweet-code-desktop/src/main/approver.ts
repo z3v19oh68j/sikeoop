@@ -9,65 +9,9 @@ import path from "node:path";
 // ones pass. Only what the rules can't place is judged by the model (MiMo v2.6 Pro by default),
 // and every failure, timeout or unclear answer falls back to "ask". Nothing is ever allowed by default.
 
-export type Decision = "allow" | "deny" | "ask";
+import { rules, type Decision, type ToolCall } from "./approver-rules.ts";
 
-interface ToolCall {
-  tool_name?: string;
-  tool_input?: Record<string, unknown>;
-  cwd?: string;
-}
-
-/** Always the user's call, whatever the model says. */
-const DANGER: RegExp[] = [
-  /\brm\s+(-\w*\s+)*-\w*[rf]/i, // rm -rf / rm -r / rm -f
-  /\bsudo\b|\bsu\s/,
-  /\bgit\s+(push|reset\s+--hard|clean\s+-\w*f|rebase|filter-branch|checkout\s+--\s|branch\s+-D|tag\s+-d)/,
-  /\b(curl|wget)\b[^|]*\|\s*(ba|z)?sh\b/,
-  /\b(mkfs|dd\s+if=|diskutil\s+erase|shutdown|reboot|launchctl|crontab)\b/,
-  /\bchmod\s+(-R\s+)?[0-7]*7[0-7]*\s+\/|\bchown\s+-R/,
-  /\b(npm|pnpm|yarn)\s+publish\b|\b(wrangler|vercel|netlify|cf)\s+.*\b(deploy|publish|delete)\b/,
-  /\b(drop\s+(table|database)|truncate\s+table)\b/i,
-  /\bkill(all)?\s+-9\b|\bpkill\b/,
-  /~\/\.(ssh|aws|gnupg|config\/gh)|\/\.ssh\/|id_rsa|\.env\b|keychain|security\s+find-/,
-  /\beval\b|\bbase64\s+(-d|--decode)\b.*\|/,
-  />\s*\/(etc|usr|System|Library)\//,
-];
-
-/** Read-only or routine: no need to ask anyone. Must also pass DANGER and have no chaining. */
-const SAFE: RegExp[] = [
-  /^(ls|pwd|cat|head|tail|wc|grep|rg|find|which|echo|tree|file|stat|du|df|diff|date|whoami|env|printenv)\b/,
-  /^git\s+(status|diff|log|show|branch|remote|fetch|add|commit|stash|blame|rev-parse)\b/,
-  /^(npm|pnpm|yarn)\s+(run\s+)?(typecheck|lint|test|build|install|ci|ls|list|outdated)\b/,
-  /^(node|tsc|npx\s+tsc|python3?\s+-m\s+pytest|pytest|cargo\s+(check|build|test)|go\s+(build|test|vet))\b/,
-];
-
-const READ_TOOLS = new Set(["Read", "Grep", "Glob", "LS", "WebSearch", "WebFetch", "ToolSearch", "TodoWrite"]);
-
-const SENSITIVE_PATH = /(^|\/)(\.ssh|\.aws|\.gnupg|\.env[^/]*|\.npmrc|\.claude\/settings[^/]*\.json)$|^\/(etc|usr|System|Library)\//;
-
-function rules(call: ToolCall): { decision: Decision; reason: string } | null {
-  const input = call.tool_input ?? {};
-  if (call.tool_name === "Bash") {
-    const cmd = String(input.command ?? "").trim();
-    const hit = DANGER.find((re) => re.test(cmd));
-    if (hit) return { decision: "ask", reason: `高风险命令（规则 ${hit.source.slice(0, 40)}）` };
-    // Pipes / chains / substitutions can hide anything after the first word: let the model look.
-    if (!/[;&|`$<>]/.test(cmd) && SAFE.some((re) => re.test(cmd))) return { decision: "allow", reason: "常规只读/构建命令" };
-    return null;
-  }
-  if (call.tool_name === "Write" || call.tool_name === "Edit" || call.tool_name === "MultiEdit" || call.tool_name === "NotebookEdit") {
-    const file = String(input.file_path ?? input.notebook_path ?? "");
-    if (SENSITIVE_PATH.test(file)) return { decision: "ask", reason: "改动敏感文件" };
-    return { decision: "allow", reason: "写入文件" };
-  }
-  // Searching and reading — files or the web — always passes.
-  if (call.tool_name && READ_TOOLS.has(call.tool_name)) {
-    const file = String(input.file_path ?? input.path ?? "");
-    if (file && SENSITIVE_PATH.test(file)) return { decision: "ask", reason: "读取敏感文件" };
-    return { decision: "allow", reason: "搜索/读取" };
-  }
-  return null;
-}
+export type { Decision };
 
 const SYSTEM = `你是 Claude Code 的命令审批员。判断一次工具调用的风险，只输出一行 JSON：{"risk":"low"|"high","reason":"不超过20字"}。
 low：只影响当前项目、可撤销的常规开发操作（读写项目文件、构建、测试、安装依赖、本地 git 提交、访问公开网页）。

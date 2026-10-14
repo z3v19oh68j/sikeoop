@@ -13,6 +13,9 @@ export interface CliBus {
   interrupt?(id: string): void;
 }
 
+/** How long a session must have stayed idle after its Stop before a job is typed in. */
+export const SETTLE_MS = 1500;
+
 export class CliExecutor implements Executor {
   readonly kind = "cli" as const;
   readonly ref: string;
@@ -36,9 +39,13 @@ export class CliExecutor implements Executor {
     return { writableRoots: [this.where.root], network: this.where.cli === "codex" ? "ask" : true };
   }
 
-  /** Idle only: a session that is working or waiting for the user is never typed into. */
-  ready(): boolean {
-    return this.bus.viewOf(this.ref)?.status === "idle";
+  /**
+   * Idle, and settled for SETTLE_MS: a session that is working or waiting for the user is never
+   * typed into, and one that has only just stopped may still pick up a prompt the user queued.
+   */
+  ready(now = Date.now()): boolean {
+    const view = this.bus.viewOf(this.ref);
+    return view?.status === "idle" && now - view.since >= SETTLE_MS;
   }
 
   alive(): boolean {

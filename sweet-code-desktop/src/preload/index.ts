@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { AgentCli, AgentEvent, BrowserEvent, AgentSessionView, AutomationView, RemoteView, MobileGatewayState, UpdateState, ClusterView, RegressView, DictationView, ArchiveProgress, GroupEvent, SoundName, McpServerView, SweetApi, RagStatus, SkillInfo, WikiState, GraphState, ArktsStatus, PublishEvent, DispatchView, DispatchEvent, CrossSession, TimelineEvent, ResearchEvent, PaperEvent, ReviewEvent, IdeaEvent, QuartoEvent, ToolEvent, ResumePlan } from "@shared/types";
+import type { AgentCli, AgentEvent, BrowserEvent, AgentSessionView, AutomationView, RemoteView, MobileGatewayState, UpdateState, ClusterView, RegressView, DictationView, ArchiveProgress, GroupEvent, SoundName, McpServerView, SweetApi, RagStatus, SkillInfo, WikiState, GraphState, ArktsStatus, PublishEvent, DispatchView, DispatchEvent, CrossSession, TimelineEvent, ResearchEvent, PaperEvent, ReviewEvent, IdeaEvent, QuartoEvent, ToolEvent, ResumePlan, ResidentView } from "@shared/types";
 
 // The renderer's only door to the system. Each method maps to one ipcMain handler.
 const api: SweetApi = {
@@ -7,7 +7,23 @@ const api: SweetApi = {
   toolboxPrefs: () => ipcRenderer.invoke("toolbox:prefs"),
   toolboxSavePrefs: (p) => ipcRenderer.invoke("toolbox:savePrefs", p),
   toolboxOpenUrl: (id, q) => ipcRenderer.invoke("toolbox:openUrl", id, q),
+  imagePromptMeta: () => ipcRenderer.invoke("imgprompt:meta"),
+  imagePromptQuery: (query) => ipcRenderer.invoke("imgprompt:query", query),
+  imagePromptGet: (id) => ipcRenderer.invoke("imgprompt:get", id),
+  imagePromptThumbs: (ids) => ipcRenderer.invoke("imgprompt:thumbs", ids),
+  imagePromptSetFavorite: (id, on) => ipcRenderer.invoke("imgprompt:favorite", id, on),
+  imagePromptCopy: (request) => ipcRenderer.invoke("imgprompt:copy", request),
+  cheatshopTree: () => ipcRenderer.invoke("cheatshop:tree"),
+  cheatshopRead: (path) => ipcRenderer.invoke("cheatshop:read", path),
   pvList: (root) => ipcRenderer.invoke("pv:list", root),
+  pvAssets: (root, id) => ipcRenderer.invoke("pv:assets", root, id),
+  pvImportAssets: (root, id) => ipcRenderer.invoke("pv:importAssets", root, id),
+  pvRemoveAsset: (root, id, file) => ipcRenderer.invoke("pv:removeAsset", root, id, file),
+  pvAssetUrl: (root, id, file) => ipcRenderer.invoke("pv:assetUrl", root, id, file),
+  pvSetMusic: (root, id, file) => ipcRenderer.invoke("pv:setMusic", root, id, file),
+  pvBeats: (root, id) => ipcRenderer.invoke("pv:beats", root, id),
+  pvSetBeatGrid: (root, id, grid) => ipcRenderer.invoke("pv:setBeatGrid", root, id, grid),
+  pvSnapStoryboard: (root, id, unit) => ipcRenderer.invoke("pv:snapStoryboard", root, id, unit),
   pvCreate: (root, input) => ipcRenderer.invoke("pv:create", root, input),
   pvGet: (root, id) => ipcRenderer.invoke("pv:get", root, id),
   pvRunStep: (root, id, step, note) => ipcRenderer.invoke("pv:runStep", root, id, step, note),
@@ -64,6 +80,21 @@ const api: SweetApi = {
   listModels: (id) => ipcRenderer.invoke("providers:models", id),
   setBuiltinFreeProviderEnabled: (id, enabled) => ipcRenderer.invoke("providers:setBuiltinFreeEnabled", id, enabled),
   providerDiscoverModels: (id) => ipcRenderer.invoke("providers:discoverModels", id),
+  claudeOAuthGenerate: (scope) => ipcRenderer.invoke("providers:claudeOAuthGenerate", scope),
+  claudeOAuthExchange: (input) => ipcRenderer.invoke("providers:claudeOAuthExchange", input),
+  claudeOAuthLogout: () => ipcRenderer.invoke("providers:claudeOAuthLogout"),
+  openaiOAuthGenerate: () => ipcRenderer.invoke("providers:openaiOAuthGenerate"),
+  openaiOAuthExchange: (input) => ipcRenderer.invoke("providers:openaiOAuthExchange", input),
+  openaiOAuthLogout: () => ipcRenderer.invoke("providers:openaiOAuthLogout"),
+  claudeUsage: () => ipcRenderer.invoke("providers:claudeUsage"),
+  claudeAccounts: () => ipcRenderer.invoke("providers:claudeAccounts"),
+  claudeAccountSwitch: (id) => ipcRenderer.invoke("providers:claudeAccountSwitch", id),
+  claudeAccountRemove: (id) => ipcRenderer.invoke("providers:claudeAccountRemove", id),
+  claudeResetCredits: () => ipcRenderer.invoke("providers:claudeResetCredits"),
+  openaiUsage: () => ipcRenderer.invoke("providers:openaiUsage"),
+  openaiAccounts: () => ipcRenderer.invoke("providers:openaiAccounts"),
+  openaiAccountSwitch: (id) => ipcRenderer.invoke("providers:openaiAccountSwitch", id),
+  openaiAccountRemove: (id) => ipcRenderer.invoke("providers:openaiAccountRemove", id),
   setVision: (v) => ipcRenderer.invoke("providers:setVision", v),
   setReviewer: (r) => ipcRenderer.invoke("providers:setReviewer", r),
   setRouting: (r) => ipcRenderer.invoke("providers:setRouting", r),
@@ -243,6 +274,16 @@ const api: SweetApi = {
     ipcRenderer.on("quota:plans", listener);
     return () => ipcRenderer.removeListener("quota:plans", listener);
   },
+  residentView: () => ipcRenderer.invoke("resident:view"),
+  setResidentSettings: (r) => ipcRenderer.invoke("resident:setSettings", r),
+  residentStart: () => ipcRenderer.invoke("resident:start"),
+  residentStop: () => ipcRenderer.invoke("resident:stop"),
+  residentRunNow: () => ipcRenderer.invoke("resident:runNow"),
+  onResident: (cb) => {
+    const listener = (_e: unknown, v: ResidentView) => cb(v);
+    ipcRenderer.on("resident:changed", listener);
+    return () => ipcRenderer.removeListener("resident:changed", listener);
+  },
   researchEnv: () => ipcRenderer.invoke("research:env"),
   researchInstall: () => ipcRenderer.invoke("research:install"),
   researchPresets: () => ipcRenderer.invoke("research:presets"),
@@ -359,6 +400,8 @@ const api: SweetApi = {
   usageSummary: () => ipcRenderer.invoke("usage:summary"),
   snipShortcut: () => ipcRenderer.invoke("snip:get"),
   setSnipShortcut: (on) => ipcRenderer.invoke("snip:set", on),
+  snipCopy: () => ipcRenderer.invoke("snip:copy"),
+  setSnipCopy: (on) => ipcRenderer.invoke("snip:setCopy", on),
   webSearch: () => ipcRenderer.invoke("websearch:get"),
   setWebSearch: (u) => ipcRenderer.invoke("websearch:set", u),
   snipGesture: () => ipcRenderer.invoke("snip:gesture"),
@@ -393,6 +436,8 @@ const api: SweetApi = {
   groupDelete: (id) => ipcRenderer.invoke("group:delete", id),
   groupSend: (id, text, mentions) => ipcRenderer.invoke("group:send", id, text, mentions),
   groupStop: (id) => ipcRenderer.invoke("group:stop", id),
+  groupFinalize: (id, memberId) => ipcRenderer.invoke("group:finalize", id, memberId),
+  groupHandoff: (id) => ipcRenderer.invoke("group:handoff", id),
   automations: () => ipcRenderer.invoke("automation:list"),
   saveAutomation: (a) => ipcRenderer.invoke("automation:save", a),
   deleteAutomation: (id) => ipcRenderer.invoke("automation:delete", id),

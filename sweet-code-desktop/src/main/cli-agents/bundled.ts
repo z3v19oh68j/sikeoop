@@ -56,6 +56,18 @@ export const Sikeoop = async ({ directory }) => {
 };
 `;
 
+/**
+ * CodeBuddy Code's hooks are Claude Code's (same events, same stdin JSON, same hookSpecificOutput
+ * answers, exit 2 to block), so it reports in PeerBus's own dialect, as peers.claudeSettings() does.
+ * SessionStart marks it ready. Timeouts match claudeSettings(); PermissionRequest waits for the island.
+ */
+const codebuddyHook = (timeout: number) => ({
+  type: "command",
+  command: `curl -fsS -m ${timeout} -X POST -H 'Content-Type: application/json' --data-binary @- '{hookUrl}' || { echo 'sikeoop hook 超时或不可用，拒绝执行' >&2; exit 2; }`,
+  timeout: timeout + 5,
+});
+const CODEBUDDY_QUICK = [{ hooks: [codebuddyHook(5)] }];
+
 export const BUNDLED: unknown[] = [
   {
     id: "opencode",
@@ -84,5 +96,36 @@ export const BUNDLED: unknown[] = [
     ],
     turnEnd: "hook",
     notes: ["opencode 用的是你自己的 opencode 配置和模型；这次会话额外设了：改文件、运行命令前先问你。"],
+  },
+  {
+    id: "codebuddy",
+    name: "CodeBuddy",
+    label: "CodeBuddy",
+    description: "腾讯的终端编程助手（CodeBuddy Code）；钩子和 Claude Code 同一套，写文件受文件锁和归属约束",
+    bin: ["codebuddy", "cbc"],
+    install: "npm i -g @tencent-ai/codebuddy-code",
+    args: ["--settings", "{sessionDir}/settings.json", "--mcp-config", "{sessionDir}/mcp.json", "--append-system-prompt", "{instructions}"],
+    envPassthrough: ["CODEBUDDY_*"],
+    files: [
+      {
+        path: "settings.json",
+        content: {
+          json: {
+            hooks: {
+              SessionStart: CODEBUDDY_QUICK,
+              UserPromptSubmit: CODEBUDDY_QUICK,
+              PreToolUse: [{ matcher: "*", hooks: [codebuddyHook(5)] }],
+              Notification: CODEBUDDY_QUICK,
+              Stop: CODEBUDDY_QUICK,
+              PermissionRequest: [{ matcher: "*", hooks: [codebuddyHook(115)] }],
+            },
+            permissions: { allow: ["mcp__sikeoop__list_peers", "mcp__sikeoop__send_to"] },
+          },
+        },
+      },
+      { path: "mcp.json", content: { json: { mcpServers: { sikeoop: { command: "{mcpBin}", args: "{mcpArgs}", env: "{mcpEnv}" } } } } },
+    ],
+    turnEnd: "hook",
+    notes: ["CodeBuddy 用的是你自己的 CodeBuddy 登录和模型；这次会话额外加了上报给 sikeoop 的钩子和 sikeoop 的 MCP。"],
   },
 ];

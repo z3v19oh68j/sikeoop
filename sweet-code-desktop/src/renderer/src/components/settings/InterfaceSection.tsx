@@ -238,12 +238,35 @@ function SnipRow() {
           截图问 AI <kbd>{keys}</kbd>
         </>
       }
-      desc="按快捷键框选屏幕的一块，在灵动岛上直接问识图模型。"
+      desc="按快捷键框选屏幕的一块，在灵动岛上直接问识图模型。截下的图也可以同时复制，直接粘贴到聊天软件里。"
       status={s.error ? <StatusBadge tone="warn">{s.error}</StatusBadge> : undefined}
       control={<Switch checked={s.enabled} onChange={(v) => void window.sweet.setSnipShortcut(v).then(setS)} label="截图问 AI" />}
     >
+      <SnipCopyRow />
       <SnipGestureRow />
     </SettingRow>
+  );
+}
+
+/** Every screenshot also goes to the clipboard as an image. */
+function SnipCopyRow() {
+  const [on, setOn] = useState<boolean | null>(null);
+  useEffect(() => {
+    void window.sweet.snipCopy().then(setOn);
+  }, []);
+  if (on === null) return null;
+  return (
+    <div className="st-subrow">
+      <div className="st-subrow-main">
+        <div className="st-row-text">
+          <div className="st-row-title">
+            <span>截图后自动复制图片</span>
+          </div>
+          <p className="st-row-desc">截完就在剪贴板里，可以直接粘贴到微信、QQ、飞书或文档里。不想问 AI 的话，截完关掉灵动岛的卡片就行。</p>
+        </div>
+        <Switch checked={on} onChange={(v) => void window.sweet.setSnipCopy(v).then(setOn)} label="截图后自动复制图片" />
+      </div>
+    </div>
   );
 }
 

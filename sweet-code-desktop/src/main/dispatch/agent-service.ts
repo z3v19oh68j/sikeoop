@@ -43,7 +43,7 @@ export class AgentDispatchService {
         return result === "start";
       },
     });
-    const sub = o.dispatcher.submit({ executor, input: input.input, origin: "user", from: "sikeoop", timeoutMs: input.timeoutMs, scope: { roots: [cwd], owns: input.owns }, verify: input.verify });
+    const sub = o.dispatcher.submit({ executor, input: input.input, origin: "user", from: "sikeoop", timeoutMs: input.timeoutMs, scope: { roots: [cwd], owns: input.owns, readOnly }, verify: input.verify });
     if ("error" in sub) { executor.close(); throw Error(sub.error); }
     this.executors.add(executor);
     void sub.done.finally(() => { executor.close(); this.executors.delete(executor); });

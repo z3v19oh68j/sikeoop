@@ -1,5 +1,5 @@
 // Run: node --test test/tools/
-import { test } from "node:test";
+import { mock, test } from "node:test";
 import assert from "node:assert/strict";
 import { agentBusTools, type AgentBusDeps } from "../../src/main/tools/agent-bus-tools.ts";
 import { dispatchTools } from "../../src/main/tools/dispatch-tools.ts";
@@ -231,4 +231,74 @@ test("a model takes a task as a sub-agent, next to the sessions, on the same car
   assert.match(parts[1], /^已交给 Claude-1/);
   assert.match(parts[2], /^nobody\/model：Error: /);
   assert.equal(t.asked.length, 0);
+});
+
+// ---- 调度核心第一批 F4：子代理结果可回收 ----
+
+/** The bus with one sub-agent model whose jobs the test ends by hand. */
+function workerSetup() {
+  const jobs = new Map<string, { done: Promise<DispatchJob>; end(job: DispatchJob): void }>();
+  let n = 0;
+  const tools = agentBusTools({
+    ...({} as AgentBusDeps),
+    find: (name) => ({ error: `没有叫「${name}」的会话。` }),
+    job: (id) => jobs.get(id)?.done ?? null,
+    workers: {
+      list: () => "",
+      find: (name) => (name === "openai/gpt-x" ? name : null),
+      run: () => {
+        const id = `job-${++n}-0123456789abcdef`;
+        let end!: (job: DispatchJob) => void;
+        const done = new Promise<DispatchJob>((r) => (end = r));
+        jobs.set(id, { done, end });
+        return { job: { id } as DispatchJob, done };
+      },
+    },
+  });
+  const ctx = { signal: new AbortController().signal, requestApproval: async () => ({ approved: true }) } as unknown as ToolContext;
+  const call = (name: string, input: unknown) => {
+    const tool = tools.find((x) => x.name === name)!;
+    return tool.run(tool.schema.parse(input), ctx);
+  };
+  return { jobs, call };
+}
+
+const flush = async () => {
+  for (let i = 0; i < 10; i++) await new Promise((r) => setImmediate(r));
+};
+
+test("T4-1: by default a sub-agent is waited for past 20 minutes, until it is done", async (t) => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  t.after(() => mock.timers.reset());
+  const w = workerSetup();
+  const out = w.call("send_to_agent", { to: "openai/gpt-x", message: "查一下" });
+  await flush();
+  mock.timers.tick(25 * 60_000);
+  await flush();
+  w.jobs.get("job-1-0123456789abcdef")!.end(done("子代理做完了"));
+  const text = await out;
+  assert.match(text, /做完了这一轮，它的最后回复：\n\n子代理做完了$/);
+  assert.doesNotMatch(text, /还没做完/);
+});
+
+test("T4-2: a shorter wait names the job, and wait_agent({ job }) gets the result later", async (t) => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  t.after(() => mock.timers.reset());
+  const w = workerSetup();
+  const id = "job-1-0123456789abcdef";
+  const out = w.call("send_to_agent", { to: "openai/gpt-x", message: "查一下", wait_minutes: 1 });
+  await flush();
+  mock.timers.tick(60_000);
+  const text = await out;
+  assert.match(text, /还没做完/);
+  assert.ok(text.includes(`#${id.slice(0, 8)}`), text);
+  assert.ok(text.includes(`job="${id}"`), text);
+  w.jobs.get(id)!.end(done("迟到的结果"));
+  assert.match(await w.call("wait_agent", { job: id }), /迟到的结果/);
+  assert.match(await w.call("wait_agent", { job: "nope" }), /^Error: 没有任务/);
+});
+
+test("T4-3: wait_agent with a model name says to use job", async () => {
+  const w = workerSetup();
+  assert.match(await w.call("wait_agent", { to: "openai/gpt-x" }), /子代理请用 job 参数等/);
 });

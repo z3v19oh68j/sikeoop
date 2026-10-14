@@ -11,8 +11,8 @@ interface Props {
   hidden: boolean;
   /** Open settings to configure more members. */
   onSettings(): void;
-  /** Hand a conclusion to the main Agent chat. */
-  onHandOff(text: string): void;
+  /** Hand a conclusion to the main Agent chat. dispatch: a settled division of work, sent in super-dispatch mode. */
+  onHandOff(text: string, dispatch?: boolean): void;
 }
 
 /** A member's default name: the partner's, plus the model when the provider has several members. */
@@ -223,7 +223,7 @@ function ChatView({
   onUpdated,
 }: {
   chat: GroupChat;
-  onHandOff(text: string): void;
+  onHandOff(text: string, dispatch?: boolean): void;
   onDelete(): void;
   onUpdated(): void;
 }) {
@@ -246,6 +246,8 @@ function ChatView({
         else if (e.type === "message") {
           setLive((l) => (l?.messageId === e.message.id ? null : l));
           setChat((c) => (c.messages.some((m) => m.id === e.message.id) ? c : { ...c, messages: [...c.messages, e.message] }));
+        } else if (e.type === "plan") {
+          setChat((c) => ({ ...c, plan: e.plan }));
         } else if (e.type === "idle") {
           setLive(null);
           setBusy(false);
@@ -283,6 +285,29 @@ function ChatView({
     onHandOff(`下面是群聊「${chat.title}」里的讨论。请根据大家的结论动手实现；有分歧的地方先问我：\n\n${recent}`);
   };
 
+  // The group's own channel to the main conversation: settle the division of work, then hand it over as is.
+  const finalize = async () => {
+    if (busy) return;
+    setError("");
+    setBusy(true);
+    try {
+      await window.sweet.groupFinalize(chat.id, mentions.length === 1 ? mentions[0] : undefined);
+    } catch (e) {
+      setError(cleanError(e));
+      setBusy(false);
+    }
+  };
+  const dispatchPlan = async () => {
+    setError("");
+    try {
+      onHandOff((await window.sweet.groupHandoff(chat.id)).text, true);
+    } catch (e) {
+      setError(cleanError(e));
+    }
+  };
+  // The plan is stale once anyone has spoken after it.
+  const planFresh = !!chat.plan && chat.plan.feasible && !chat.messages.some((m) => m.at > chat.plan!.at);
+
   return (
     <div className="group-chat">
       <div className="studio-bar">
@@ -295,6 +320,24 @@ function ChatView({
           ))}
         </span>
         <span className="spacer" />
+        <button
+          type="button"
+          className="mini-btn"
+          disabled={busy || !chat.messages.some((m) => m.from === "member")}
+          onClick={() => void finalize()}
+          title="让一位成员把讨论结论整理成分工方案：可不可行、谁负责什么（先点一个头像可以指定由谁整理）"
+        >
+          <Icon name="check-circle" /> 整理分工
+        </button>
+        <button
+          type="button"
+          className="mini-btn"
+          disabled={busy || !planFresh}
+          onClick={() => void dispatchPlan()}
+          title={planFresh ? "把定好的分工交给主对话：它只按表派活和验收，不重新规划" : "先整理分工；整理后群里又聊了新内容的话要重新整理"}
+        >
+          <Icon name="rocket" /> 按分工派活
+        </button>
         <button type="button" className="mini-btn" disabled={busy || !chat.messages.length} onClick={handOff} title="把最近的讨论交给主对话里的 Agent 去实现">
           <Icon name="rocket" /> 交给 Agent
         </button>

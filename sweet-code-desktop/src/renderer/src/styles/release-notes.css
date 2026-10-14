@@ -1,0 +1,28 @@
+/* The release notes in full (components/update/ReleaseNotes.tsx). Sizes are in em: the host sets the font size. */
+.rn {
+  --rn-ink: var(--ink, #e8e8ec);
+  --rn-soft: var(--ink-2, #c8c8d0);
+  --rn-muted: var(--muted, #8b8b93);
+  --rn-line: var(--line-2, #2c2c31);
+  --rn-new: var(--ok, #5fd38d);
+  --rn-better: var(--accent, #f0789b);
+  --rn-fix: #6fb3ff;
+  --rn-warn: var(--warn, #e5a15b);
+  display: grid; gap: 1em; white-space: normal; color: var(--rn-soft); line-height: 1.65;
+}
+.rn-tagline { margin: 0; padding-left: 0.8em; border-left: 2px solid var(--rn-line); color: var(--rn-muted); font-style: italic; }
+.rn-section { display: grid; gap: 0.45em; --rn-tone: var(--rn-muted); }
+.rn-section.tone-new { --rn-tone: var(--rn-new); }
+.rn-section.tone-better { --rn-tone: var(--rn-better); }
+.rn-section.tone-fix { --rn-tone: var(--rn-fix); }
+.rn-section.tone-warn { --rn-tone: var(--rn-warn); }
+.rn-heading { margin: 0; display: flex; align-items: center; gap: 0.6em; font-size: 1em; font-weight: 600; color: var(--rn-ink); }
+.rn-tag { padding: 0.05em 0.6em; border: 1px solid var(--rn-tone); border-radius: 999px; color: var(--rn-tone); font-size: 0.86em; line-height: 1.5; white-space: nowrap; }
+.rn-count { margin-left: auto; color: var(--rn-muted); font-size: 0.86em; font-weight: 400; font-variant-numeric: tabular-nums; }
+.rn-para { margin: 0; }
+.rn-items { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.4em; }
+.rn-items > li { position: relative; padding-left: 1.1em; overflow-wrap: anywhere; }
+.rn-items > li::before { content: ""; position: absolute; left: 0.15em; top: 0.65em; width: 0.36em; height: 0.36em; border-radius: 50%; background: var(--rn-tone); }
+.rn-items b { color: var(--rn-ink); font-weight: 600; }
+.rn-details { margin: 0.25em 0 0; padding-left: 1.1em; color: var(--rn-muted); display: grid; gap: 0.2em; }
+.rn-empty { margin: 0; color: var(--muted, #8b8b93); }

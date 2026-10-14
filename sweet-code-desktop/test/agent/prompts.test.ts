@@ -28,7 +28,7 @@ test("prompts omit generic thinking and repeated self-review while keeping concr
 
 test("runtime context re-exports the static prompt without adding per-session interpolation", async () => {
   const source = await readFile(new URL("../../src/main/agent/context.ts", import.meta.url), "utf8");
-  assert.match(source, /export \{ SYSTEM_PROMPT, AUTOPILOT_NOTE, LAZY_NOTE \} from "\.\/prompts\.ts"/);
+  assert.match(source, /export \{ SYSTEM_PROMPT, AUTOPILOT_NOTE, LAZY_NOTE, ORCHESTRATE_NOTE \} from "\.\/prompts\.ts"/);
   const prompts = await readFile(new URL("../../src/main/agent/prompts.ts", import.meta.url), "utf8");
   assert.doesNotMatch(prompts, /\$\{/);
 });

@@ -1,10 +1,14 @@
+import { configureOAuthStorage, configureOAuthAccountStorage, type ClaudeOAuthAccounts, type ClaudeOAuthToken } from "./claude-oauth.ts";
+import { configureOAuthStorage as configureOpenAIOAuthStorage, configureOAuthAccountStorage as configureOpenAIOAuthAccountStorage, accountId as openAIAccountId, loginStatus as openAILoginStatus, type OpenAIOAuthAccounts, type OpenAIOAuthToken } from "./openai-oauth.ts";
+import { clearClaudeUsageSnapshot, configureClaudeUsageSnapshotStorage, type ClaudeUsageSnapshot } from "./claude-usage.ts";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { app, safeStorage } from "electron";
 import { DECISION_MODELS, type AuthMode, type OpenAIApi, type DecisionState, type DecisionUpdate, type ProviderUpdate, type ProvidersState, type ProviderView, type ReviewerSetting, type RoutingSettings, type ModelRef, type VisionSetting, type WebSearchState } from "@shared/types";
 import { loginStatus } from "./anthropic-login";
-import { PRESETS, type ProviderPreset } from "./presets";
+import { PRESETS, supportsLogin, type ProviderPreset } from "./presets";
+import { CodexInstallationKey, configureInstallationStorage } from "./openai-codex.ts";
 import { effortOverrides } from "../agent/route.ts";
 import { modelDiscovery, availableModels, configureBuiltinFreePool, builtinFreeOrder } from "./model-routing.ts";
 import { providerHealth } from "./health.ts";
@@ -51,6 +55,8 @@ interface Settings {
   /** Anonymous, stable id sent as `user_id` where supported (cache and rate-limit isolation). */
   installId?: string;
   routing?: RoutingSettings;
+  /** Local passive subscription sample: percent, Unix reset seconds and sampled_at only. */
+  claudeUsageSnapshot?: ClaudeUsageSnapshot;
 }
 
 type WebSearchEngine = "auto" | "duckduckgo" | "tavily" | "brave";
@@ -73,6 +79,98 @@ const legacyKeyFile = () => path.join(app.getPath("userData"), "api-key.bin");
 const DEFAULT_PROVIDER = "mimo";
 let settings: Settings = { activeId: DEFAULT_PROVIDER, overrides: {} };
 let keys: Record<string, string> = {};
+/** Every kept Claude login by account id, encrypted with the other keys. The one in use is also keys["anthropic-oauth"]. */
+const CLAUDE_ACCOUNTS_KEY = "anthropic-oauth-accounts";
+const claudeOAuthToken = (raw: unknown): ClaudeOAuthToken | undefined => {
+  const token = raw as ClaudeOAuthToken | null;
+  return token && typeof token === "object" && typeof token.access_token === "string" && token.access_token && typeof token.expires_at === "number" ? token : undefined;
+};
+function readClaudeOAuth(): ClaudeOAuthToken | undefined {
+  try { return claudeOAuthToken(JSON.parse(keys["anthropic-oauth"] ?? "null")); } catch { return undefined; }
+}
+function readClaudeAccounts(): ClaudeOAuthAccounts {
+  const accounts: ClaudeOAuthAccounts = {};
+  try {
+    const raw = JSON.parse(keys[CLAUDE_ACCOUNTS_KEY] ?? "null") as unknown;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return accounts;
+    for (const [id, value] of Object.entries(raw)) {
+      const token = claudeOAuthToken(value);
+      if (token) accounts[id] = token;
+    }
+  } catch {}
+  return accounts;
+}
+/** The current slot and the account table are written together, or neither is. */
+async function writeClaudeOAuth(token: ClaudeOAuthToken | undefined, accounts: ClaudeOAuthAccounts): Promise<void> {
+  const previous = keys["anthropic-oauth"], previousAccounts = keys[CLAUDE_ACCOUNTS_KEY];
+  if (token) keys["anthropic-oauth"] = JSON.stringify(token);
+  else delete keys["anthropic-oauth"];
+  if (Object.keys(accounts).length) keys[CLAUDE_ACCOUNTS_KEY] = JSON.stringify(accounts);
+  else delete keys[CLAUDE_ACCOUNTS_KEY];
+  try { await saveKeys(); } catch (error) {
+    if (previous === undefined) delete keys["anthropic-oauth"]; else keys["anthropic-oauth"] = previous;
+    if (previousAccounts === undefined) delete keys[CLAUDE_ACCOUNTS_KEY]; else keys[CLAUDE_ACCOUNTS_KEY] = previousAccounts;
+    throw error;
+  }
+  if (previous !== keys["anthropic-oauth"]) await clearClaudeUsageSnapshot();
+}
+configureOAuthStorage(readClaudeOAuth, token => writeClaudeOAuth(token, readClaudeAccounts()));
+configureOAuthAccountStorage(readClaudeAccounts, writeClaudeOAuth);
+
+configureClaudeUsageSnapshotStorage(() => settings.claudeUsageSnapshot, async snapshot => {
+  settings.claudeUsageSnapshot = snapshot;
+  await saveSettings();
+});
+
+/** Every kept ChatGPT login by account id, encrypted with the other keys. The one in use is also keys["openai-oauth"]. */
+const OPENAI_ACCOUNTS_KEY = "openai-oauth-accounts";
+const openAIOAuthToken = (raw: unknown): OpenAIOAuthToken | undefined => {
+  const token = raw as OpenAIOAuthToken | null;
+  return token && typeof token === "object" && typeof token.access_token === "string" && token.access_token && typeof token.refresh_token === "string" &&
+    typeof token.expires_at === "number" && Number.isFinite(token.expires_at) ? token : undefined;
+};
+function readOpenAIOAuth(): OpenAIOAuthToken | undefined {
+  try { return openAIOAuthToken(JSON.parse(keys["openai-oauth"] ?? "null")); } catch { return undefined; }
+}
+function readOpenAIAccounts(): OpenAIOAuthAccounts {
+  const accounts: OpenAIOAuthAccounts = {};
+  try {
+    const raw = JSON.parse(keys[OPENAI_ACCOUNTS_KEY] ?? "null") as unknown;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return accounts;
+    for (const [id, value] of Object.entries(raw)) {
+      const token = openAIOAuthToken(value);
+      if (token) accounts[id] = token;
+    }
+  } catch {}
+  return accounts;
+}
+/** The current slot and the account table are written together, or neither is. */
+async function writeOpenAIOAuth(token: OpenAIOAuthToken | undefined, accounts: OpenAIOAuthAccounts): Promise<void> {
+  const before = readOpenAIOAuth();
+  const previous = keys["openai-oauth"], previousAccounts = keys[OPENAI_ACCOUNTS_KEY];
+  if (token) keys["openai-oauth"] = JSON.stringify(token);
+  else delete keys["openai-oauth"];
+  if (Object.keys(accounts).length) keys[OPENAI_ACCOUNTS_KEY] = JSON.stringify(accounts);
+  else delete keys[OPENAI_ACCOUNTS_KEY];
+  try { await saveKeys(); } catch (error) {
+    if (previous === undefined) delete keys["openai-oauth"]; else keys["openai-oauth"] = previous;
+    if (previousAccounts === undefined) delete keys[OPENAI_ACCOUNTS_KEY]; else keys[OPENAI_ACCOUNTS_KEY] = previousAccounts;
+    throw error;
+  }
+  // The subscription's model list belongs to the account, and the discovery cache is not keyed by it.
+  if ((before ? openAIAccountId(before) : undefined) !== (token ? openAIAccountId(token) : undefined)) modelDiscovery.invalidate("openai");
+}
+configureOpenAIOAuthStorage(readOpenAIOAuth, token => writeOpenAIOAuth(token, readOpenAIAccounts()));
+configureOpenAIOAuthAccountStorage(readOpenAIAccounts, writeOpenAIOAuth);
+
+configureInstallationStorage(() => keys[CodexInstallationKey], async id => {
+  const previous = keys[CodexInstallationKey];
+  keys[CodexInstallationKey] = id;
+  try { await saveKeys(); } catch (error) {
+    if (previous === undefined) delete keys[CodexInstallationKey]; else keys[CodexInstallationKey] = previous;
+    throw error;
+  }
+});
 
 export async function load(): Promise<void> {
   try {
@@ -152,7 +250,7 @@ export interface ResolvedProvider {
   baseURL: string;
   model: string;
   apiKey: string;
-  /** "login": authenticate with the Anthropic account profile instead of a key. */
+  /** "login": authenticate with the account (Anthropic profile, or ChatGPT subscription) instead of a key. */
   authMode: AuthMode;
   openaiApi: OpenAIApi;
 }
@@ -168,7 +266,7 @@ export function resolve(id: string): ResolvedProvider {
     model: o.model ?? p.defaultModel,
     // The user's own key first, then the environment.
     apiKey: keys[id] || (p.envKey ? process.env[p.envKey] : undefined) || p.builtinKey || "",
-    authMode: p.kind === "anthropic" && !p.compat ? (o.authMode ?? "api_key") : "api_key",
+    authMode: supportsLogin(p) ? (o.authMode ?? "api_key") : "api_key",
     openaiApi: p.responses ? (o.openaiApi ?? "responses") : "chat",
   };
 }
@@ -268,6 +366,7 @@ async function view(p: ProviderPreset): Promise<ProviderView> {
     supportsEffort: (p.kind === "anthropic" && !p.compat && supportsClaudeEffort(r.model)) || !!p.reasoningEffort || !!p.thinkingToggle,
     hasBalance: !!p.balance,
     ...(p.kind === "anthropic" && !p.compat ? { login: await loginStatus() } : {}),
+    ...(p.id === "openai" ? { openaiLogin: await openAILoginStatus() } : {}),
     id: p.id,
     ...(p.builtinFree ? { builtinFree: true, enabled: r.enabled !== false } : {}),
     ...(providerHealth(p.id) ? { health: providerHealth(p.id) } : {}),
@@ -356,7 +455,7 @@ export async function update(u: ProviderUpdate): Promise<ProvidersState> {
     const m = u.model.trim();
     o.model = m === p.defaultModel ? undefined : m;
   }
-  if (u.authMode !== undefined && p.kind === "anthropic" && !p.compat) o.authMode = u.authMode === "api_key" ? undefined : u.authMode;
+  if (u.authMode !== undefined && supportsLogin(p)) o.authMode = u.authMode === "api_key" ? undefined : u.authMode;
   if (u.openaiApi !== undefined && p.responses) o.openaiApi = u.openaiApi === "responses" ? undefined : u.openaiApi;
   if (u.models !== undefined) {
     const list = [...new Set(u.models.map((m) => m.trim()).filter(Boolean))].slice(0, 50);

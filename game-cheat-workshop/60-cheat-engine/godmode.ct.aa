@@ -1,0 +1,36 @@
+// Cheat Engine Auto Assembler 模板: 无敌 (code injection)
+// 1. "Find out what writes to [HP address]" 找到类似 mov [rbx+1C8], xmm0 的指令
+// 2. 把那条指令所在地址填进 aobscan 模式或直接硬写
+// 3. inject -> 跳到我们的 newmem, 跳过原来的写入, 再 jmp 回去
+
+[ENABLE]
+aobscanmodule(hp_write, GameAssembly.dll, F3 0F 11 83 C8 01 00 00)   // movss [rbx+1C8],xmm0
+alloc(newmem, $1000, hp_write)
+label(code)
+label(return)
+
+newmem:
+  // 原指令是把新 HP 写回对象. 我们检测如果新值 < 当前值 (扣血), 就跳过写入.
+  push rax
+  movss xmm1, [rbx+1C8]            // 当前 HP
+  comiss xmm0, xmm1
+  jae code                         // 新 >= 旧: 回血或维持, 允许写
+  pop rax
+  jmp return                       // 否则跳过写入
+code:
+  pop rax
+  movss [rbx+1C8], xmm0
+  jmp return
+
+hp_write:
+  jmp newmem
+  nop 3
+return:
+registersymbol(hp_write)
+
+[DISABLE]
+hp_write:
+  db F3 0F 11 83 C8 01 00 00
+
+unregistersymbol(hp_write)
+dealloc(newmem)

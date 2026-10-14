@@ -114,3 +114,84 @@ test("pagination follows after_id without sorting or duplicating ids", async () 
   } });
   assert.deepEqual(await discovery.discover(provider("anthropic")), ["z", "a"]);
 });
+
+test("anthropic login: Bearer + 13 beta + sdk-cli UA; empty/401 fall back to static", async t => {
+  const { configureOAuthStorage } = await import("../../src/main/providers/claude-oauth.ts");
+  const { FullClaudeCodeMimicryBetas, DefaultUserAgent } = await import("../../src/main/providers/claude-mimic.ts");
+  let saved: { access_token: string; refresh_token: string; expires_at: number } | undefined = {
+    access_token: "login-token", refresh_token: "r", expires_at: Date.now() + 3_600_000,
+  };
+  configureOAuthStorage(() => saved, async t => { saved = t as typeof saved; });
+  t.after(() => configureOAuthStorage(() => undefined, async () => {}));
+  const login = (): DiscoveryProvider => ({
+    id: "anthropic-login", kind: "anthropic", baseURL: "https://api.anthropic.com", apiKey: "",
+    fallback: ["static-main", "static-mini"], login: true,
+  });
+  const expected = FullClaudeCodeMimicryBetas();
+  assert.equal(expected.length, 13);
+  const okFetch = new ModelDiscovery({ fetch: async (_url, init) => {
+    const h = init?.headers as Record<string, string>;
+    assert.equal(h.Authorization, "Bearer login-token");
+    assert.equal(h["anthropic-beta"], expected.join(","));
+    assert.equal(h["User-Agent"], DefaultUserAgent());
+    assert.equal(h["anthropic-version"], "2023-06-01");
+    return new Response(JSON.stringify({ data: [{ id: "claude-sonnet-4-5" }, { id: "claude-opus-4-5" }] }), { status: 200 });
+  } });
+  assert.deepEqual(await okFetch.discover(login()), ["claude-sonnet-4-5", "claude-opus-4-5"]);
+  const http401 = new ModelDiscovery({ fetch: async () => new Response("err", { status: 401 }) });
+  assert.deepEqual(await http401.discover(login()), ["static-main", "static-mini"]);
+  const empty = new ModelDiscovery({ fetch: async () => new Response(JSON.stringify({ data: [] }), { status: 200 }) });
+  assert.deepEqual(await empty.discover(login()), ["static-main", "static-mini"]);
+  saved = undefined;
+  const noToken = new ModelDiscovery({ fetch: async () => { throw new Error("should not call"); } });
+  assert.deepEqual(await noToken.discover(login()), ["static-main", "static-mini"]);
+});
+
+test("openai login: codex models with Bearer + account id + identity; empty/401/no token fall back to static", async t => {
+  const { configureOAuthStorage } = await import("../../src/main/providers/openai-oauth.ts");
+  const { CodexModelsURL, codexIdentity } = await import("../../src/main/providers/openai-codex.ts");
+  let saved: { access_token: string; refresh_token: string; expires_at: number; chatgpt_account_id?: string } | undefined = {
+    access_token: "chatgpt-token", refresh_token: "r", expires_at: Date.now() + 3_600_000, chatgpt_account_id: "acct-1",
+  };
+  configureOAuthStorage(() => saved, async token => { saved = token; });
+  t.after(() => configureOAuthStorage(() => undefined, async () => {}));
+  const login = (): DiscoveryProvider => ({
+    id: "openai", kind: "openai", baseURL: "https://api.openai.com/v1", apiKey: "sk-unused",
+    fallback: ["static-gpt"], login: true,
+  });
+  const identity = codexIdentity();
+  let calls = 0;
+  const okFetch = new ModelDiscovery({ fetch: async (url, init) => {
+    calls++;
+    const target = new URL(String(url));
+    assert.equal(target.origin + target.pathname, CodexModelsURL);
+    assert.equal(target.searchParams.get("client_version"), identity.version);
+    assert.equal(init?.method, "GET");
+    assert.equal(init?.redirect, "error");
+    const h = init?.headers as Record<string, string>;
+    assert.equal(h.Authorization, "Bearer chatgpt-token");
+    assert.equal(h["chatgpt-account-id"], "acct-1");
+    assert.equal(h["User-Agent"], identity.userAgent);
+    assert.equal(h.originator, identity.originator);
+    assert.equal(JSON.stringify(h).includes("sk-unused"), false);
+    return new Response(JSON.stringify({ models: [{ slug: "gpt-sub-a" }, { slug: "gpt-sub-b" }, { slug: "auto" }] }), { status: 200 });
+  } });
+  assert.deepEqual(await okFetch.discover(login()), ["gpt-sub-a", "gpt-sub-b"]);
+  assert.deepEqual(await okFetch.discover(login()), ["gpt-sub-a", "gpt-sub-b"]);
+  assert.equal(calls, 1);
+  // The same provider with a key keeps using the ordinary API list.
+  const keyFetch = new ModelDiscovery({ fetch: async (url, init) => {
+    assert.equal(String(url), "https://api.openai.com/v1/models");
+    assert.deepEqual(init?.headers, { Authorization: "Bearer sk-unused" });
+    return new Response(JSON.stringify({ data: [{ id: "gpt-api" }] }), { status: 200 });
+  } });
+  assert.deepEqual(await keyFetch.discover({ ...login(), login: false }), ["gpt-api"]);
+
+  const http401 = new ModelDiscovery({ fetch: async () => new Response("err", { status: 401 }) });
+  assert.deepEqual(await http401.discover(login()), ["static-gpt"]);
+  const empty = new ModelDiscovery({ fetch: async () => new Response(JSON.stringify({ models: [] }), { status: 200 }) });
+  assert.deepEqual(await empty.discover(login()), ["static-gpt"]);
+  saved = undefined;
+  const noToken = new ModelDiscovery({ fetch: async () => { throw new Error("should not call"); } });
+  assert.deepEqual(await noToken.discover(login()), ["static-gpt"]);
+});

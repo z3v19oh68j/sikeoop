@@ -11,8 +11,8 @@ test("purpose effort defaults and difficulty routing share one selection policy"
   assert.equal(selectEffort("chat"), "low");
   assert.equal(selectEffort("subtask", undefined, "heavy"), "low");
   assert.equal(selectEffort("compress"), "low");
-  assert.equal(selectEffort("coding"), "medium");
-  assert.equal(selectEffort("coding", undefined, "heavy"), "high");
+  assert.equal(selectEffort("coding"), "low");
+  assert.equal(selectEffort("coding", undefined, "heavy"), "low");
   assert.equal(selectEffort("coding", { hard: "medium" }, "heavy"), "medium");
   assert.equal(selectEffort("chat", { chat: "high" }), "high");
   assert.equal(selectEffort("coding", { coding: "low" }, null, "high"), "high");

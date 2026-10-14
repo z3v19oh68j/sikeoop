@@ -3,6 +3,7 @@ import type { AgentCli, AgentSessionView, DispatchJob } from "@shared/types";
 import { defineTool, type ToolSpec } from "./registry.ts";
 import { OWNS_DESCRIPTION, TYPECHECK_DESCRIPTION } from "./dispatch-tools.ts";
 import { checksText } from "../dispatch/verify.ts";
+import { hostMessagesText } from "../peer-host.ts";
 
 // The main agent as the coordinator of the Claude Code and Codex sessions in sikeoop's terminal
 // tabs (peers.ts): open one, give it a task, and get its final reply back. This is how a task sent
@@ -20,6 +21,7 @@ export interface AgentBusDeps {
     limits?: { owns?: string[]; network?: boolean; deps?: string[]; typecheck?: string },
   ): { session: AgentSessionView; queued: boolean; done: Promise<DispatchJob> } | { error: string };
   /** The dispatched job a session is on (or the newest one waiting for it). */
+  job(id: string): Promise<DispatchJob> | null;
   pending(id: string): Promise<DispatchJob> | null;
   /** The dispatched job a session finished last, as long as nothing else has happened in its terminal since. */
   last(s: AgentSessionView): DispatchJob | null;
@@ -45,12 +47,13 @@ export interface AgentBusDeps {
       signal: AbortSignal,
       parentJobId?: string,
       limits?: { owns?: string[]; network?: boolean; deps?: string[]; typecheck?: string },
-    ): { done: Promise<DispatchJob> } | { error: string };
+    ): { job?: DispatchJob; done: Promise<DispatchJob> } | { error: string };
   };
 }
 
 const MAX_RESULT = 8000;
 const DEFAULT_WAIT_MIN = 20;
+const WORKER_WAIT_MIN = 32;
 const MAX_WAIT_MIN = 60;
 
 /** All the replies of one call together stay under this, so a batch costs no more context than two single tasks. */
@@ -74,7 +77,7 @@ const STATUS_TEXT: Partial<Record<DispatchJob["status"], string>> = {
 };
 
 /** Waits for a dispatched job up to `minutes`; the job itself keeps going after that. */
-async function waitJob(s: { name: string }, done: Promise<DispatchJob>, minutes: number | undefined, signal: AbortSignal, max = MAX_RESULT): Promise<string> {
+async function waitJob(s: { name: string; jobId?: string }, done: Promise<DispatchJob>, minutes: number | undefined, signal: AbortSignal, max = MAX_RESULT): Promise<string> {
   const min = Math.min(Math.max(minutes ?? DEFAULT_WAIT_MIN, 1), MAX_WAIT_MIN);
   let timer: NodeJS.Timeout | undefined;
   let onAbort: (() => void) | undefined;
@@ -88,11 +91,15 @@ async function waitJob(s: { name: string }, done: Promise<DispatchJob>, minutes:
   ]);
   clearTimeout(timer);
   if (onAbort) signal.removeEventListener("abort", onAbort);
-  if (!job) return `${s.name} 在 ${min} 分钟内还没做完。可以之后用 wait_agent 继续等，或用 list_agents 看状态。`;
+  if (!job) return s.jobId
+    ? `${s.name} 在 ${min} 分钟内还没做完（任务 #${s.jobId.slice(0, 8)}）。之后用 wait_agent（job="${s.jobId}"）取结果。`
+    : `${s.name} 在 ${min} 分钟内还没做完。可以之后用 wait_agent（to="${s.name}"）继续等，或用 list_agents 看状态。`;
   const checks = checksText(job.checks);
-  if (job.status !== "done") return [`${s.name} ${STATUS_TEXT[job.status] ?? "没做完"}${job.error ? `：${job.error}` : ""}。`, checks].filter(Boolean).join("\n\n");
+  // What it sent up while working (peer-host.ts): short, and worth reading even when the task failed.
+  const sent = hostMessagesText(s.name, job.progress);
+  if (job.status !== "done") return [`${s.name} ${STATUS_TEXT[job.status] ?? "没做完"}${job.error ? `：${job.error}` : ""}。`, checks, sent].filter(Boolean).join("\n\n");
   // The checks go first: the reply may be cut, they must not be.
-  return [checks, cut(`${s.name} 做完了这一轮，它的最后回复：\n\n${job.result?.text || "（没有文字回复）"}`, max)].filter(Boolean).join("\n\n");
+  return [checks, sent, cut(`${s.name} 做完了这一轮，它的最后回复：\n\n${job.result?.text || "（没有文字回复）"}`, max)].filter(Boolean).join("\n\n");
 }
 
 /** The end of a turn the user started in the terminal (no dispatched job to follow). */
@@ -205,7 +212,7 @@ export function agentBusTools(deps: AgentBusDeps): ToolSpec[] {
             },
           },
           wait: { type: "boolean", description: "等它做完再返回（默认 true）。false 时立刻返回，之后用 wait_agent 取结果" },
-          wait_minutes: { type: "number", description: `最多等几分钟（默认 ${DEFAULT_WAIT_MIN}，上限 ${MAX_WAIT_MIN}）` },
+          wait_minutes: { type: "number", description: `最多等几分钟（终端默认 ${DEFAULT_WAIT_MIN}，子代理默认 ${WORKER_WAIT_MIN}，上限 ${MAX_WAIT_MIN}）` },
           ...LIMIT_PROPERTIES,
         },
       },
@@ -262,10 +269,10 @@ export function agentBusTools(deps: AgentBusDeps): ToolSpec[] {
             const t = p.task;
             const limits = { owns: t.owns, network: t.needs_network, deps: t.needs_deps, typecheck: t.typecheck };
             if (p.worker) {
-              // A sub-agent has no session to come back to with wait_agent: its result is waited for here.
+              // Preserve its task id so a shorter wait can be resumed later.
               const started = deps.workers!.run(p.to, p.message, ctx.signal, ctx.dispatchJobId, limits);
               if ("error" in started) return `${batch ? `${p.label}：` : ""}Error: ${started.error}`;
-              return waitJob({ name: p.to }, started.done, input.wait_minutes, ctx.signal, max);
+              return waitJob({ name: p.to, jobId: started.job?.id }, started.done, input.wait_minutes ?? WORKER_WAIT_MIN, ctx.signal, max);
             }
             const sent = deps.send(p.to, p.message, ctx.dispatchJobId, limits);
             if ("error" in sent) return `${batch ? `${p.label}：` : ""}Error: ${sent.error}`;
@@ -282,24 +289,26 @@ export function agentBusTools(deps: AgentBusDeps): ToolSpec[] {
     }),
     defineTool({
       name: "wait_agent",
-      description: "等 Claude Code / Codex 会话做完当前这一轮，返回它的最后回复。可以一次等多个。",
-      schema: z.object({ to: z.union([z.string(), z.array(z.string())]), wait_minutes: z.number().optional() }),
+      description: "按 to 等终端会话，或按 job 任务编号取子代理结果。可以一次等多个。to 和 job 至少给一个。",
+      schema: z.object({ to: z.union([z.string(), z.array(z.string())]).optional(), job: z.union([z.string(), z.array(z.string())]).optional(), wait_minutes: z.number().optional() }),
       inputSchema: {
         type: "object",
         properties: {
-          to: { type: "string", description: "会话名，如 Claude-1；等多个时用逗号隔开，一起等、合并返回" },
+          to: { anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }], description: "终端会话名；子代理请用 job 参数等" },
+          job: { anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }], description: "完整任务编号，可以一次给多个" },
           wait_minutes: { type: "number", description: `最多等几分钟（默认 ${DEFAULT_WAIT_MIN}，上限 ${MAX_WAIT_MIN}）` },
         },
-        required: ["to"],
       },
       permission: "auto",
       parallelSafe: true,
-      summarize: (i) => `等 ${targets(i.to).join("、")} 做完`,
+      summarize: (i) => `等 ${ [...targets(i.to ?? []), ...targets(i.job ?? [])].join("、")} 做完`,
       async run(input, ctx) {
-        const names = targets(input.to);
-        if (!names.length) return "Error: to 不能是空的。";
-        const max = share(names.length);
+        const names = targets(input.to ?? []);
+        const ids = targets(input.job ?? []);
+        if (!names.length && !ids.length) return "Error: to 和 job 至少要给一个，且不能是空的。";
+        const max = share(names.length + ids.length);
         const one = async (name: string): Promise<string> => {
+          if (name.includes("/")) return `${name}：Error: 子代理请用 job 参数等（完整任务编号）。`;
           const s = deps.find(name);
           if ("error" in s) return `${names.length > 1 ? `${name}：` : ""}Error: ${s.error}`;
           const job = deps.pending(s.id);
@@ -310,7 +319,14 @@ export function agentBusTools(deps: AgentBusDeps): ToolSpec[] {
           if (s.status === "idle") return `${s.name} 现在是空闲的，没有在做的事。最近一条：${s.detail}`;
           return waitTurn(deps, s, input.wait_minutes, ctx.signal, max);
         };
-        return merge(await Promise.all(names.map(one)));
+        return merge(await Promise.all([
+          ...names.map(one),
+          ...ids.map(async (id) => {
+            const done = deps.job(id);
+            if (!done) return `Error: 没有任务 #${id}，可能已经不在历史里。`;
+            return waitJob({ name: `任务 #${id.slice(0, 8)}`, jobId: id }, done, input.wait_minutes, ctx.signal, max);
+          }),
+        ]));
       },
     }),
   ];

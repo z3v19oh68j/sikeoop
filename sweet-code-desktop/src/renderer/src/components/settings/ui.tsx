@@ -11,7 +11,7 @@ export const cleanError = (e: unknown) => (e as Error).message.replace(/^Error i
 
 /** A provider has everything it needs to answer: a model, an address and a key (or an account login). */
 export const isReady = (p: ProviderView) =>
-  Boolean(p.model && p.baseURL && (p.authMode === "login" ? p.login?.loggedIn : !p.needsKey || p.hasKey));
+  Boolean(p.model && p.baseURL && (p.authMode === "login" ? (p.login ?? p.openaiLogin)?.loggedIn : !p.needsKey || p.hasKey));
 
 export type Tone = "ok" | "warn" | "bad" | "accent" | "muted";
 

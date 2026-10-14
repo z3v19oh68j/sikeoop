@@ -2,6 +2,8 @@ import { promises as fs, constants } from "node:fs";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { safePath } from "./store.ts";
+import { assetPath } from "./assets.ts";
+import { assetMedia } from "./media.ts";
 
 export const PV_SCHEME = "sikeoop-pv";
 const media:Record<string,string>={".mp4":"video/mp4",".webm":"video/webm",".mov":"video/quicktime",".m4v":"video/mp4",".mp3":"audio/mpeg",".wav":"audio/wav",".ogg":"audio/ogg",".m4a":"audio/mp4",".jpg":"image/jpeg",".jpeg":"image/jpeg",".png":"image/png",".webp":"image/webp"};
@@ -17,6 +19,11 @@ export async function previewUrl(root:string,id:string,file:string):Promise<stri
   await previewPath(root,id,file);
   return `${PV_SCHEME}://${id}/${file.split("/").map(encodeURIComponent).join("/")}`;
 }
+export async function assetUrl(root:string,id:string,file:string):Promise<string>{
+  const target=await assetPath(root,id,file);
+  if(await fs.realpath(target)!==target)throw new Error("路径越界");
+  return `${PV_SCHEME}://${id}/assets/${file.split("/").map(encodeURIComponent).join("/")}`;
+}
 /** Pure handler, injected current workspace; no renderer-supplied filesystem root. */
 export async function servePvMedia(request:Request,currentRoot:()=>string|null):Promise<Response>{
   if(request.method!=="GET"&&request.method!=="HEAD")return new Response(null,{status:405,headers:{Allow:"GET, HEAD"}});
@@ -27,7 +34,10 @@ export async function servePvMedia(request:Request,currentRoot:()=>string|null):
     const raw=request.url.match(/^sikeoop-pv:\/\/([^/?#]+)(\/[^?#]*)$/);
     if(!raw)throw Error("URL 无效");
     const id=raw[1],file=decodeURIComponent(raw[2].slice(1));
-    target=await previewPath(root,id,file);
+    if(file.startsWith("assets/")){
+      target=await assetPath(root,id,file.slice(7));
+      if(await fs.realpath(target)!==target)throw new Error("路径越界");
+    }else target=await previewPath(root,id,file);
     if(currentRoot()!==root)throw Error("项目已切换");
   }catch(e){return new Response(null,{status:(e as NodeJS.ErrnoException).code==="ENOENT"?404:403});}
   let handle;
@@ -36,7 +46,8 @@ export async function servePvMedia(request:Request,currentRoot:()=>string|null):
   try{
     const st=await handle.stat();if(!st.isFile()||currentRoot()!==root){await handle.close();return new Response(null,{status:403});}
     let start=0,end=st.size-1,status=200;
-    const headers:Record<string,string>={"Content-Type":media[path.extname(target).toLowerCase()],"Accept-Ranges":"bytes","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"};
+    const ext=path.extname(target).toLowerCase();
+    const headers:Record<string,string>={"Content-Type":media[ext]??assetMedia[ext].mime,"Accept-Ranges":"bytes","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"};
     const range=request.headers.get("Range");
     if(range){
       const m=/^bytes=(\d*)-(\d*)$/.exec(range);

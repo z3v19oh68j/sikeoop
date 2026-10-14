@@ -31,7 +31,7 @@ export function classify(input: RouteInput): Difficulty | null {
 }
 
 export const DEFAULT_EFFORT: Record<EffortPurpose, Effort> = {
-  chat: "low", subtask: "low", compress: "low", coding: "medium", hard: "high",
+  chat: "low", subtask: "low", compress: "low", coding: "low", hard: "low",
 };
 
 /** Heavy difficulty is only promoted when difficulty routing is enabled by the caller. */
